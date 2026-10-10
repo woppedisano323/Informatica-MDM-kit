@@ -20,6 +20,7 @@ Nothing is created in the org until the consultant reviews and confirms the plan
 | Script | Purpose |
 |--------|---------|
 | `mdm_scan_org.py` | Read-only org scan — entity status, match model, source systems, record count, job definitions |
+| `mdm_session_pdf.py` | Regenerate the deployment session PDF from a session JSON file — called after every step signoff |
 | `mdm_seed_records.py` | Seed c360.person records via Business Entity REST API (≤ 50 records) |
 | `mdm_trigger_match_merge.py` | Trigger a Match & Merge job and poll to completion |
 | `mdm_verify_records.py` | Verify golden records — consolidation status and source record contributions |

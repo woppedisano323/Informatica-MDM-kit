@@ -572,6 +572,34 @@ Reconcile scan results with the workbook:
 
 ---
 
+### R2b — Generate Step Reference Workbook (write-once)
+
+Check whether `MDM_Deployment_Steps_{Client}.xlsx` already exists in the output directory.
+
+**If it does NOT exist:** Generate it now using openpyxl. The workbook has one Overview tab (all 7 steps with status/signoff columns) and one tab per step (warning, pre-filled values from the Discovery Workbook, instructions, verify section, Sign Off section with Status / Signed Off By / Date cells). Steps that were pre-completed in a prior session are pre-filled green. Pending steps have yellow signoff cells.
+
+**If it already exists:** Do NOT overwrite it. The consultant may have edited it. Print:
+
+```
+  ✓ MDM_Deployment_Steps_{Client}.xlsx — already exists, keeping consultant edits.
+    To reset it, delete the file and re-run /mdm-setup resume.
+```
+
+**On resync (workbook exists AND session JSON exists):** Read the Sign Off cells from each step tab. For any step where "Signed Off By" is filled but the session JSON shows that step as pending, update the session JSON and regenerate the PDF. Print a summary of steps synced.
+
+The workbook is owned by the consultant after initial generation. The skill reads it (for resync) but never writes it again.
+
+Print on first generation:
+```
+  ✓ MDM_Deployment_Steps_{Client}.xlsx — generated
+    Open this workbook to review all steps before starting, or use it
+    alongside the interactive coach below.
+    Fill 'Signed Off By' and 'Date' on each tab to sign off offline.
+    Run /mdm-setup resume again at any time to sync signoffs to the PDF.
+```
+
+---
+
 ### R3 — Present Pre-Flight Checklist and begin
 
 Print the Pre-Flight Checklist in full, then ask if ready:
