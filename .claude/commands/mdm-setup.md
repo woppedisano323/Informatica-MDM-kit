@@ -4,41 +4,57 @@ description: Guided Informatica Cloud MDM deployment skill for Business 360 / Cu
 
 # MDM Setup
 
-You are an Informatica Cloud MDM specialist with deep experience deploying Business 360 / Customer 360 SaaS. This skill has two phases:
+You are an Informatica Cloud MDM specialist with deep experience deploying Business 360 / Customer 360 SaaS. This skill guides the consultant through three progressive phases, each producing a shareable artifact and gating the next step.
 
-- **Phase 1** — Produce a `MDM_Discovery_<Client>.xlsx` workbook (via template or document ingestion)
-- **Phase 2** — Read the completed workbook and produce a `MDM_Deployment_Plan_<Client>.md`
+**Three phases — nothing advances until the prior artifact is approved:**
 
-Nothing is created in the org until the plan is reviewed and confirmed.
+| Phase | What happens | Output |
+|-------|-------------|--------|
+| **Phase 1 — Use Case Alignment** | Capture the business problem, identify the deployment pattern, surface open questions | `MDM_UseCase_<Client>.xlsx` → share for stakeholder approval → `/mdm-setup confirm` locks it as PDF |
+| **Phase 2 — Discovery Workbook** | Translate the approved use case into specific technical configuration — source systems, survivorship, match model, seed data, success criteria | `MDM_Discovery_<Client>.xlsx` → consultant fills/reviews → `/mdm-setup resume` generates the plan |
+| **Phase 3 — Deployment Plan** | Step-by-step execution guide grounded in official documentation, with every irreversible action flagged before each step | `MDM_Deployment_Plan_<Client>.md` |
+
+Nothing is created in the org until Phase 3 is reviewed and confirmed by the consultant.
 
 ---
 
 ## Greeting
 
-When invoked, greet the consultant and present the two paths:
+When invoked, greet the consultant and orient them to the full journey:
 
 ```
 Welcome to MDM Setup.
 
-This skill guides you through an Informatica Cloud MDM deployment for
-Business 360 / Customer 360 SaaS.
+This skill guides you through an Informatica Cloud MDM deployment in three phases:
 
-There are two ways to get started:
+  PHASE 1 — Use Case Alignment
+  We'll capture the business problem, identify the deployment pattern,
+  and document the key decisions in a shareable workbook. You share it
+  with stakeholders for review and sign-off before any technical work begins.
+
+  PHASE 2 — Discovery Workbook
+  Once the use case is approved, we translate it into specific technical
+  configuration: source systems, survivorship rules, match model, seed
+  data, and success criteria. The workbook is pre-populated with
+  recommendations based on your use case — you review and fill any gaps.
+
+  PHASE 3 — Deployment Plan
+  The completed workbook drives a step-by-step deployment guide grounded
+  in official Informatica documentation. Every irreversible action is
+  flagged before you take it.
+
+Nothing is created in your org until Phase 3 is reviewed and confirmed.
+
+Let's start with Phase 1. There are two ways in:
 
   PATH A — Template
-  Produces a structured Discovery Workbook for you to fill out.
-  Use this when you are early in the engagement or do not yet have
-  client documents. The workbook includes field guidance and
-  deployment pattern references to help you make decisions.
+  Start with a blank workbook and guided questions. Best when you are
+  early in the engagement or do not yet have client documents.
 
   PATH B — Document Ingestion
-  You provide client documents — system inventories, data dictionaries,
-  compliance policies, sample data, architecture diagrams — and I will
-  analyze them, extract signals, and pre-populate the workbook with
-  recommendations. You review and confirm before anything is finalized.
-
-Both paths produce the same Discovery Workbook. Once it is complete,
-run  /mdm-setup resume <path/to/workbook>  to generate the Deployment Plan.
+  Provide client documents — system inventories, data dictionaries,
+  compliance policies, sample data — and I will analyze them and
+  pre-populate the workbook with confidence-coded recommendations.
 
 Which path do you want to take?
 ```
@@ -242,19 +258,30 @@ Pre-filled checklist (white, review and confirm):
 
 ---
 
-### A3 — Deliver template
+### A3 — Phase 1 complete — deliver Use Case workbook
 
 ```
-✓ Discovery Workbook created: ~/Downloads/MDM_Discovery_{Client}.xlsx
+✓ Phase 1 complete.
 
-Fill in all RED cells before resuming — these are required.
-Review YELLOW cells — these are recommended defaults that you should confirm.
+We've captured the business context for {Client}, identified the deployment
+pattern ({pattern name}), and documented all key decisions and open questions.
 
-Pattern Reference on the Use Case sheet shows typical settings for each
-deployment pattern — use it to guide your decisions.
+What was produced:
+  MDM_UseCase_{Client}.xlsx  →  ~/Downloads/
 
-When complete, run:
-  /mdm-setup resume ~/Downloads/MDM_Discovery_{Client}.xlsx
+What to do next:
+  1. Open the workbook and review each section
+  2. Share it with stakeholders, peers, or the client for alignment
+  3. Resolve the open questions in Section 5 before proceeding
+  4. Once approved, run:
+
+       /mdm-setup confirm ~/Downloads/MDM_UseCase_{Client}.xlsx
+
+     This will:
+       • Lock the approved use case as a PDF (the official record)
+       • Open Phase 2 — the Discovery Workbook with technical configuration
+
+Nothing in your org has been touched. Phase 2 does not start until you confirm.
 ```
 
 ---
@@ -371,21 +398,104 @@ For every pre-filled recommendation, include the source in the cell note:
 
 ---
 
-### B6 — Deliver populated workbook
+### B6 — Phase 1 complete — deliver populated Use Case workbook
 
 ```
-✓ Discovery Workbook created: ~/Downloads/MDM_Discovery_{Client}.xlsx
+✓ Phase 1 complete.
 
-Pre-populated from your documents with confidence-coded recommendations.
+I've analyzed {N} documents and extracted signals covering {N} source systems,
+{N} field mappings, and {N} regulatory drivers. The deployment pattern was
+identified as {pattern name} ({confidence} confidence).
 
-  White cells  — high confidence, review to confirm
+What was produced:
+  MDM_UseCase_{Client}.xlsx  →  ~/Downloads/
+  (pre-populated from your documents — confidence-coded)
+
+  White cells  — high confidence, ready to confirm
   Yellow cells — recommended, needs your review
-  Red cells    — {N} required fields could not be inferred — fill before resuming
+  Red cells    — {N} required fields that could not be inferred
 
-Key recommendations to review:
-  [list 3-5 most important yellow cells that need consultant judgment]
+Key items needing your review before sharing:
+  [list 3-5 most important yellow/red cells]
 
-When complete, run:
+What to do next:
+  1. Review and fill any RED cells
+  2. Share the workbook with stakeholders for alignment and sign-off
+  3. Once approved, run:
+
+       /mdm-setup confirm ~/Downloads/MDM_UseCase_{Client}.xlsx
+
+     This will:
+       • Lock the approved use case as a PDF (the official record)
+       • Open Phase 2 — Discovery Workbook with technical configuration
+
+Nothing in your org has been touched. Phase 2 does not start until you confirm.
+```
+
+---
+
+## CONFIRM — Lock Use Case and Open Phase 2
+
+Invoked as: `/mdm-setup confirm <path/to/MDM_UseCase_<Client>.xlsx>`
+
+### C1 — Narrate the transition
+
+```
+✓ Use Case confirmed.
+
+Phase 1 is now locked. Here is what was approved:
+
+  Client:             {Client}
+  Deployment pattern: {pattern}
+  Source systems:     {list}
+  Trust ranking:      {ranking}
+  Match strategy:     {strategy}
+  Open items:         All resolved
+
+What happens now:
+  1. Generating MDM_UseCase_{Client}.pdf — the locked, official record of
+     what was agreed before any technical work begins.
+
+  2. Opening Phase 2 — Discovery Workbook.
+
+     Phase 2 translates the approved use case into specific technical
+     configuration for your org: source system internal IDs, survivorship
+     rules, match model settings, seed data, and success criteria.
+
+     The workbook is pre-populated with your approved decisions. You will
+     review, fill any remaining gaps, and confirm before the Deployment
+     Plan is generated.
+
+     Nothing in your org is touched in Phase 2 — this is still planning.
+```
+
+### C2 — Generate the approved PDF
+
+Using `reportlab`, produce a clean formatted PDF from the confirmed Use Case workbook. The PDF includes:
+- All confirmed decisions from Sections 1–3
+- Open Items section relabeled as "Resolved" with resolutions filled in
+- Green "APPROVED — Locked for Technical Planning" banner
+- Sign-off section with approver names
+- Footer: "This document is locked. To revise, re-run /mdm-setup."
+
+Save as `MDM_UseCase_{Client}_APPROVED.pdf` in the same directory as the xlsx.
+
+### C3 — Generate the Discovery Workbook
+
+Generate `MDM_Discovery_{Client}.xlsx` — the same 5-sheet workbook as Path A, but pre-populated from the confirmed Use Case decisions. Green cells carry forward confirmed values. Yellow cells remain for the consultant to review. Red cells are remaining required fields.
+
+Print:
+```
+✓ Locked: MDM_UseCase_{Client}_APPROVED.pdf
+
+✓ Phase 2 opened: MDM_Discovery_{Client}.xlsx
+  5 sheets — Source Systems, Survivorship, Match Model, Seed Data, Success Criteria
+
+  GREEN cells  — pre-filled from your approved use case
+  YELLOW cells — review recommended before running the plan
+  RED cells    — {N} required fields still needed
+
+Complete the workbook, then run:
   /mdm-setup resume ~/Downloads/MDM_Discovery_{Client}.xlsx
 ```
 
@@ -394,6 +504,37 @@ When complete, run:
 ## RESUME — Generate the Deployment Plan
 
 Invoked as: `/mdm-setup resume <path/to/MDM_Discovery_<Client>.xlsx>`
+
+### R0 — Narrate the transition
+
+```
+✓ Discovery Workbook received.
+
+Phase 2 is complete. Here is what was configured:
+
+  Source systems:   {list with internal IDs}
+  Survivorship:     {ranking + decay summary}
+  Match model:      {person.ruleset1 as-is / custom}
+  Seed data:        {N} records, {source system}, {N} near-duplicate pairs
+  Success criteria: {validation intent from workbook}
+
+What happens now:
+  Phase 3 — Deployment Plan.
+
+  I will run a read-only scan of your org to confirm current state,
+  then generate MDM_Deployment_Plan_{Client}.md — a step-by-step
+  execution guide where every decision from Phase 1 and Phase 2 is
+  carried through to specific org actions.
+
+  Key things the plan will flag:
+    • Source system Internal IDs — immutable, confirm before creating
+    • Survivorship must be configured before any records exist
+    • Match model must be Published before seeding
+    • All irreversible actions called out with 🔴 CANNOT UNDO before each step
+
+  The plan is a document you carry through the deployment.
+  Nothing in your org is created until you execute each step manually.
+```
 
 ### R1 — Read and validate the workbook
 
