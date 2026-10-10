@@ -671,23 +671,34 @@ Type [done] when complete · [help] if you have a question · {[skip] only if st
 Enter your name to sign off on this step:
 ```
 
-3. When the consultant provides their name, append the step block to `MDM_Deployment_Session_{Client}.md` (create the file with the session header on Step 1; append on subsequent steps):
+3. When the consultant provides their name:
 
-```markdown
-## ✅ Step {N} — {Step Name}
-**Completed:** {date}
+   a. Update `MDM_Deployment_Session_{Client}.json` — set this step's status to `"complete"`, fill `completed_date`, `signed_off_by`, `table`, and `notes` from the values configured in this step. On Step 1, create the file with the full session header and all 7 steps (steps not yet started have `"status": "pending"`). On subsequent steps, read the file, update the relevant step object, and write it back.
 
-{step-specific values table or bullet list}
+   b. Run the PDF generator:
+   ```bash
+   python3 ~/Informatica-MDM-kit/scripts/mdm_session_pdf.py ~/Downloads/MDM_Deployment_Session_{Client}.json
+   ```
+   This regenerates the full PDF — completed steps in green with signoff, in-progress step in amber, pending steps in grey.
 
-**Signed off by:** {name}  |  **Date:** {date}
+   c. Also append the step block to `MDM_Deployment_Session_{Client}.md`:
+   ```markdown
+   ## ✅ Step {N} — {Step Name}
+   **Completed:** {date}
 
----
-```
+   {step-specific values table or bullet list}
+
+   **Signed off by:** {name}  |  **Date:** {date}
+
+   ---
+   ```
 
 4. Print confirmation:
 
 ```
-✓ Signed off by {name} — recorded in MDM_Deployment_Session_{Client}.md
+✓ Signed off by {name}
+  MDM_Deployment_Session_{Client}.pdf — updated (Steps {completed} of 7 signed off)
+  MDM_Deployment_Session_{Client}.md  — updated
 
 Moving to Step {N+1}...
 ```
@@ -962,9 +973,51 @@ In Business 360 Console:
 
 ### Session record — structure and timing
 
-The session record `MDM_Deployment_Session_{Client}.md` is written **incrementally** — one step block appended after each signoff. It is not generated at the end.
+Two files are maintained in parallel and updated after every signoff:
 
-**On Step 1 signoff — create the file with this header, then append Step 1:**
+- `MDM_Deployment_Session_{Client}.json` — machine-readable state; drives PDF generation
+- `MDM_Deployment_Session_{Client}.md` — human-readable audit log
+- `MDM_Deployment_Session_{Client}.pdf` — shareable artifact; regenerated in full after every signoff
+
+**On Step 1 signoff — create the JSON with this structure:**
+
+```json
+{
+  "client": "{Client}",
+  "org": "{org URL from scan}",
+  "pattern": "{deployment pattern}",
+  "entity": "c360.person",
+  "started": "{date}",
+  "output_dir": "{same directory as Discovery Workbook}",
+  "steps": [
+    { "number": 1, "name": "Create Source Systems",        "status": "complete", ... },
+    { "number": 2, "name": "Configure Survivorship",       "status": "pending" },
+    { "number": 3, "name": "Verify Match Model Published", "status": "pending" },
+    { "number": 4, "name": "Seed Records (API)",           "status": "pending" },
+    { "number": 5, "name": "Define Match & Merge Job",     "status": "pending" },
+    { "number": 6, "name": "Trigger Match & Merge (API)",  "status": "pending" },
+    { "number": 7, "name": "Verify Golden Records",        "status": "pending" }
+  ]
+}
+```
+
+Step object when complete:
+```json
+{
+  "number": 1,
+  "name": "Create Source Systems",
+  "status": "complete",
+  "completed_date": "{date}",
+  "signed_off_by": "{name}",
+  "table": {
+    "headers": ["column 1", "column 2", ...],
+    "rows": [["value", "value", ...], ...]
+  },
+  "notes": ["optional note shown below the table"]
+}
+```
+
+**On Step 1 signoff — also create the markdown file with this header, then append Step 1:**
 
 ```markdown
 # MDM Deployment Session — {Client}
