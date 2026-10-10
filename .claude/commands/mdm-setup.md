@@ -653,7 +653,7 @@ Type [done] when complete · [help] if you have a question · {[skip] only if st
 
 **When the consultant types `[done]`:**
 
-Print the Step Summary immediately:
+1. Print the Step Summary:
 
 ```
 ✓  STEP {N} COMPLETE — {Step Name}
@@ -663,11 +663,36 @@ Print the Step Summary immediately:
       Include any values the consultant provided (e.g. jobDefinitionId)}
 
    {One-line note if there is anything to carry forward to a later step}
+```
+
+2. Ask for signoff:
+
+```
+Enter your name to sign off on this step:
+```
+
+3. When the consultant provides their name, append the step block to `MDM_Deployment_Session_{Client}.md` (create the file with the session header on Step 1; append on subsequent steps):
+
+```markdown
+## ✅ Step {N} — {Step Name}
+**Completed:** {date}
+
+{step-specific values table or bullet list}
+
+**Signed off by:** {name}  |  **Date:** {date}
+
+---
+```
+
+4. Print confirmation:
+
+```
+✓ Signed off by {name} — recorded in MDM_Deployment_Session_{Client}.md
 
 Moving to Step {N+1}...
 ```
 
-Then present Step {N+1} without asking.
+5. Present Step {N+1}.
 
 **When the consultant asks a question or types `[help]`:**
 
@@ -935,71 +960,83 @@ In Business 360 Console:
 
 ---
 
-### After Step 7 — Write session record
+### Session record — structure and timing
 
-When Step 7 is confirmed complete, generate the session record:
+The session record `MDM_Deployment_Session_{Client}.md` is written **incrementally** — one step block appended after each signoff. It is not generated at the end.
 
-```
-✓ Deployment complete — {Client}
-
-All 7 steps confirmed. Writing session record...
-```
-
-Write `MDM_Deployment_Session_{Client}.md` to the same directory as the Discovery Workbook.
-
-The session record is a **log of what was done**, not a guide. Include:
+**On Step 1 signoff — create the file with this header, then append Step 1:**
 
 ```markdown
 # MDM Deployment Session — {Client}
 
-**Date:** {date}
+**Started:** {date}
 **Org:** {org URL}
 **Business Entity:** c360.person
 **Pattern:** {deployment pattern}
+**Source:** MDM_Discovery_{Client}.xlsx
 
-## Steps Completed
+---
+```
 
-| Step | Status | What Was Configured |
-|------|--------|---------------------|
-| 1 — Source Systems | ✅ Complete | {source system names and confirmed internal IDs} |
-| 2 — Survivorship | ✅ Complete | {ranking: rank1=id, rank2=id; decay: source/period or none} |
-| 3 — Match Model | ✅ Complete | person.ruleset1 Published |
-| 4 — Seed Records | ✅ Complete | {N} records seeded to {source system} |
-| 5 — M&M Job | ✅ Complete | Job: {name} · jobDefinitionId: {id} |
-| 6 — M&M Trigger | ✅ Complete | Result: {SUCCESS / WARNING + note} |
-| 7 — Verify | ✅ Complete | {N} CONSOLIDATED golden records confirmed |
-{Any skipped steps with reason}
+**After each step signoff — append this block:**
 
+```markdown
+## ✅ Step {N} — {Step Name}
+**Completed:** {date}
+
+{step-specific values — source system IDs, survivorship ranking, decay rules,
+ job name, jobDefinitionId, record counts, M&M result, verification outcome}
+
+**Signed off by:** {name}  |  **Date:** {date}
+
+---
+```
+
+**For any skipped step — append:**
+
+```markdown
+## ⏭ Step {N} — {Step Name} — SKIPPED
+**Reason:** {why skipped}  |  **Date:** {date}
+
+---
+```
+
+**After Step 7 signoff — append the closing block and print completion:**
+
+```markdown
 ## Key Values for Reference
 
-  Source systems created:   {name (internal_id) for each}
-  Survivorship ranking:     {rank list}
-  Decay rules:              {summary or none}
-  M&M job name:             {name}
-  jobDefinitionId:          {id}
-  Records seeded:           {count}
-  Golden records verified:  {count}
+| Item | Value |
+|------|-------|
+| Source systems created | {name (internal_id) for each} |
+| Survivorship ranking | {rank list} |
+| Decay rules | {summary or none} |
+| M&M job name | {name} |
+| jobDefinitionId | {id} |
+| Records seeded | {count} |
+| Golden records verified | {count} |
 
 ## Use Case Validation
 
-  {From workbook — the specific validation outcome and whether it passed}
+{From workbook — the specific validation outcome and whether it passed}
 
 ## Source Documents
 
-  MDM_UseCase_{Client}_APPROVED.pdf
-  MDM_Discovery_{Client}.xlsx
+- MDM_UseCase_{Client}_APPROVED.pdf
+- MDM_Discovery_{Client}.xlsx
 ```
 
 Then print:
 
 ```
-✓ Session record saved:
-    MDM_Deployment_Session_{Client}.md
+✓ Deployment complete — {Client}
 
-Phase 3 complete. The deployment is done.
+Session record:
+  MDM_Deployment_Session_{Client}.md
+  All 7 steps signed off — ready for handoff or archive.
 
-If you need to re-run any step or debug an issue, return to this session
-and describe what you see — I can walk you through it.
+If you need to re-run any step or debug an issue, return to this
+session and describe what you see — I can walk you through it.
 
 Post-deployment API quick reference:
   Seed a record:      POST /business-entity/.../entity/c360.person?sourceSystem=&sourcePKey=
