@@ -813,39 +813,70 @@ Verify:
 
 ---
 
-### Step 3 — Verify Match Model Published
+### Step 3 — Confirm the Match Model is Active
 
 Warning block:
 ```
-⚠️ MUST BE CONFIRMED BEFORE SEEDING ANY RECORDS
+⚠️ THIS MUST BE DONE BEFORE STEP 4 (LOADING RECORDS)
 
-Records loaded before the match model is Published are excluded from
-matching permanently. If the model is not Published now, publish it
-and wait for the Regenerate Match Keys job to complete before seeding.
+What is a match model?
+  person.ruleset1 is the predefined configuration that defines when two
+  records represent the same real person. For this deployment it uses
+  fuzzy name matching — "John Smith" and "Jon Smyth" can still be
+  identified as the same person. "Published" means it is active in the
+  org. "Draft" means it exists but is not running.
+
+Why the order matters:
+  When a record is loaded into the org, the system generates match keys
+  for it — tokens from the record's name and address fields that the
+  matching engine uses to find duplicates. Match keys are only generated
+  if the model is Published at the time of loading.
+
+  A record loaded before the model is Published has no match keys and
+  will never be matched — even after you publish the model later. The
+  only recovery is "Regenerate Match Keys": a background re-index job
+  that runs across every record in the org.
+
+  For a clean deployment: confirm Published first, then load records.
 
 Source: B360_April2026_ConfigureMatchAndMerge_en.pdf, p.8
 ```
 
-Org scan result:
+What to do in the console:
 ```
-{If Published:}
-  ✅ person.ruleset1 is Published. No action needed — proceed to Step 4.
+1. In Business 360 Console, click Explore in the left navigation
+2. Click on c360.person to open the entity
+3. Click the Match tab (along the top of the entity view)
+4. Look for person.ruleset1 in the list
 
-{If Draft or Not Found:}
-  🔴 ACTION REQUIRED before seeding.
+   ─────────────────────────────────────────────────────
+   IF the status next to person.ruleset1 shows "Published":
+   ✅ Nothing to do. Type [done] and we move to Step 4.
+   ─────────────────────────────────────────────────────
 
-  UI Path: Business 360 Console → c360.person → Match tab → person.ruleset1
-  → Publish (top right) → Publish and Regenerate Match Keys
+   ─────────────────────────────────────────────────────
+   IF the status shows "Draft" or person.ruleset1 is not visible:
+   🔴 Activate it before loading any records.
 
-  Wait for: "The Regenerate Match Keys job started successfully" banner.
-  Confirm the job completes in My Jobs before typing [done].
+     a. Click person.ruleset1 to open it
+     b. Click Publish in the top-right corner
+     c. When prompted, select "Publish and Regenerate Match Keys"
+        (this activates the model AND prepares the matching index)
+     d. Watch for the banner:
+        "The Regenerate Match Keys job started successfully"
+     e. Click My Jobs in the top navigation
+     f. Wait until the job shows "Succeeded"
+     g. Then type [done]
 
-  Source: Workshop Lab Guide, LAB 5.1 steps 17–19
+   For an empty org this job finishes in under a minute.
+   Source: Workshop Lab Guide, LAB 5.1 steps 17–19
+   ─────────────────────────────────────────────────────
 ```
 
-Why this matters:
-> {From workbook — how person.ruleset1 serves the match strategy for this use case,
-> why the selected match criterion and population fit the data}
+Why this matters for Apex Financial Services:
+> {From workbook — the near-duplicate pairs loaded in Step 4 can only be
+> matched and consolidated if the model is active when the records arrive.
+> These pairs are the core validation for the Unified Customer View goal.}
 
 ---
 
