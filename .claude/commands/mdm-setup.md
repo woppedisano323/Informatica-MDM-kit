@@ -997,9 +997,14 @@ What to do:
 For each source system from workbook Sheet 2:
 
   1. Enter the Display Name
-  2. Watch the Internal ID field — it auto-generates from the name
-  3. Confirm the Internal ID matches the value in this plan BEFORE clicking Create
-     (If it doesn't match, correct the Display Name until it does)
+  2. The Internal ID field auto-generates a slug from the Display Name —
+     but you can also type it directly. If the auto-generated value does
+     not match the planned ID, clear the Internal ID field and type the
+     correct value yourself. Do not keep adjusting the Display Name to
+     force the right slug — just type the ID.
+     Source: DefineSourceSystems, Chapter 3, p.8
+  3. Confirm the Internal ID field shows EXACTLY the planned value
+     BEFORE clicking Create — this is your last chance to change it
   4. Click Create
   5. Repeat for each source system
 
