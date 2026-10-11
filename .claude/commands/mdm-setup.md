@@ -576,8 +576,6 @@ Reconcile scan results with the workbook:
 
 Check whether `MDM_Deployment_Steps_{Client}.xlsx` already exists in the output directory.
 
-**If it does NOT exist:** Generate it now using openpyxl. The workbook has one Overview tab (all 7 steps with status/signoff columns) and one tab per step (warning, pre-filled values from the Discovery Workbook, instructions, verify section, Sign Off section with Status / Signed Off By / Date cells). Steps that were pre-completed in a prior session are pre-filled green. Pending steps have yellow signoff cells.
-
 **If it already exists:** Do NOT overwrite it. The consultant may have edited it. Print:
 
 ```
@@ -587,13 +585,101 @@ Check whether `MDM_Deployment_Steps_{Client}.xlsx` already exists in the output 
 
 **On resync (workbook exists AND session JSON exists):** Read the Sign Off cells from each step tab. For any step where "Signed Off By" is filled but the session JSON shows that step as pending, update the session JSON and regenerate the PDF. Print a summary of steps synced.
 
+**If it does NOT exist:** Generate it now using openpyxl with this tab order:
+
+#### Tab 1 — Pre-Flight
+
+Three sections on this tab, generated from org scan results + workbook comparison:
+
+**Section 1 — Conflict Check Results**
+
+Table headers: `#` | `Check` | `Status` | `Detail` | `Action Required`
+
+Row color coding:
+- Green (`C8E6C9`) — check passed, no action needed
+- Amber (`FFF9C4`) — advisory note, no blocking action required
+- Red (`FFCDD2`) — blocking conflict, must resolve before proceeding
+
+Populate the following 8 checks from org scan results and workbook values:
+
+| # | Check | Pass condition | Amber condition | Red condition |
+|---|-------|---------------|----------------|--------------|
+| 1 | c360.person accessible | Scan confirmed entity exists | — | Entity not found — org not provisioned for Customer 360 |
+| 2 | person.ruleset1 status | Status = Published | Status = Draft (action needed in Step 3) | Not found |
+| 3 | Record count | Count = 0 | — | Count > 0 (survivorship timing risk — see Pre-Flight B) |
+| 4 | Proposed source system IDs | No ID collision with existing systems | — | Proposed ID already exists with a different display name |
+| 5 | Predefined systems | None of the proposed IDs match predefined system IDs | Proposal includes ID that matches a predefined system (will fail silently) | — |
+| 6 | Existing M&M jobs | No legacy M&M jobs for c360.person | Legacy M&M jobs exist (note only — do not delete) | — |
+| 7 | Survivorship timing | Record count = 0 | — | Records exist before survivorship is configured |
+| 8 | API connectivity | Login succeeded during scan | — | Authentication failed |
+
+**Section 2 — Irreversible Action Reference**
+
+One table per irreversible action (A–E), matching the profiles in R3:
+
+| Label | Column | Contents |
+|-------|--------|---------|
+| A — Source System Internal ID | What It Is / Why Irreversible / If Wrong / Recovery / Source doc |
+| B — Survivorship Before Records | What It Is / Why Irreversible / If Wrong / Recovery / Source doc |
+| C — Match Model Published Before Seeding | What It Is / Why Irreversible / If Wrong / Recovery / Source doc |
+| D — Match Rule Cannot Be Edited After Save | What It Is / Why Irreversible / If Wrong / Recovery / Source doc |
+| E — Predefined Assets Cannot Be Deleted | What It Is / Why Matters / Recovery / Source doc |
+
+Use light blue (`D9F0FC`) background for section headers. Use light grey (`F5F5F5`) for reference rows.
+
+**Section 3 — Pre-Flight Sign Off**
+
+| Field | Cell color |
+|-------|-----------|
+| Pre-Flight reviewed by | Yellow — fill before starting |
+| Date | Yellow — fill before starting |
+| Confirmed: blocking conflicts resolved (Y/N) | Yellow |
+| Notes | White |
+
+---
+
+#### Tab 2 — Overview
+
+All 7 steps in a summary table:
+
+Headers: `Step` | `Name` | `Type` | `Status` | `Signed Off By` | `Date`
+
+Pre-fill:
+- Steps = 1–7, Names and Type (UI / Script) filled from plan
+- Status = `Pending` for all (update as steps complete)
+- Sign Off cells yellow — fill as each step completes
+
+Color the Status cell by value:
+- `Pending` → white
+- `In Progress` → amber (`FFF3E0`)
+- `Complete` → green (`E8F5E9`)
+- `Skipped` → grey (`F5F5F5`)
+
+---
+
+#### Tabs 3–9 — Step 1 through Step 7
+
+One tab per step. Each tab contains:
+- Step header (navy, white text): Step N of 7 | Step Name | UI or SCRIPT
+- Warning row if irreversible (red background, condensed from Pre-Flight)
+- Why This Matters section (pre-filled from workbook — client name, use case)
+- Instructions section (numbered steps; all field values pre-filled from workbook)
+- Verify section (what to confirm when done)
+- Sign Off section (Status / Signed Off By / Date — cells yellow, pending)
+
+Steps that were pre-completed in a prior session are shown green with signoff already filled.
+
+---
+
 The workbook is owned by the consultant after initial generation. The skill reads it (for resync) but never writes it again.
 
 Print on first generation:
 ```
   ✓ MDM_Deployment_Steps_{Client}.xlsx — generated
-    Open this workbook to review all steps before starting, or use it
-    alongside the interactive coach below.
+    Tab order: Pre-Flight | Overview | Step 1 through Step 7
+
+    Open this workbook before starting. Review the Pre-Flight tab —
+    all conflict check rows should be green before you proceed.
     Fill 'Signed Off By' and 'Date' on each tab to sign off offline.
     Run /mdm-setup resume again at any time to sync signoffs to the PDF.
 ```
@@ -602,7 +688,7 @@ Print on first generation:
 
 ### R3 — Pre-Execution: Expanded Pre-Flight and begin
 
-Print the full Pre-Flight with irreversible action profiles, then org state, then ask if ready.
+The Pre-Flight tab in `MDM_Deployment_Steps_{Client}.xlsx` has already been populated with the conflict check results and full irreversible action profiles from the org scan. Print the same content in the terminal so the consultant does not need to switch windows, then ask for ready.
 
 ```
 ── PRE-FLIGHT ─────────────────────────────────────────────────────
@@ -734,7 +820,12 @@ SEGMENT 2 (Steps 1–3) — UI only. Must complete in this order
 SEGMENT 3 (Steps 4–7) — Mix of UI and scripts. All of Segment 2
   must be complete before Step 4 starts.
 
-Type [ready] to begin, or ask any questions first.
+Before you type [ready]:
+  Open MDM_Deployment_Steps_{Client}.xlsx → Pre-Flight tab
+  Confirm all conflict check rows are green (or amber with no action required)
+  Fill "Pre-Flight reviewed by" and "Date" in the Sign Off section
+
+Type [ready] to begin Step 1, or ask any questions first.
 ```
 
 Wait for the consultant to respond before presenting Step 1.
