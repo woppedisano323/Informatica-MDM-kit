@@ -600,36 +600,119 @@ Print on first generation:
 
 ---
 
-### R3 — Present Pre-Flight Checklist and begin
+### R3 — Pre-Execution: Expanded Pre-Flight and begin
 
-Print the Pre-Flight Checklist in full, then ask if ready:
+Print the full Pre-Flight with irreversible action profiles, then org state, then ask if ready.
 
 ```
-── PRE-FLIGHT CHECKLIST ───────────────────────────────────────
+── PRE-FLIGHT ─────────────────────────────────────────────────────
 
-Read this before we start. The following actions are irreversible
-or have timing requirements. Each will be called out again at the
-relevant step — listed here so you can plan before touching the org.
+Before we touch the org, read each irreversible action below.
+Each is called out again at the relevant step — listed here so
+you can plan the full deployment before starting.
 
-  A  Source system creation
-     Internal ID is IMMUTABLE after creation. Cannot rename or delete.
-     Wrong ID = create a new one and live with the old one permanently.
+─── A — Source System Internal ID ────────────────────────────────
 
-  B  Survivorship — MUST be configured before any records exist
-     Trust scores are NOT retroactively recalculated. Records that
-     exist before this is configured keep default behavior permanently.
+  What it is:
+    Every source system has a Display Name (what you see) and an
+    Internal ID (what the system uses). The Internal ID is
+    auto-generated from the Display Name when you type it.
 
-  C  Match model — MUST be Published before seeding records
-     Records loaded before publish are excluded from matching forever.
-     Recovery = "Publish and Regenerate Match Keys" (full re-index job).
+  Why it is irreversible:
+    The Internal ID is locked the moment you click Create.
+    It cannot be renamed, reassigned, or deleted.
+    It is used in every API call, every ingress job, and every
+    survivorship rule for the lifetime of this org.
 
-  D  Match rule — once saved, Strategy (Exact/Fuzzy) and Criterion
-     cannot be changed. Delete and recreate the rule to change them.
+  If you get it wrong:
+    The wrong ID lives permanently in the org alongside the
+    correct one. You create a new system with the right ID and
+    work around the old one forever.
 
-  E  Predefined assets cannot be deleted:
-     c360.person · person.ruleset1 · Default · Informatica Customer 360
+  Recovery: None. Prevention is the only option.
+  Source: B360_April2026_DefineSourceSystems_en.pdf, p.5
 
-──────────────────────────────────────────────────────────────
+─── B — Survivorship Must Be Configured Before Records Exist ──────
+
+  What it is:
+    Survivorship rules decide which source wins when two records
+    have different values for the same field (e.g., CRM has
+    "John Smith", Digital Banking has "Jon Smyth" — survivorship
+    picks the winner for the golden record).
+
+  Why it is irreversible:
+    Trust scores are calculated when a record is created or
+    updated. They are NOT recalculated retroactively. Records
+    that exist before survivorship is configured keep their
+    default behavior (no trust weighting) permanently.
+
+  If you get it wrong:
+    Records loaded before configuration keep incorrect (default)
+    survivorship on their existing data. Only new records or
+    re-ingested records will reflect correct survivorship.
+
+  Recovery: Re-ingest affected records after configuring.
+  Cost: Proportional to record volume.
+  Source: B360_April2026_ConfigureSurvivorship_en.pdf, p.8
+
+─── C — Match Model Must Be Published Before Seeding ──────────────
+
+  What it is:
+    "Publishing" the match model activates it in the org. When
+    active, the system generates match keys for every record
+    as it is loaded — tokens used to find duplicate records.
+
+  Why it is irreversible:
+    Match keys are generated at load time only. A record loaded
+    before the model is Published has no match keys and will
+    never be matched, regardless of how similar it is to
+    another record.
+
+  If you get it wrong:
+    Records seeded before publish cannot participate in matching.
+    They will not consolidate into golden records.
+
+  Recovery: Publish model, then run "Publish and Regenerate
+    Match Keys" — a background re-index job across all records.
+  Cost: Minutes for an empty org; hours for large record volumes.
+  Source: B360_April2026_ConfigureMatchAndMerge_en.pdf, p.8
+
+─── D — Match Rule Cannot Be Edited After Save ─────────────────────
+
+  What it is:
+    A match rule defines the criteria the matching engine uses
+    (e.g., fuzzy name + address, exact identifier). Match
+    Strategy (Exact/Fuzzy) and Match Criterion are set at
+    rule creation.
+
+  Why it is irreversible:
+    Once a Directed AI match rule is saved, Match Strategy and
+    Match Criterion are locked. The UI does not allow editing them.
+
+  If you get it wrong:
+    Delete the rule and recreate it from scratch. Any testing
+    done against the old rule must be repeated.
+
+  Recovery: Delete and recreate. Low effort, re-testing required.
+  Source: B360_April2026_ConfigureMatchAndMerge_en.pdf, p.51
+
+─── E — Predefined Assets Cannot Be Deleted ───────────────────────
+
+  What they are:
+    Every Customer 360 SaaS org ships with assets that cannot
+    be removed: c360.person (the business entity), person.ruleset1
+    (the predefined match model), Default (source system), and
+    Informatica Customer 360 (source system).
+
+  Why it matters:
+    Do not attempt to recreate or replace these. Build on top
+    of them. Custom entities created in error also cannot be
+    deleted — plan carefully before creating anything custom.
+
+  Recovery: None. These are permanent org fixtures.
+  Source: B360_April2026_PredefinedAssets_en.pdf
+
+──────────────────────────────────────────────────────────────────
 
 Org state confirmed:
   c360.person:         {from scan}
@@ -639,12 +722,17 @@ Org state confirmed:
   Existing M&M jobs:   {list from scan}
 
 {If records > 0:}
-  ⚠️  Records already exist — confirm survivorship was configured
-      before these records were created. Flag to org admin if unsure.
+  ⚠️  Records already exist.
+      Survivorship timing (B above) may already be violated.
+      Flag to org admin and confirm before proceeding.
 
-We have 7 steps. Execution order is strict:
-  Steps 1, 2, 3, 5 — Business 360 Console (UI)
-  Steps 4, 6, 7   — Scripts (terminal)
+──────────────────────────────────────────────────────────────────
+
+SEGMENT 2 (Steps 1–3) — UI only. Must complete in this order
+  before any data enters the org.
+
+SEGMENT 3 (Steps 4–7) — Mix of UI and scripts. All of Segment 2
+  must be complete before Step 4 starts.
 
 Type [ready] to begin, or ask any questions first.
 ```
@@ -657,26 +745,58 @@ Wait for the consultant to respond before presenting Step 1.
 
 Present steps **ONE AT A TIME**. Do not advance until the consultant types `[done]`, confirms completion, or explicitly asks to move on.
 
-**Step card format:**
+**UI step card format** (Steps 1, 2, 3, 5):
 
 ```
-── STEP {N} OF 7 — {Step Name} ──────────────────────────────
+── STEP {N} OF 7 [UI] — {Step Name} ─────────────────────────
 
-{Warning block — show for steps with irreversible actions, before instructions}
+{Irreversible action profile — condensed from Pre-Flight, before instructions}
 
 Why this matters for {Client}:
-  {1-2 sentences connecting this step to the business objective and
-   deployment pattern — grounded in the workbook decisions, not generic}
+  {1-2 sentences grounded in the workbook decisions}
+
+Where to navigate:
+  {Exact console path — every click, in order}
 
 What to do:
-  {Specific instructions — UI path, field values, or script command.
-   All values filled from the workbook. Nothing left as a placeholder.}
+  {Numbered steps. All field values filled from the workbook.
+   Nothing left as a placeholder.}
+
+What you will see when done:
+  {Specific screen state — what the UI shows after a successful save}
 
 Verify:
-  {Specific check — what to look for to confirm the step worked}
+  {One specific check to confirm the step took effect}
 
 ──────────────────────────────────────────────────────────────
-Type [done] when complete · [help] if you have a question · {[skip] only if step is not a prerequisite}
+Type [done] when complete · [help] if you have a question
+```
+
+**Script step card format** (Steps 4, 6, 7):
+
+```
+── STEP {N} OF 7 [SCRIPT] — {Step Name} ─────────────────────
+
+Prerequisites — confirm all before running:
+  {Checklist of prior steps that must be complete}
+
+Why this matters for {Client}:
+  {1-2 sentences grounded in the workbook decisions}
+
+Run:
+  python3 ~/Informatica-MDM-kit/scripts/{script_name}.py
+
+What to enter when prompted:
+  {Specific values — all filled from workbook or prior steps}
+
+What the output means:
+  {How to interpret each terminal state or output line}
+
+Verify:
+  {Specific check after the script completes}
+
+──────────────────────────────────────────────────────────────
+Type [done] when complete · [help] if you have a question
 ```
 
 **When the consultant types `[done]`:**
@@ -746,89 +866,116 @@ Type [done] when complete.
 
 **When the consultant types `[skip]`:**
 
-Note the skip and advance. Steps 2 and 3 cannot be skipped (prerequisites for seeding). If the consultant tries to skip either, explain why and ask them to confirm they understand the risk before proceeding.
+Note the skip and advance. Steps 1, 2, and 3 cannot be skipped — they are prerequisites for seeding. If the consultant tries to skip any of them, explain the specific risk (from the Pre-Flight profiles above) and ask them to confirm they understand before proceeding.
 
 **If the consultant provides a value mid-step** (e.g., "the jobDefinitionId is abc123"):
 Record it in the running session context and include it verbatim in the step summary.
 
 ---
 
-### Step 1 — Create Source Systems
+## SEGMENT 2 — Foundation Steps (UI Only, Strict Order)
 
-Warning block:
-```
-🔴 CANNOT UNDO — CONFIRM INTERNAL IDs BEFORE CLICKING CREATE
-
-The Internal ID is auto-generated from the Display Name and is
-IMMUTABLE after creation. It is used in every API call, ingress
-job, and survivorship rule. You cannot rename or delete a source
-system after it is created.
-
-Do not click Create until the Internal ID shown in the dialog
-matches the ID in this step.
-
-Source: B360_April2026_DefineSourceSystems_en.pdf, p.5
-```
-
-Why this matters:
-> {From workbook — how these source systems represent the data feeds
-> for this deployment's use case, and why the trust levels are set as they are}
-
-What to do:
-```
-UI Path: Business 360 Console → + New → Source Systems → Create
-
-Create each source system:
-{For each source system from workbook Sheet 2:}
-  Display Name:  {displayName}
-  Internal ID:   {proposedId}  ← CONFIRM THIS IN THE DIALOG BEFORE CREATING
-  Trust level:   {rank} — {why}
-
-Predefined systems already in this org — do NOT recreate:
-  Default · Informatica Customer 360 (c360.default.system) · Informatica DaaS
-```
-
-Verify:
-> Business 360 Console → Source Systems → all new systems present with correct Internal IDs
+Steps 1, 2, and 3 must complete in sequence before any data enters the org. All three are UI-only — no scripts run until Step 4. The ordering is not flexible:
+- Step 1 creates the source systems referenced by internal ID in Step 2
+- Step 2 must complete before any records exist (irreversible action B)
+- Step 3 must complete before Step 4 (irreversible action C)
 
 ---
 
-### Step 2 — Configure Survivorship
+### Step 1 [UI] — Create Source Systems
 
-Warning block:
+Irreversible action profile (condensed from Pre-Flight A):
 ```
-🔴 MUST BE DONE BEFORE ANY RECORDS EXIST IN THE ORG
-
-Survivorship rules determine which source wins when the same field
-has values from multiple sources. Trust scores are NOT retroactively
-recalculated. Records that exist before this is configured will keep
-default (no) survivorship on their existing data permanently.
-
-Current record count: {from scan}
-{If 0:} ✅ Safe to configure.
-{If > 0:} ⚠️  Records already exist — flag to org admin before proceeding.
-
-Source: B360_April2026_ConfigureSurvivorship_en.pdf, p.8
+🔴 CANNOT UNDO — Internal ID is immutable after creation.
+   If wrong: the incorrect ID lives in the org permanently.
+   Recovery: none. Confirm the ID in the dialog before clicking Create.
+   Source: B360_April2026_DefineSourceSystems_en.pdf, p.5
 ```
 
-Why this matters:
-> {From workbook — how the trust hierarchy reflects the business reality
-> for this use case: which source is most reliable and why, what decay means
-> for this client's data freshness problem}
+Why this matters for {Client}:
+> {From workbook — how these source systems represent the cross-channel
+> feeds for this deployment, and why the trust ranking is set as it is}
+
+Where to navigate:
+```
+Business 360 Console → left navigation → + New → Source Systems → Create
+```
 
 What to do:
 ```
-UI Path: Business 360 Console → Explore → c360.person → Survivorship tab → Edit All
+For each source system from workbook Sheet 2:
 
-Source Ranking:
+  1. Enter the Display Name
+  2. Watch the Internal ID field — it auto-generates from the name
+  3. Confirm the Internal ID matches the value in this plan BEFORE clicking Create
+     (If it doesn't match, correct the Display Name until it does)
+  4. Click Create
+  5. Repeat for each source system
+
+Source systems to create:
+{For each row in workbook Sheet 2:}
+  Display Name:  {displayName}
+  Internal ID:   {proposedId}  ← verify this in the dialog
+  Trust level:   {rank} — {why}
+
+Do NOT recreate these predefined systems already in the org:
+  Default · Informatica Customer 360 (c360.default.system) · Informatica DaaS
+```
+
+What you will see when done:
+```
+The Source Systems list shows all newly created systems.
+Each row displays the Display Name and Internal ID side by side.
+Confirm the Internal ID column matches exactly — this is your last
+chance to catch a mismatch before it is permanent.
+```
+
+Verify:
+> Business 360 Console → Source Systems list → all new systems present with correct Internal IDs
+
+---
+
+### Step 2 [UI] — Configure Survivorship
+
+Irreversible action profile (condensed from Pre-Flight B):
+```
+🔴 TIMING CRITICAL — Must be done before any records exist.
+   If records exist first: they keep default (no) survivorship permanently.
+   Current record count: {from scan}
+   {If 0:} ✅ Safe to proceed.
+   {If > 0:} ⚠️  Flag to org admin before proceeding.
+   Source: B360_April2026_ConfigureSurvivorship_en.pdf, p.8
+```
+
+Why this matters for {Client}:
+> {From workbook — how the trust hierarchy reflects the business reality:
+> which source holds the most reliable data and why, what decay means for
+> this client's specific data freshness challenge}
+
+Where to navigate:
+```
+Business 360 Console → Explore → c360.person → Survivorship tab → Edit All
+```
+
+What to do:
+```
+Section 1 — Source Ranking:
+  Set trust rank for each source system. Rank 1 = most trusted.
+  Sources not listed are treated as equal lowest trust.
+
 {For each source from workbook Sheet 3:}
   Rank {N}: {Source System}  (internal ID: {id})
   Why: {reasoning from workbook}
 
-Decay Rules:
-{From workbook Sheet 3 — or "No decay rules for this deployment."}
-  Source:  {name}  |  Max: {max}  |  Min: {min}  |  Unit: {unit}  |  Period: {period}  |  Pattern: {pattern}
+Section 2 — Decay Rules (if applicable):
+{From workbook Sheet 3, or "No decay rules for this deployment."}
+  Source:   {name}
+  Max:      {max}  Min: {min}  Unit: {unit}  Period: {period}  Pattern: {pattern}
   Why: {reasoning from workbook}
+
+  Decay reduces a source's trust score over time. Use for engagement
+  or marketing sources where contact data ages and is not actively
+  corrected. Do NOT apply decay to compliance or regulatory sources.
 
 ⚠️ Do not modify the predefined verifier Address_Verifier_OOTB.
    Source: Best Practices Guide
@@ -836,197 +983,277 @@ Decay Rules:
 Click Save before leaving the page.
 ```
 
+What you will see when done:
+```
+The Survivorship tab reflects your source ranking (numbered list)
+and any decay rules saved below it. The Save button is no longer
+highlighted. If you navigate away without saving, the config is lost.
+```
+
 Verify:
-> Survivorship tab shows source ranking and decay rules as configured above.
+> Survivorship tab shows source ranking and decay rules as entered above, saved state.
 
 ---
 
-### Step 3 — Confirm the Match Model is Active
+### Step 3 [UI] — Confirm Match Model Active
 
-Warning block:
+Irreversible action profile (condensed from Pre-Flight C):
 ```
-⚠️ THIS MUST BE DONE BEFORE STEP 4 (LOADING RECORDS)
+⚠️ TIMING CRITICAL — Must be Published before Step 4 (seeding records).
+   If records load before publish: they have no match keys and will never match.
+   Recovery: "Publish and Regenerate Match Keys" — re-index job (minutes for
+   empty org, hours for large volumes).
+   Source: B360_April2026_ConfigureMatchAndMerge_en.pdf, p.8
+```
 
 What is a match model?
-  person.ruleset1 is the predefined configuration that defines when two
-  records represent the same real person. For this deployment it uses
-  fuzzy name matching — "John Smith" and "Jon Smyth" can still be
-  identified as the same person. "Published" means it is active in the
-  org. "Draft" means it exists but is not running.
+```
+person.ruleset1 is the predefined configuration that defines when two records
+represent the same real person. It uses fuzzy name matching — "John Smith"
+and "Jon Smyth" can still be identified as the same person.
 
-Why the order matters:
-  When a record is loaded into the org, the system generates match keys
-  for it — tokens from the record's name and address fields that the
-  matching engine uses to find duplicates. Match keys are only generated
-  if the model is Published at the time of loading.
-
-  A record loaded before the model is Published has no match keys and
-  will never be matched — even after you publish the model later. The
-  only recovery is "Regenerate Match Keys": a background re-index job
-  that runs across every record in the org.
-
-  For a clean deployment: confirm Published first, then load records.
-
-Source: B360_April2026_ConfigureMatchAndMerge_en.pdf, p.8
+"Published" = active in the org, generating match keys for every record loaded.
+"Draft"     = exists but not running. Records loaded in Draft state have no keys.
 ```
 
-What to do in the console:
+Why this matters for {Client}:
+> {From workbook — the near-duplicate pairs loaded in Step 4 can only be matched
+> and consolidated if the model is active when those records arrive}
+
+Where to navigate:
 ```
-1. In Business 360 Console, click Explore in the left navigation
-2. Click on c360.person to open the entity
-3. Click the Match tab (along the top of the entity view)
-4. Look for person.ruleset1 in the list
+Business 360 Console → Explore → c360.person → Match tab
+```
 
-   ─────────────────────────────────────────────────────
-   IF the status next to person.ruleset1 shows "Published":
-   ✅ Nothing to do. Type [done] and we move to Step 4.
-   ─────────────────────────────────────────────────────
+What to do:
+```
+1. Look for person.ruleset1 in the match model list
+2. Check the status column
 
-   ─────────────────────────────────────────────────────
-   IF the status shows "Draft" or person.ruleset1 is not visible:
-   🔴 Activate it before loading any records.
+   ── IF status = "Published" ──────────────────────────────
+   ✅ No action needed. Type [done] to proceed to Step 4.
+   ─────────────────────────────────────────────────────────
+
+   ── IF status = "Draft" or model is not visible ──────────
+   🔴 Activate before seeding records:
 
      a. Click person.ruleset1 to open it
      b. Click Publish in the top-right corner
-     c. When prompted, select "Publish and Regenerate Match Keys"
-        (this activates the model AND prepares the matching index)
-     d. Watch for the banner:
-        "The Regenerate Match Keys job started successfully"
+     c. Select "Publish and Regenerate Match Keys"
+        (activates the model AND prepares the matching index)
+     d. A banner appears: "Regenerate Match Keys job started successfully"
      e. Click My Jobs in the top navigation
-     f. Wait until the job shows "Succeeded"
-     g. Then type [done]
+     f. Wait until the job row shows status "Succeeded"
+     g. Type [done]
 
    For an empty org this job finishes in under a minute.
    Source: Workshop Lab Guide, LAB 5.1 steps 17–19
-   ─────────────────────────────────────────────────────
+   ─────────────────────────────────────────────────────────
 ```
 
-Why this matters for Apex Financial Services:
-> {From workbook — the near-duplicate pairs loaded in Step 4 can only be
-> matched and consolidated if the model is active when the records arrive.
-> These pairs are the core validation for the Unified Customer View goal.}
-
----
-
-### Step 4 — Seed Records (API)
-
-Warning block:
+What you will see when done:
 ```
-⚠️ PREREQUISITES — confirm all three before running:
-  Step 1: Source systems created and Internal IDs verified
-  Step 2: Survivorship configured and saved
-  Step 3: person.ruleset1 Published
-
-REST API is not designed for bulk operations.
-Cap: 50 records. For > 50 use an ingress job.
-Source: B360_April2026_(REST-API)Reference_en.pdf, p.8
-```
-
-Why this matters:
-> {From workbook — what the seed records validate, specifically the near-duplicate pairs
-> and why those pairs prove the core use case requirement}
-
-What to do:
-```
-python3 ~/Informatica-MDM-kit/scripts/mdm_seed_records.py
-
-Source system:   {internal ID from Step 1}
-Record count:    {from workbook}
-Seed data:       {CSV path or "manual entry"}
-Near-dupe pairs: {description from workbook}
+person.ruleset1 shows "Published" in the Match tab status column.
+If you ran the publish job: My Jobs shows "Succeeded" for the
+Regenerate Match Keys job.
 ```
 
 Verify:
-> Re-run `mdm_scan_org.py` — Section 4 should show record count = {expected count}
+> Match tab → person.ruleset1 status = "Published"
 
 ---
 
-### Step 5 — Define Match & Merge Job
+## SEGMENT 3 — Data & Validation
 
-Warning block:
+Steps 4–7 load and validate data. **All of Segment 2 must be complete before Step 4.** Step 5 is UI; Steps 4, 6, and 7 are scripts.
+
+---
+
+### Step 4 [SCRIPT] — Seed Records
+
+Prerequisites — confirm all three before running:
 ```
-⚠️ person.ruleset1 must be Published (Step 3) before it appears in the
-Match Model dropdown.
+  ✓ Step 1 complete — source systems created, Internal IDs verified
+  ✓ Step 2 complete — survivorship configured and saved
+  ✓ Step 3 complete — person.ruleset1 Published
 
-Only one M&M job can run at a time for c360.person.
-Source: B360_April2026_DefineJobs_en.pdf, p.24
+  REST API is not designed for bulk. Cap: 50 records.
+  For > 50 records, use an ingress job instead.
+  Source: B360_April2026_(REST-API)Reference_en.pdf, p.8
+```
+
+Why this matters for {Client}:
+> {From workbook — what the seed records prove: the near-duplicate pairs are the
+> core test for this use case. If M&M consolidates them correctly, the deployment works.}
+
+Run:
+```
+python3 ~/Informatica-MDM-kit/scripts/mdm_seed_records.py
+```
+
+What to enter when prompted:
+```
+  Source system internal ID:  {from Step 1}
+  Record count:               {from workbook Sheet 5}
+  CSV path (or press Enter for manual):  {from workbook Sheet 5}
+```
+
+What the output means:
+```
+  ✓ Record seeded: <sourcePKey>   — record accepted by the API
+  ✗ Error on record <N>: <detail> — check the field format (lookup fields must
+                                    be objects: {"Name": "Female", "Code": "F"})
+  Authentication failed            — re-check org URL and credentials
+```
+
+Verify:
+> Re-run `mdm_scan_org.py` → Section 4 shows record count = {expected from workbook}
+
+---
+
+### Step 5 [UI] — Define Match & Merge Job
+
+Prerequisite:
+```
+  ⚠️ person.ruleset1 must be Published (Step 3) before it appears
+     in the Match Model dropdown. Confirm Step 3 is complete.
+     Only one M&M job can run at a time for c360.person.
+     Source: B360_April2026_DefineJobs_en.pdf, p.24
+```
+
+Why this matters for {Client}:
+> {From workbook — this job definition is the trigger for consolidating the
+> seeded records into golden records}
+
+Where to navigate:
+```
+Business 360 Console → left navigation → + New → Jobs → Match and Merge → Create
 ```
 
 What to do:
 ```
-UI Path: Business 360 Console → + New → Jobs → Match and Merge → Create
+Fill in the following fields exactly:
 
-  Display Name:        {job_name from workbook}
+  Display Name:        {job_name from workbook Sheet 4}
   Process:             MDMMatchMerge
   Process Type:        Match and Merge
   Business Entity:     c360.person
   Match Model Name:    person.ruleset1
   Match Model Version: Latest Version
-  Skip grouping:       Unchecked
+  Skip grouping potential matches: Unchecked
 
-After saving — find and record the jobDefinitionId:
-  Business 360 Console → Jobs → {job name} → copy the jobDefinitionId
+Click Save.
 
-Paste it here when you have it — I will carry it into Step 6.
+After saving — copy the jobDefinitionId:
+  Go to Business 360 Console → Jobs → click {job name}
+  The jobDefinitionId appears in the job detail panel or URL
+  Paste it here — I will carry it into Step 6
+```
+
+What you will see when done:
+```
+The job appears in the Jobs list with the Display Name you entered.
+Status shows "Ready" or similar (not "Running" — it hasn't been triggered yet).
 ```
 
 Verify:
-> Job appears in Business 360 Console → Jobs list.
+> Jobs list → {job name} visible → copy and provide jobDefinitionId
 
 ---
 
-### Step 6 — Trigger Match & Merge (API)
+### Step 6 [SCRIPT] — Trigger Match & Merge
 
-Why this matters:
-> {From workbook — what the M&M job does for this deployment: consolidating
-> the near-duplicate pairs seeded in Step 4 into unified golden records}
+Prerequisites:
+```
+  ✓ Step 4 complete — records seeded
+  ✓ Step 5 complete — M&M job defined, jobDefinitionId in hand
+```
 
-What to do:
+Why this matters for {Client}:
+> {From workbook — M&M runs the matching engine across all seeded records,
+> identifies the near-duplicate pairs, and consolidates them into golden records}
+
+Run:
 ```
 python3 ~/Informatica-MDM-kit/scripts/mdm_trigger_match_merge.py
-
-Enter jobDefinitionId: {jobDefinitionId from Step 5}
-
-The script will authenticate, trigger the job, and poll every 10 seconds.
-
-Expected phases:
-  Lock the Job → Match → Merge → Index for Search → Group Potential Matches → Release
-
-Terminal states:
-  SUCCESS  — proceed to Step 7
-  WARNING  — check My Jobs in Business 360 Console for the issue detail
-             WARNING = completed with issues, not total failure. Investigate before proceeding.
-  FAILED / STOPPED / SKIPPED  — do not proceed to Step 7. Report the error here.
-
-Source: B360_April2026_(REST-API)Reference_en.pdf, p.128
 ```
+
+What to enter when prompted:
+```
+  jobDefinitionId:  {from Step 5}
+```
+
+What the output means:
+```
+  Polling every 10 seconds... (normal — job is running)
+
+  Phase updates shown as they occur:
+    Lock the Job → Match → Merge → Index for Search →
+    Group Potential Matches → Release the Job
+
+  Terminal states:
+    SUCCESS  ✅ — all phases completed. Proceed to Step 7.
+    WARNING  ⚠️ — completed with issues. Go to Business 360 Console
+                   → My Jobs → click the job → read the error detail.
+                   WARNING is not total failure — investigate before deciding.
+    FAILED   🔴 — job did not complete. Do not proceed to Step 7.
+                   Report the error here and we will diagnose.
+    STOPPED / SKIPPED — do not proceed. Report here.
+
+  Source: B360_April2026_(REST-API)Reference_en.pdf, p.128
+```
+
+Verify:
+> Business 360 Console → My Jobs → M&M job shows SUCCESS (or investigated WARNING)
 
 ---
 
-### Step 7 — Verify Golden Records
+### Step 7 [SCRIPT] — Verify Golden Records
 
-Why this matters:
-> {From workbook — what correct looks like for this specific deployment:
-> the near-duplicate pairs from Step 4 should appear as single CONSOLIDATED
-> golden records, with the expected source contributing the survivorship-winning values}
+Why this matters for {Client}:
+> {From workbook — this step confirms the deployment achieved its goal:
+> the near-duplicate pairs are consolidated into single golden records,
+> with the correct source winning survivorship for each field}
 
-What to do:
+Run:
 ```
 python3 ~/Informatica-MDM-kit/scripts/mdm_verify_records.py
-
-What to look for in the output:
-  _meta.consolidation: "CONSOLIDATED"  ← merged from multiple source records ✅
-  _meta.searchIndex: "SEARCH_INDEXED"  ← indexed and searchable ✅
-  Business ID prefix "MDM"             ← golden record ✅
-
-Use case validation for {Client}:
-  {From workbook Sheet 6 — the specific expected outcome for this deployment}
-
-In Business 360 Console:
-  Customer 360 → search for a seeded customer → Source Records tab
-  Green-highlighted fields = survivorship winners (should be {primary source})
-  Both {source 1} and {source 2} should appear as contributing sources
 ```
+
+What to enter when prompted:
+```
+  (org credentials — same as prior scripts)
+```
+
+What the output means:
+```
+  For each record found:
+
+    businessId: MDM-xxxxx        ← "MDM" prefix = golden record ✅
+    consolidation: CONSOLIDATED  ← merged from multiple source records ✅
+    searchIndex: SEARCH_INDEXED  ← indexed and searchable ✅
+    sources: [salesforce_crm, digital_banking]  ← both sources contributing ✅
+
+  If a record shows consolidation: LINKED or NONE:
+    It was not matched. Check that its source system internal ID matches
+    exactly what was created in Step 1, and that the model was Published
+    before this record was seeded (Step 3).
+```
+
+Use case validation — check in Business 360 Console:
+```
+  Customer 360 → search for a seeded customer name
+  → Source Records tab
+
+  ✅ Both {source 1} and {source 2} appear as contributing sources
+  ✅ Green-highlighted fields = {primary source} survivorship winners
+  ✅ The number of golden records = number of unique real people
+     (not number of source records — duplicates consolidated)
+```
+
+Verify:
+> Near-duplicate pairs from Step 4 appear as single CONSOLIDATED golden records
+> with both source systems visible in the xref / Source Records tab
 
 ---
 
