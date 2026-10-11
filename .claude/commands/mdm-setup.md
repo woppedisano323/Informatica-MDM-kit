@@ -18,6 +18,48 @@ Nothing is created in the org until Phase 3 is reviewed and confirmed by the con
 
 ---
 
+## Test Mode
+
+The skill supports a test mode that cascades a test run ID through every artifact and every value written to the org, so test runs are clearly distinguishable from production deployments.
+
+**Invocation:**
+- `/mdm-setup --test` — auto-generate a test run ID (`MDM-TEST-{NNN}-{YYYYMMDD}`)
+- `/mdm-setup --test MDM-TEST-001-20261011` — resume or reference a specific test run
+- Any phase command accepts `--test <run_id>`: `/mdm-setup confirm <path> --test MDM-TEST-001-20261011`
+
+**When `--test` is active, apply these transformations everywhere:**
+
+| Layer | Production value | Test value |
+|-------|-----------------|-----------|
+| File names | `MDM_UseCase_{Client}.xlsx` | `MDM-TEST-{NNN}-{YYYYMMDD}_UseCase_{Client}.xlsx` |
+| Workbook / PDF headers | `{Client}` | `[TEST-{NNN}] {Client}` |
+| Source system Internal IDs | `{proposed_id}` | `test_{nnn}_{proposed_id}` |
+| M&M job name | `{job_name}` | `TEST_{NNN}_{job_name}` |
+| Session JSON client field | `{Client}` | `[TEST-{NNN}] {Client}` |
+| Seeded record sourcePKeys | `{pkey}` | `TEST_{NNN}_{pkey}` |
+
+Where `{NNN}` is the zero-padded 3-digit test number (e.g., `001`).
+
+**Test log:** After every phase completion in test mode, append a row to `MDM_TEST_LOG.md` in the output directory:
+
+```markdown
+| MDM-TEST-{NNN} | {YYYY-MM-DD} | {Client} | {Phase reached} | {PASS / FAIL / PARTIAL / IN-PROGRESS} | {Notes} |
+```
+
+Create the file with a header row if it does not exist:
+```markdown
+# MDM Test Log
+
+| Run ID | Date | Scenario | Phase Reached | Outcome | Notes |
+|--------|------|----------|--------------|---------|-------|
+```
+
+**Detecting test mode from a file path:** If the consultant passes a file path that begins with `MDM-TEST-`, extract the run ID automatically — do not ask for it again.
+
+---
+
+---
+
 ## Greeting
 
 When invoked, greet the consultant and orient them to the full journey:
@@ -57,6 +99,10 @@ Let's start with Phase 1. There are two ways in:
   pre-populate the workbook with confidence-coded recommendations.
 
 Which path do you want to take?
+
+  Note: To run in test mode (safe for org validation — prefixes all
+  artifact names and org-written values with a test run ID), add --test:
+    /mdm-setup --test
 ```
 
 ---
