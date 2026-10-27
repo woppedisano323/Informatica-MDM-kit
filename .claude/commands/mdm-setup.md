@@ -1,5 +1,5 @@
 ---
-description: Guided Informatica Cloud MDM deployment skill for Business 360 / Customer 360 SaaS. Two entry paths — provide a discovery template for the consultant to fill out, or ingest client documents and pre-populate the template with recommendations. Both paths produce the same Discovery Workbook, which drives a grounded MDM_Deployment_Plan_<Client>.md. Every recommendation cites official Informatica documentation. Nothing is created in the org until the consultant reviews and confirms the plan.
+description: Informatica Cloud MDM skill — Phase 1 (Use Case Alignment) and Phase 2 (Discovery Workbook). Template or document-ingestion entry paths. Produces MDM_UseCase_<Client>.xlsx and MDM_Discovery_<Client>.xlsx (9 sheets: Use Case, Source Systems, Data Model, Survivorship, DQ Planning, Match Model, Data Loading, Success Criteria, Profiling Results). For Phase 3 step-by-step deployment coaching in a live org, use /mdm-deploy.
 ---
 
 # MDM Setup
@@ -11,8 +11,8 @@ You are an Informatica Cloud MDM specialist with deep experience deploying Busin
 | Phase | What happens | Output |
 |-------|-------------|--------|
 | **Phase 1 — Use Case Alignment** | Capture the business problem, identify the deployment pattern, surface open questions | `MDM_UseCase_<Client>.xlsx` → share for stakeholder approval → `/mdm-setup confirm` locks it as PDF |
-| **Phase 2 — Discovery Workbook** | Translate the approved use case into specific technical configuration — source systems, survivorship, match model, seed data, success criteria | `MDM_Discovery_<Client>.xlsx` → consultant fills/reviews → `/mdm-setup resume` generates the plan |
-| **Phase 3 — Deployment Plan** | Step-by-step execution guide grounded in official documentation, with every irreversible action flagged before each step | `MDM_Deployment_Plan_<Client>.md` |
+| **Phase 2 — Discovery Workbook** | Translate the approved use case into specific technical configuration — source systems, data model, survivorship, match model, data loading, success criteria | `MDM_Discovery_<Client>.xlsx` → consultant fills/reviews → run `/mdm-deploy <path>` to begin deployment |
+| **Phase 3 — Deployment Coach** | Step-by-step execution coaching in the live org, one action at a time. Run: `/mdm-deploy <path/to/MDM_Discovery_<Client>.xlsx>` | `MDM_Deployment_Steps_<Client>.xlsx` + session PDF |
 
 Nothing is created in the org until Phase 3 is reviewed and confirmed by the consultant.
 
@@ -58,8 +58,6 @@ Create the file with a header row if it does not exist:
 
 ---
 
----
-
 ## Greeting
 
 When invoked, greet the consultant and orient them to the full journey:
@@ -76,14 +74,16 @@ This skill guides you through an Informatica Cloud MDM deployment in three phase
 
   PHASE 2 — Discovery Workbook
   Once the use case is approved, we translate it into specific technical
-  configuration: source systems, survivorship rules, match model, seed
-  data, and success criteria. The workbook is pre-populated with
-  recommendations based on your use case — you review and fill any gaps.
+  configuration: source systems, data model extensions, survivorship rules,
+  match model, data loading plan, and success criteria. The workbook is
+  pre-populated with recommendations based on your use case — you review
+  and fill any gaps.
 
-  PHASE 3 — Deployment Plan
+  PHASE 3 — Deployment Coach
   The completed workbook drives a step-by-step deployment guide grounded
   in official Informatica documentation. Every irreversible action is
   flagged before you take it.
+  Run: /mdm-deploy ~/Downloads/MDM_Discovery_{Client}.xlsx
 
 Nothing is created in your org until Phase 3 is reviewed and confirmed.
 
@@ -121,7 +121,7 @@ Ask:
 
 Write and execute a Python/openpyxl script to produce `MDM_Discovery_<Client>.xlsx`.
 
-The workbook has 6 sheets. In template mode:
+The workbook has 9 sheets. In template mode:
 - All data cells are **empty**
 - Each cell or section has **guidance text** (light gray, italic) explaining what to enter and why
 - Required cells are highlighted **light red (`FFB3B3`)** — must be filled before resuming
@@ -181,7 +181,52 @@ Source: B360_April2026_DefineSourceSystems_en.pdf, p.5
 
 ---
 
-#### Sheet 3: `Survivorship`
+#### Sheet 3: `Data Model`
+
+Header row (bold):
+`Field Group Display Name` | `Field Group Internal ID` | `Source System` | `Field Display Name` | `Field Internal ID` | `Field Type` | `Notes`
+
+Include 20 empty rows. Red-highlight the Field Group columns; yellow-highlight the Field columns.
+
+Below the table, add a **guidance block** (light gray background):
+
+```
+FIELD GROUP RULES:
+• Add one field group per source system that contributes aggregate fields
+  not shared across all sources (e.g., account data from core banking,
+  loan data from mortgage origination, portfolio data from wealth management)
+• Use STATIC Field Group type — NOT Dynamic Field types
+  Dynamic fields cannot have DQ rules or match rules applied to them
+  Source: B360_April2026_DefineTheDataModel_en.pdf, p.18
+• Supported field types: Text | Decimal | Integer | Date | Boolean
+• Field group Internal IDs: lowercase, underscores, no reserved keywords
+  (Message Type, _ingress, fieldGroup_State, sourcePKey, parentId are reserved)
+• Field groups on predefined entities CAN be deleted
+  Custom entities CANNOT be deleted — always extend c360.person, not a custom entity
+  Source: B360_April2026_DefineTheDataModel_en.pdf, p.10
+• Nested field groups supported up to 6 levels — use sparingly
+• Reference: only fields in this sheet will be mapped in the CDI ingress (Step 6)
+
+FIELD GROUP SOURCE PRIMARY KEY (FGID) — ANSWER BEFORE BUILDING SOURCE CSVs:
+• Every field group used in File Import requires a Source Primary Key column in the CSV
+  (e.g., address_fgid, phone_fgid, email_fgid). This is separate from the record's
+  own Source Primary Key (client_id, borrower_id, etc.)
+• The FGID uniquely identifies a field group instance WITHIN a source record —
+  it does NOT need to be globally unique across all records
+• DISCOVERY QUESTION (answer per field group per source system):
+    How many instances of this field group does one source record have?
+    — One instance (one address per person): FGID = 1 for all rows
+    — Multiple instances (home + work + billing address): FGIDs must be
+      unique within the record (1, 2, 3...); represent each instance as a
+      separate CSV row with the same source primary key and different FGID values
+• Document the cardinality answer here before creating source CSVs.
+  Getting this wrong requires rebuilding the CSV and re-importing.
+  Source: C360_April2026_Customer360SaaS_en.pdf, p.168, p.179
+```
+
+---
+
+#### Sheet 4: `Survivorship`
 
 **Section A — Source Ranking**
 
@@ -215,7 +260,104 @@ Source: B360_April2026_ConfigureSurvivorship_en.pdf, p.23
 
 ---
 
-#### Sheet 4: `Match Model`
+#### Sheet 5: `DQ Planning`
+
+**Purpose:** Capture the data quality decisions that drive Step 4 of the deployment. Every rule configured in Step 4 must be planned here first — type, function, severity, and trust impact grounded in profiling data from Sheet 9.
+
+---
+
+**Section A — Field-Level Rule Plan**
+
+Header row (bold):
+`Field` | `Field Group` | `Affected Sources` | `DQ Issue` | `Rule Type` | `Function / Spec` | `Severity` | `Trust Downgrade %` | `Notes`
+
+Include 15 empty rows, yellow-highlighted.
+
+Guidance block:
+```
+DQ ISSUE TYPES (fill from profiling data in Sheet 9):
+  name_casing       — ALL CAPS or mixed case across sources → Title Case (Basic)
+  address_abbrev    — "St" vs "Street" vs "St." variation → DaaS Address
+  name_format       — "Smith, John" vs "John Smith" → DaaS Name (separate entitlement)
+  phone_format      — format variation → Regular Match or DaaS Phone
+  null_required     — null rate > 0% on a required field → Minimum Length validation
+  invalid_pattern   — format does not match expected pattern → Regular Match (Basic)
+  identifier_ssn    — SSN validation needed → DUNS SSN Validation (Advanced)
+  concat_needed     — blank-canvas entity needs fullName from firstName+lastName → Concatenate with Spaces (Basic)
+
+RULE TYPES:
+  Basic    — predefined functions built into B360. No external dependency.
+             Functions: Title Case, Trim, Concatenate with Spaces, Regular Match,
+             Minimum/Maximum Length, Minimum/Maximum Value
+  Advanced — Cloud Data Quality rule specification. Requires CDQ asset + entitlement.
+             Use for: SSN/NPI/DUNS validation, custom identifier patterns
+  DaaS     — Informatica Data-as-a-Service. Requires entitlement per service type.
+             Address Verification: included in standard MDM SaaS license
+             Name Standardization: SEPARATE entitlement — confirm before planning
+             Email Verification: confirm with Informatica licensing
+             Phone Verification: confirm with Informatica licensing
+
+SEVERITY LEVELS:
+  Information — rule runs; result recorded; record saves regardless of outcome
+  Warning     — rule runs; trust score downgraded if fails; record saves
+  Error       — rule runs; record REJECTED if fails; use with caution on ingress
+
+TRUST DOWNGRADE %:
+  How much to deduct from trust score when a field fails validation.
+  Example: 20% downgrade on address validation failure means that source's
+  address field loses 20 points — making a higher-ranked source more likely to win.
+  This is the survivorship tie-in: bad data loses the trust contest automatically.
+  Source: B360_April2026_ConfigureDataQuality_en.pdf, p.13
+```
+
+---
+
+**Section B — DaaS Entitlement Check**
+
+Pre-filled table (white background, review and confirm):
+
+| DaaS Service | Entitlement | Action Required |
+|---|---|---|
+| Address Verification | Included in standard MDM SaaS license | Enable Address_Verifier_OOTB in Step 4 |
+| Name Standardization | SEPARATE entitlement — not bundled | Confirm with Informatica licensing before planning |
+| Email Verification | Confirm with Informatica licensing | Verify before planning |
+| Phone Verification | Confirm with Informatica licensing | Verify before planning |
+
+Guidance block:
+```
+Name standardization is the most commonly assumed-but-missing entitlement.
+If your plan relies on DaaS Name Standardization and the entitlement is not
+present, the rule will fail silently at ingress time.
+Confirm entitlement BEFORE adding Name Standardization to Section A.
+Alternative for name casing: use Basic → Title Case (no entitlement required).
+```
+
+---
+
+**Section C — Blank-Canvas Prerequisites**
+
+Pre-filled checklist (yellow — fill before Step 4):
+
+| Prerequisite | Required when | Status |
+|---|---|---|
+| fullName Text field added to entity | Entity has separate firstName + lastName root fields (blank-canvas) | |
+| Concat Full Name DQ rule configured | fullName field exists and match model uses Person_Name | |
+
+Guidance block:
+```
+WHY FULLNAME IS REQUIRED (blank-canvas entities only):
+  The match model's Person_Name field type expects a single combined name field.
+  If your entity has firstName and lastName as separate root fields, you must:
+    1. Add a fullName Text root field to the entity (Step 2)
+    2. Configure a Basic DQ rule on fullName: Concatenate with Spaces
+       Input 1: firstName | Input 2: lastName | Output: implicit (fullName)
+  This rule must be configured BEFORE the match model is created (Step 5).
+  Doc basis: MDM.md line 882-888
+```
+
+---
+
+#### Sheet 6: `Match Model`
 
 Fields:
 
@@ -243,64 +385,217 @@ Source: B360_April2026_ConfigureMatchAndMerge_en.pdf, p.51
 
 ---
 
-#### Sheet 5: `Seed Data`
+#### Sheet 7: `Data Loading`
 
-Fields:
+**Section A — Loading Path Decision**
 
 | Field | Cell color | Guidance |
 |-------|-----------|---------|
-| Source system for seeding | Red | Internal ID of the source system seed records are attributed to |
-| Record count | Red | ≤ 50 for REST API. For > 50 use ingress job. |
-| CSV path | Yellow | Path to seed CSV file, or leave blank for manual entry |
-| Intentional near-duplicates? | Yellow | Y/N — include at least 2-3 pairs that should merge, to validate M&M |
-| Near-duplicate description | Yellow | Describe the near-duplicate pairs (e.g., same person in CRM and marketing system) |
-
-**Field mapping table** (c360.person field reference, pre-filled white):
-
-| c360.person Field | Internal ID | Type | Notes |
-|---|---|---|---|
-| First Name | firstName | Text | |
-| Middle Name | middleName | Text | |
-| Last Name | lastName | Text | |
-| Full Name | fullName | Text | |
-| Birth Date | birthDate | DateTime | |
-| Gender | gender | Lookup | Pass as: {"Name": "Female", "Code": "F"} |
-| Prefix Name | prefixName | Lookup | Pass as: {"Name": "Mr.", "Code": "MR"} |
-| Suffix Name | suffixName | Lookup | |
-| Marital Status | maritalStatus | Lookup | |
-| Designation | designation | Text | |
+| Loading path | Red | CDI (recommended — any volume, reusable, schedulable) / File Import (≤500 rows, smoke test or initial validation) |
+| Decision reasoning | Yellow | Why this path was chosen |
 
 Guidance block:
 ```
-Lookup fields (Gender, Prefix, Suffix, Marital Status) must be passed
-as objects with "Name" and "Code" keys — not plain strings.
-Source: B360_April2026_(REST-API)Reference_en.pdf, p.46
+CDI vs. FILE IMPORT — CHOOSE BEFORE STEP 6:
 
-sourcePKey must not contain: / \ . % ; "
-Source: Best Practices Guide
+  File Import
+  • Best for: initial smoke test, ≤500 rows, no Secure Agent required
+  • Limitations: cannot hardcode constants (e.g., Phone Type = "Mobile"),
+    manual column additions (fgid) each schema change, not schedulable
+  • Use for: demo validation, first-load verification
+
+  CDI Ingress
+  • Best for: production deployments, any volume, automated scheduling
+  • Requires: Secure Agent, IDMC connection per source, CDI mapping per source
+  • Advantages: hardcode constants in mapping, reusable, versioned, schedulable,
+    handles field group mapping automatically via Business 360 Connector
+  Source: C360_April2026_Customer360SaaS_en.pdf, p.179
 ```
 
 ---
 
-#### Sheet 6: `Success Criteria`
+**Section B — File Import Configuration** *(complete if File Import chosen)*
+
+| Field | Cell color | Guidance |
+|-------|-----------|---------|
+| Intentional near-duplicates? | Yellow | Y/N — include pairs that should merge to validate M&M |
+| Near-duplicate description | Yellow | Describe the pairs |
+
+**fgid column plan** — complete per source system:
+
+Header: `Source System` | `Field Group` | `Field Group Internal ID` | `fgid Column Name` | `Value Strategy`
+
+Guidance block:
+```
+fgid COLUMN NAMING: {fieldGroupInternalId}_fgid  (camelCase internal ID of the group)
+  Standard groups: address_fgid, phone_fgid, electronicAddress_fgid,
+                   alternateName_fgid, identifier_fgid
+  Custom groups:   {X_GroupInternalId}_fgid  (e.g., X_BankAccount_fgid)
+  Value: "1" when each record has exactly one instance of the group
+         Sequential (1, 2, 3...) when a record has multiple instances
+
+DATE FIELDS — irreversible decision:
+  Date type:     accepts yyyy-MM-dd (no time suffix)
+  DateTime type: requires yyyy-MM-dd HH:mm:ss (append 00:00:00 to date-only values)
+  This field type is set in the entity (Step 2) and cannot change after records exist.
+  Confirmed per field: fill column "Date or DateTime?" in Sheet 3.
+```
+
+---
+
+**Section C — CDI Ingress Configuration** *(complete if CDI chosen)*
+
+**Runtime environment:**
+
+| Field | Cell color | Guidance |
+|-------|-----------|---------|
+| Secure Agent group name | Red | Name of the runtime environment in IDMC Administrator |
+| Agent status | Yellow | Confirm agent is Running before Step 6 |
+
+**Per source system** — one block per source (repeat template):
+
+Header: `Property` | `Value`
+
+| Property | Guidance |
+|---|---|
+| Source system internal ID | From Sheet 2 — must match exactly |
+| Connection type | Salesforce / Oracle / SQL Server / Snowflake / PostgreSQL / MySQL / Flat File / other |
+| Connection name in IDMC | Existing connection name, or "new" if not yet created |
+| Source object / table / query | Exact table name or SQL query |
+| Primary key column | Column that maps to sourcePKey (no spaces, no / \ . % ; ") |
+| Date fields | List each date column and whether it is Date or DateTime type in the entity |
+| Constants needed | Fields the CDI mapping must hardcode (e.g., phoneType = "Mobile") |
+| Field groups to map | From Sheet 3 — list groups this source contributes to |
+| Mapping name | {sourceName}_to_{entityInternalId} |
+
+Guidance block:
+```
+CDI MAPPING STRUCTURE (Business 360 Connector):
+  Source transformation:
+    Connection: {connection name}
+    Object: {table or query from above}
+
+  Target transformation:
+    Connector: Business 360 Connector
+    Business Entity: {entity internal ID}
+    Source System: {source system internal ID from Sheet 2}
+    Operation: Upsert
+
+  Field mapping format for custom field groups:
+    {fieldGroupInternalId}.{fieldInternalId}
+    Example: X_Portfolio.portfolioId
+
+  sourcePKey rules:
+    No spaces, no / \ . % ; " characters
+    Test mode: prefix TEST_{NNN}_
+
+  Constants (hardcode in mapping — not possible in File Import):
+    Add an Expression transformation between Source and Target
+    Output a constant string for fields the source does not provide
+    (e.g., phoneType = "Mobile", addressType = "Home")
+
+  Connection setup (if connection does not exist):
+    IDMC → Administration → Connections → New Connection
+    Select connection type → provide credentials → Test → Save
+    Secure Agent must be Running before connection can be tested
+
+  Mapping publication:
+    Save mapping → click Publish to activate
+    A mapping must be Published before the ingress job in Step 7 can run it
+
+Source: B360_April2026_Business360Connector_en.pdf
+```
+
+---
+
+**Section D — Field Mapping Reference** *(pre-filled, white)*
+
+Standard entity root fields:
+
+| Field Display Name | Internal ID | Type | CDI Target Path |
+|---|---|---|---|
+| First Name | firstName | Text | firstName |
+| Middle Name | middleName | Text | middleName |
+| Last Name | lastName | Text | lastName |
+| Full Name | fullName | Text | fullName |
+| Birth Date | birthDate | DateTime | birthDate |
+
+Custom field groups — format reminder:
+```
+{fieldGroupInternalId}.{fieldInternalId}
+Source Primary Key column maps to: {fieldGroupInternalId}.sourcePKey
+```
+
+---
+
+#### Sheet 8: `Success Criteria`
 
 Pre-filled checklist (white, review and confirm):
 
 | Step | What to verify | How to verify | Confirmed? |
 |------|---------------|---------------|------------|
-| Step 1 — Source Systems | All source systems appear in console with correct Internal IDs | Business 360 Console → Source Systems | |
-| Step 2 — Survivorship | Source ranking and decay rules saved | c360.person → Survivorship tab | |
-| Step 3 — Match Model | person.ruleset1 status = Published | c360.person → Match tab | |
-| Step 4 — Seed Records | Record count matches seed count | Re-run mdm_scan_org.py | |
-| Step 5 — M&M Job | Job definition saved, jobDefinitionId noted | Business 360 Console → Jobs | |
-| Step 6 — M&M Trigger | Job completed with SUCCESS or WARNING | mdm_trigger_match_merge.py output | |
-| Step 7 — Golden Records | Golden records exist, near-duplicate pairs consolidated | mdm_verify_records.py output | |
+| Step 1 — Source Systems | All source systems present with correct Internal IDs | Business 360 Console → Source Systems | |
+| Step 2 — Data Model | All field groups visible on c360.person canvas | Business 360 Console → Explore → c360.person | |
+| Step 3 — Survivorship | Source ranking and decay rules saved | c360.person → Survivorship tab | |
+| Step 4 — Data Quality | Rule associations visible on Data Quality tab | c360.person → Data Quality tab | |
+| Step 5 — Match Model | person.ruleset1 status = Published | c360.person → Match tab | |
+| Step 6 — CDI Ingress | All source mappings Published in IDMC | IDMC → Data Integration → Mappings | |
+| Step 7 — Ingress Job | All source ingress jobs show Succeeded | IDMC → My Jobs + mdm_scan_org.py record count | |
+| Step 8 — M&M Trigger | M&M job completed with SUCCESS | mdm_trigger_match_merge.py output | |
+| Step 9 — Golden Records | Golden records exist, near-duplicate pairs consolidated, aggregate fields populated | mdm_verify_records.py output | |
 
 **Use case validation row** (yellow — fill based on use case):
 
 | Use Case Validation | What correct looks like for THIS deployment | Verified? |
 |----|----|----|
 | [fill from Use Case sheet] | [describe expected outcome] | |
+
+---
+
+#### Sheet 9: `Profiling Results`
+
+**Purpose:** Capture IDMC Data Profiling task results for each source system before finalizing Sheets 4 (Survivorship) and DQ configuration. This sheet grounds survivorship ranking and DQ rule selection in measured data quality, not assumptions.
+
+**When to populate:** After generating this workbook, run a Data Profiling task in IDMC against each source object (one task per source system). Export results (Actions → Export) and fill this sheet. Then revisit Sheet 4 (Survivorship) and confirm rankings reflect completeness scores.
+
+One section per source system. Header row (bold):
+`Column` | `Declared Type` | `Row Count` | `Null Count` | `Null %` | `Distinct Count` | `Distinct %` | `Pattern Count` | `Top Pattern` | `Top Pattern %` | `Notes / DQ Issues`
+
+Color coding:
+- **Red** — Null % > 10% or Pattern Count > 2 (format inconsistency flag)
+- **Yellow** — Null % 1–10% or Pattern Count = 2
+- **White** — clean (Null % = 0, single pattern)
+
+Below each source section, add a **DQ Summary** row:
+```
+Overall Completeness:  {%}
+Format Issues:         {list affected columns}
+Survivorship Signal:   {based on completeness — recommended rank and why}
+DQ Rules Indicated:    {list rule type → field, grounded in profiling data}
+```
+
+Guidance block (light gray):
+```
+PROFILING → SURVIVORSHIP LINK:
+  Higher completeness score = higher trust rank.
+  More format patterns on a field = stronger case for a DQ standardization rule.
+  Compare null rates across sources for shared fields — the source with lower
+  null rate on name/address/phone should rank higher for those fields.
+
+PROFILING → DQ RULES LINK:
+  Pattern Count > 1 on phone/zip/date → standardization rule needed
+  Null % > 0 on required fields → completeness validation rule
+  Inferred type ≠ declared type → format validation rule
+  Name casing variation (ALL CAPS rows) → Title Case Basic rule
+  Embedded middle initial in FIRST_NAME → Advanced Name Parser rule spec
+
+PROFILING API (alternative to UI export):
+  Base: https://{pod}-dqprofile.dm-{region}.informaticacloud.com/profiling-service/api/v1/
+  Auth: POST https://dm-{region}.informaticacloud.com/ma/api/v2/user/login → IDS-SESSION-ID
+  List profiles: GET /profile/
+  Profile detail: GET /profile/{id}
+  Script: mdm_fetch_profile_results.py (see scripts/)
+```
 
 ---
 
@@ -368,10 +663,12 @@ Extract:
 - What each system holds → `What It Holds` column
 - Any stated trust hierarchy or system of record language → `Recommended Rank`
 - Integration patterns (which systems feed which) → survivorship signals
+- Source-specific data domains → Data Model field group candidates (Sheet 3)
 
 #### Data dictionary / schema (Excel, CSV, PDF)
 Extract:
-- Field names and data types → Sheet 5 field mapping
+- Field names and data types → Sheet 7 field mapping
+- Fields unique to one source system → Data Model field group candidates (Sheet 3)
 - Primary key fields → match model signals (exact key match candidate)
 - Identifier fields (SSN, NPI, EIN, account ID) → compliance pattern signal
 - Nullable fields with high business importance → completeness rule candidates
@@ -397,7 +694,7 @@ Extract:
 - Stated pain points → use case pattern confirmation
 - Duplicate rate estimates → match strategy scale signals
 - System trust statements → source ranking signals
-- Known data quality issues → verification criteria additions
+- Known data quality issues → DQ rule candidates + verification criteria additions
 
 ---
 
@@ -408,6 +705,7 @@ Signals extracted from {N} documents:
 
   Source systems identified:     N  ({list names})
   Field mappings extracted:      N columns across N tables
+  Source-specific field groups:  N candidates → Sheet 3
   Completeness signals:          N columns
   Identifier / key signals:      N fields
   Duplicate signals:             {found / not found}
@@ -432,7 +730,7 @@ For each required field that could not be inferred, ask the consultant directly 
 
 ### B5 — Generate the pre-populated Discovery Workbook
 
-Generate the same 6-sheet workbook as Path A, but pre-populated:
+Generate the same 9-sheet workbook as Path A, but pre-populated:
 
 - **White** — high confidence, inferred from documents (cite which doc)
 - **Yellow** — recommendation from pattern knowledge, needs consultant review
@@ -505,12 +803,12 @@ What happens now:
   2. Opening Phase 2 — Discovery Workbook.
 
      Phase 2 translates the approved use case into specific technical
-     configuration for your org: source system internal IDs, survivorship
-     rules, match model settings, seed data, and success criteria.
+     configuration for your org: source system IDs, data model extensions,
+     survivorship rules, match model settings, data loading plan, and
+     success criteria.
 
      The workbook is pre-populated with your approved decisions. You will
-     review, fill any remaining gaps, and confirm before the Deployment
-     Plan is generated.
+     review, fill any remaining gaps, and confirm before deployment begins.
 
      Nothing in your org is touched in Phase 2 — this is still planning.
 ```
@@ -528,1002 +826,44 @@ Save as `MDM_UseCase_{Client}_APPROVED.pdf` in the same directory as the xlsx.
 
 ### C3 — Generate the Discovery Workbook
 
-Generate `MDM_Discovery_{Client}.xlsx` — the same 5-sheet workbook as Path A, but pre-populated from the confirmed Use Case decisions. Green cells carry forward confirmed values. Yellow cells remain for the consultant to review. Red cells are remaining required fields.
+Generate `MDM_Discovery_{Client}.xlsx` — the 9-sheet workbook, pre-populated from the confirmed Use Case decisions. Green cells carry forward confirmed values. Yellow cells remain for the consultant to review. Red cells are remaining required fields. Sheet 9 (Profiling Results) is empty — it must be populated from IDMC profiling task exports before the workbook is considered complete.
 
 Print:
 ```
 ✓ Locked: MDM_UseCase_{Client}_APPROVED.pdf
 
 ✓ Phase 2 opened: MDM_Discovery_{Client}.xlsx
-  5 sheets — Source Systems, Survivorship, Match Model, Seed Data, Success Criteria
+  9 sheets — Use Case, Source Systems, Data Model, Survivorship,
+              DQ Planning, Match Model, Data Loading, Success Criteria, Profiling Results
 
   GREEN cells  — pre-filled from your approved use case
   YELLOW cells — review recommended before running the plan
   RED cells    — {N} required fields still needed
 
-Complete the workbook, then run:
-  /mdm-setup resume ~/Downloads/MDM_Discovery_{Client}.xlsx
-```
-
----
-
-## RESUME — Interactive Deployment Coach
-
-Invoked as: `/mdm-setup resume <path/to/MDM_Discovery_<Client>.xlsx>`
-
-### R0 — Narrate the transition
-
-```
-✓ Discovery Workbook received.
-
-Phase 2 is complete. Here is what was configured:
-
-  Source systems:   {list with internal IDs}
-  Survivorship:     {ranking + decay summary}
-  Match model:      {person.ruleset1 as-is / custom}
-  Seed data:        {N} records, {source system}, {N} near-duplicate pairs
-  Success criteria: {validation intent from workbook}
-
-What happens now:
-  Phase 3 — Deployment Coach.
-
-  I will run a read-only scan of your org to confirm current state,
-  then walk you through the deployment one step at a time. I will
-  present each step, wait for you to complete it, then advance.
-
-  You can ask questions at any point — I will answer and bring you
-  right back to where you were. After each step I will print a summary
-  of what was configured so you have a running record.
-
-  At the end, I will save a session record to file.
-
-  Nothing in your org is created until you execute each step.
-```
-
----
-
-### R1 — Read and validate the workbook
-
-Read the completed workbook. Check:
-- All red cells are filled (required fields)
-- Source system Internal IDs are confirmed
-- Survivorship ranking is populated
-- Match model decision is made
-- Seed data spec is complete
-- M&M job name is filled
-
-If any required fields are still empty, list them and stop:
-
-```
-The following required fields are still empty in the workbook:
-  Sheet 2 (Source Systems): Internal ID — row 3
-  Sheet 4 (Match Model): M&M job name
-
-Please fill these in the workbook and re-run:
-  /mdm-setup resume <path>
-```
-
----
-
-### R2 — Run org scan
-
-```bash
-python3 ~/Informatica-MDM-kit/scripts/mdm_scan_org.py
-```
-
-Reconcile scan results with the workbook:
-- Source systems in the workbook already exist in the org with different Internal IDs → flag conflict before proceeding
-- Records already exist in c360.person → survivorship warning (trust scores not retroactively recalculated)
-- person.ruleset1 is Draft or not found → note — will require action in Step 3
-
----
-
-### R2b — Generate Step Reference Workbook (write-once)
-
-Check whether `MDM_Deployment_Steps_{Client}.xlsx` already exists in the output directory.
-
-**If it already exists:** Do NOT overwrite it. The consultant may have edited it. Print:
-
-```
-  ✓ MDM_Deployment_Steps_{Client}.xlsx — already exists, keeping consultant edits.
-    To reset it, delete the file and re-run /mdm-setup resume.
-```
-
-**On resync (workbook exists AND session JSON exists):** Read the Sign Off cells from each step tab. For any step where "Signed Off By" is filled but the session JSON shows that step as pending, update the session JSON and regenerate the PDF. Print a summary of steps synced.
-
-**If it does NOT exist:** Generate it now using openpyxl with this tab order:
-
-#### Tab 1 — Pre-Flight
-
-Three sections on this tab, generated from org scan results + workbook comparison:
-
-**Section 1 — Conflict Check Results**
-
-Table headers: `#` | `Check` | `Status` | `Detail` | `Action Required`
-
-Row color coding:
-- Green (`C8E6C9`) — check passed, no action needed
-- Amber (`FFF9C4`) — advisory note, no blocking action required
-- Red (`FFCDD2`) — blocking conflict, must resolve before proceeding
-
-Populate the following 8 checks from org scan results and workbook values:
-
-| # | Check | Pass condition | Amber condition | Red condition |
-|---|-------|---------------|----------------|--------------|
-| 1 | c360.person accessible | Scan confirmed entity exists | — | Entity not found — org not provisioned for Customer 360 |
-| 2 | person.ruleset1 status | Status = Published | Status = Draft (action needed in Step 3) | Not found |
-| 3 | Record count | Count = 0 | — | Count > 0 (survivorship timing risk — see Pre-Flight B) |
-| 4 | Proposed source system IDs | No ID collision with existing systems | — | Proposed ID already exists with a different display name |
-| 5 | Predefined systems | None of the proposed IDs match predefined system IDs | Proposal includes ID that matches a predefined system (will fail silently) | — |
-| 6 | Existing M&M jobs | No legacy M&M jobs for c360.person | Legacy M&M jobs exist (note only — do not delete) | — |
-| 7 | Survivorship timing | Record count = 0 | — | Records exist before survivorship is configured |
-| 8 | API connectivity | Login succeeded during scan | — | Authentication failed |
-
-**Section 2 — Irreversible Action Reference**
-
-One table per irreversible action (A–E), matching the profiles in R3:
-
-| Label | Column | Contents |
-|-------|--------|---------|
-| A — Source System Internal ID | What It Is / Why Irreversible / If Wrong / Recovery / Source doc |
-| B — Survivorship Before Records | What It Is / Why Irreversible / If Wrong / Recovery / Source doc |
-| C — Match Model Published Before Seeding | What It Is / Why Irreversible / If Wrong / Recovery / Source doc |
-| D — Match Rule Cannot Be Edited After Save | What It Is / Why Irreversible / If Wrong / Recovery / Source doc |
-| E — Predefined Assets Cannot Be Deleted | What It Is / Why Matters / Recovery / Source doc |
-
-Use light blue (`D9F0FC`) background for section headers. Use light grey (`F5F5F5`) for reference rows.
-
-**Section 3 — Pre-Flight Sign Off**
-
-| Field | Cell color |
-|-------|-----------|
-| Pre-Flight reviewed by | Yellow — fill before starting |
-| Date | Yellow — fill before starting |
-| Confirmed: blocking conflicts resolved (Y/N) | Yellow |
-| Notes | White |
-
----
-
-#### Tab 2 — Overview
-
-All 7 steps in a summary table:
-
-Headers: `Step` | `Name` | `Type` | `Status` | `Signed Off By` | `Date`
-
-Pre-fill:
-- Steps = 1–7, Names and Type (UI / Script) filled from plan
-- Status = `Pending` for all (update as steps complete)
-- Sign Off cells yellow — fill as each step completes
-
-Color the Status cell by value:
-- `Pending` → white
-- `In Progress` → amber (`FFF3E0`)
-- `Complete` → green (`E8F5E9`)
-- `Skipped` → grey (`F5F5F5`)
-
----
-
-#### Tabs 3–9 — Step 1 through Step 7
-
-One tab per step. Each tab contains:
-- Step header (navy, white text): Step N of 7 | Step Name | UI or SCRIPT
-- Warning row if irreversible (red background, condensed from Pre-Flight)
-- Why This Matters section (pre-filled from workbook — client name, use case)
-- Instructions section (numbered steps; all field values pre-filled from workbook)
-- Verify section (what to confirm when done)
-- Sign Off section (Status / Signed Off By / Date — cells yellow, pending)
-
-Steps that were pre-completed in a prior session are shown green with signoff already filled.
-
----
-
-The workbook is owned by the consultant after initial generation. The skill reads it (for resync) but never writes it again.
-
-Print on first generation:
-```
-  ✓ MDM_Deployment_Steps_{Client}.xlsx — generated
-    Tab order: Pre-Flight | Overview | Step 1 through Step 7
-
-    Open this workbook before starting. Review the Pre-Flight tab —
-    all conflict check rows should be green before you proceed.
-    Fill 'Signed Off By' and 'Date' on each tab to sign off offline.
-    Run /mdm-setup resume again at any time to sync signoffs to the PDF.
-```
-
----
-
-### R3 — Pre-Execution: Expanded Pre-Flight and begin
-
-The Pre-Flight tab in `MDM_Deployment_Steps_{Client}.xlsx` has already been populated with the conflict check results and full irreversible action profiles from the org scan. Print the same content in the terminal so the consultant does not need to switch windows, then ask for ready.
-
-```
-── PRE-FLIGHT ─────────────────────────────────────────────────────
-
-Before we touch the org, read each irreversible action below.
-Each is called out again at the relevant step — listed here so
-you can plan the full deployment before starting.
-
-─── A — Source System Internal ID ────────────────────────────────
-
-  What it is:
-    Every source system has a Display Name (what you see) and an
-    Internal ID (what the system uses). The Internal ID is
-    auto-generated from the Display Name when you type it.
-
-  Why it is irreversible:
-    The Internal ID is locked the moment you click Create.
-    It cannot be renamed, reassigned, or deleted.
-    It is used in every API call, every ingress job, and every
-    survivorship rule for the lifetime of this org.
-
-  If you get it wrong:
-    The wrong ID lives permanently in the org alongside the
-    correct one. You create a new system with the right ID and
-    work around the old one forever.
-
-  Recovery: None. Prevention is the only option.
-  Source: B360_April2026_DefineSourceSystems_en.pdf, p.5
-
-─── B — Survivorship Must Be Configured Before Records Exist ──────
-
-  What it is:
-    Survivorship rules decide which source wins when two records
-    have different values for the same field (e.g., CRM has
-    "John Smith", Digital Banking has "Jon Smyth" — survivorship
-    picks the winner for the golden record).
-
-  Why it is irreversible:
-    Trust scores are calculated when a record is created or
-    updated. They are NOT recalculated retroactively. Records
-    that exist before survivorship is configured keep their
-    default behavior (no trust weighting) permanently.
-
-  If you get it wrong:
-    Records loaded before configuration keep incorrect (default)
-    survivorship on their existing data. Only new records or
-    re-ingested records will reflect correct survivorship.
-
-  Recovery: Re-ingest affected records after configuring.
-  Cost: Proportional to record volume.
-  Source: B360_April2026_ConfigureSurvivorship_en.pdf, p.8
-
-─── C — Match Model Must Be Published Before Seeding ──────────────
-
-  What it is:
-    "Publishing" the match model activates it in the org. When
-    active, the system generates match keys for every record
-    as it is loaded — tokens used to find duplicate records.
-
-  Why it is irreversible:
-    Match keys are generated at load time only. A record loaded
-    before the model is Published has no match keys and will
-    never be matched, regardless of how similar it is to
-    another record.
-
-  If you get it wrong:
-    Records seeded before publish cannot participate in matching.
-    They will not consolidate into golden records.
-
-  Recovery: Publish model, then run "Publish and Regenerate
-    Match Keys" — a background re-index job across all records.
-  Cost: Minutes for an empty org; hours for large record volumes.
-  Source: B360_April2026_ConfigureMatchAndMerge_en.pdf, p.8
-
-─── D — Match Rule Cannot Be Edited After Save ─────────────────────
-
-  What it is:
-    A match rule defines the criteria the matching engine uses
-    (e.g., fuzzy name + address, exact identifier). Match
-    Strategy (Exact/Fuzzy) and Match Criterion are set at
-    rule creation.
-
-  Why it is irreversible:
-    Once a Directed AI match rule is saved, Match Strategy and
-    Match Criterion are locked. The UI does not allow editing them.
-
-  If you get it wrong:
-    Delete the rule and recreate it from scratch. Any testing
-    done against the old rule must be repeated.
-
-  Recovery: Delete and recreate. Low effort, re-testing required.
-  Source: B360_April2026_ConfigureMatchAndMerge_en.pdf, p.51
-
-─── E — Predefined Assets Cannot Be Deleted ───────────────────────
-
-  What they are:
-    Every Customer 360 SaaS org ships with assets that cannot
-    be removed: c360.person (the business entity), person.ruleset1
-    (the predefined match model), Default (source system), and
-    Informatica Customer 360 (source system).
-
-  Why it matters:
-    Do not attempt to recreate or replace these. Build on top
-    of them. Custom entities created in error also cannot be
-    deleted — plan carefully before creating anything custom.
-
-  Recovery: None. These are permanent org fixtures.
-  Source: B360_April2026_PredefinedAssets_en.pdf
+─── REQUIRED BEFORE RESUMING — Run Data Profiling ────────────────
+
+  Sheet 9 (Profiling Results) must be populated before you run
+  /mdm-deploy. Profiling results ground your survivorship
+  ranking (Sheet 4) and DQ rule selection (Step 4) in measured
+  data quality, not assumptions.
+
+  Steps:
+    1. In IDMC → Data Integration → New → Data Profiling Task
+    2. Create one task per source system, pointing at each source table
+    3. Run each task → wait for Succeeded in My Jobs
+    4. Actions → Export → save the Excel file
+    5. Paste key metrics into Sheet 9 (Profiling Results)
+    6. Revisit Sheet 4 — confirm survivorship ranking reflects
+       the completeness scores from profiling
+
+  Alternative: use mdm_fetch_profile_results.py to pull results
+  via the Data Profiling REST API (see scripts/).
 
 ──────────────────────────────────────────────────────────────────
 
-Org state confirmed:
-  c360.person:         {from scan}
-  person.ruleset1:     {Published / Draft / Not found}
-  Records in org:      {count}
-  Source systems:      {list from scan}
-  Existing M&M jobs:   {list from scan}
-
-{If records > 0:}
-  ⚠️  Records already exist.
-      Survivorship timing (B above) may already be violated.
-      Flag to org admin and confirm before proceeding.
-
-──────────────────────────────────────────────────────────────────
-
-SEGMENT 2 (Steps 1–3) — UI only. Must complete in this order
-  before any data enters the org.
-
-SEGMENT 3 (Steps 4–7) — Mix of UI and scripts. All of Segment 2
-  must be complete before Step 4 starts.
-
-Before you type [ready]:
-  Open MDM_Deployment_Steps_{Client}.xlsx → Pre-Flight tab
-  Confirm all conflict check rows are green (or amber with no action required)
-  Fill "Pre-Flight reviewed by" and "Date" in the Sign Off section
-
-Type [ready] to begin Step 1, or ask any questions first.
+Complete the workbook and profiling, then run:
+  /mdm-deploy ~/Downloads/MDM_Discovery_{Client}.xlsx
 ```
-
-Wait for the consultant to respond before presenting Step 1.
 
 ---
 
-### Step presentation rules — follow for every step
-
-Present steps **ONE AT A TIME**. Do not advance until the consultant types `[done]`, confirms completion, or explicitly asks to move on.
-
-**UI step card format** (Steps 1, 2, 3, 5):
-
-```
-── STEP {N} OF 7 [UI] — {Step Name} ─────────────────────────
-
-{Irreversible action profile — condensed from Pre-Flight, before instructions}
-
-Why this matters for {Client}:
-  {1-2 sentences grounded in the workbook decisions}
-
-Where to navigate:
-  {Exact console path — every click, in order}
-
-What to do:
-  {Numbered steps. All field values filled from the workbook.
-   Nothing left as a placeholder.}
-
-What you will see when done:
-  {Specific screen state — what the UI shows after a successful save}
-
-Verify:
-  {One specific check to confirm the step took effect}
-
-──────────────────────────────────────────────────────────────
-Type [done] when complete · [help] if you have a question
-```
-
-**Script step card format** (Steps 4, 6, 7):
-
-```
-── STEP {N} OF 7 [SCRIPT] — {Step Name} ─────────────────────
-
-Prerequisites — confirm all before running:
-  {Checklist of prior steps that must be complete}
-
-Why this matters for {Client}:
-  {1-2 sentences grounded in the workbook decisions}
-
-Run:
-  python3 ~/Informatica-MDM-kit/scripts/{script_name}.py
-
-What to enter when prompted:
-  {Specific values — all filled from workbook or prior steps}
-
-What the output means:
-  {How to interpret each terminal state or output line}
-
-Verify:
-  {Specific check after the script completes}
-
-──────────────────────────────────────────────────────────────
-Type [done] when complete · [help] if you have a question
-```
-
-**When the consultant types `[done]`:**
-
-1. Print the Step Summary:
-
-```
-✓  STEP {N} COMPLETE — {Step Name}
-
-   What was configured:
-     {specific values — source system IDs, ranking, job name, record count, etc.
-      Include any values the consultant provided (e.g. jobDefinitionId)}
-
-   {One-line note if there is anything to carry forward to a later step}
-```
-
-2. Ask for signoff:
-
-```
-Enter your name to sign off on this step:
-```
-
-3. When the consultant provides their name:
-
-   a. Update `MDM_Deployment_Session_{Client}.json` — set this step's status to `"complete"`, fill `completed_date`, `signed_off_by`, `table`, and `notes` from the values configured in this step. On Step 1, create the file with the full session header and all 7 steps (steps not yet started have `"status": "pending"`). On subsequent steps, read the file, update the relevant step object, and write it back.
-
-   b. Run the PDF generator:
-   ```bash
-   python3 ~/Informatica-MDM-kit/scripts/mdm_session_pdf.py ~/Downloads/MDM_Deployment_Session_{Client}.json
-   ```
-   This regenerates the full PDF — completed steps in green with signoff, in-progress step in amber, pending steps in grey.
-
-   c. Also append the step block to `MDM_Deployment_Session_{Client}.md`:
-   ```markdown
-   ## ✅ Step {N} — {Step Name}
-   **Completed:** {date}
-
-   {step-specific values table or bullet list}
-
-   **Signed off by:** {name}  |  **Date:** {date}
-
-   ---
-   ```
-
-4. Print confirmation:
-
-```
-✓ Signed off by {name}
-  MDM_Deployment_Session_{Client}.pdf — updated (Steps {completed} of 7 signed off)
-  MDM_Deployment_Session_{Client}.md  — updated
-
-Moving to Step {N+1}...
-```
-
-5. Present Step {N+1}.
-
-**When the consultant asks a question or types `[help]`:**
-
-1. Answer the question fully. Cite official documentation where relevant (doc name + page).
-2. Then re-orient:
-
-```
-Back to Step {N} — {Step Name}
-{Abbreviated: the core action in 2-3 lines}
-Type [done] when complete.
-```
-
-**When the consultant types `[skip]`:**
-
-Note the skip and advance. Steps 1, 2, and 3 cannot be skipped — they are prerequisites for seeding. If the consultant tries to skip any of them, explain the specific risk (from the Pre-Flight profiles above) and ask them to confirm they understand before proceeding.
-
-**If the consultant provides a value mid-step** (e.g., "the jobDefinitionId is abc123"):
-Record it in the running session context and include it verbatim in the step summary.
-
----
-
-## SEGMENT 2 — Foundation Steps (UI Only, Strict Order)
-
-Steps 1, 2, and 3 must complete in sequence before any data enters the org. All three are UI-only — no scripts run until Step 4. The ordering is not flexible:
-- Step 1 creates the source systems referenced by internal ID in Step 2
-- Step 2 must complete before any records exist (irreversible action B)
-- Step 3 must complete before Step 4 (irreversible action C)
-
----
-
-### Step 1 [UI] — Create Source Systems
-
-Irreversible action profile (condensed from Pre-Flight A):
-```
-🔴 CANNOT UNDO — Internal ID is immutable after creation.
-   If wrong: the incorrect ID lives in the org permanently.
-   Recovery: none. Confirm the ID in the dialog before clicking Create.
-   Source: B360_April2026_DefineSourceSystems_en.pdf, p.5
-```
-
-Why this matters for {Client}:
-> {From workbook — how these source systems represent the cross-channel
-> feeds for this deployment, and why the trust ranking is set as it is}
-
-Where to navigate:
-```
-Business 360 Console → left navigation → + New → Source Systems → Create
-```
-
-What to do:
-```
-For each source system from workbook Sheet 2:
-
-  1. Enter the Display Name
-  2. The Internal ID field auto-generates a slug from the Display Name —
-     but you can also type it directly. If the auto-generated value does
-     not match the planned ID, clear the Internal ID field and type the
-     correct value yourself. Do not keep adjusting the Display Name to
-     force the right slug — just type the ID.
-     Source: DefineSourceSystems, Chapter 3, p.8
-  3. Confirm the Internal ID field shows EXACTLY the planned value
-     BEFORE clicking Create — this is your last chance to change it
-  4. Click Create
-  5. Repeat for each source system
-
-Source systems to create:
-{For each row in workbook Sheet 2:}
-  Display Name:  {displayName}
-  Internal ID:   {proposedId}  ← verify this in the dialog
-  Trust level:   {rank} — {why}
-
-Do NOT recreate these predefined systems already in the org:
-  Default · Informatica Customer 360 (c360.default.system) · Informatica DaaS
-```
-
-What you will see when done:
-```
-The Source Systems list shows all newly created systems.
-Each row displays the Display Name and Internal ID side by side.
-Confirm the Internal ID column matches exactly — this is your last
-chance to catch a mismatch before it is permanent.
-```
-
-Verify:
-> Business 360 Console → Source Systems list → all new systems present with correct Internal IDs
-
----
-
-### Step 2 [UI] — Configure Survivorship
-
-Irreversible action profile (condensed from Pre-Flight B):
-```
-🔴 TIMING CRITICAL — Must be done before any records exist.
-   If records exist first: they keep default (no) survivorship permanently.
-   Current record count: {from scan}
-   {If 0:} ✅ Safe to proceed.
-   {If > 0:} ⚠️  Flag to org admin before proceeding.
-   Source: B360_April2026_ConfigureSurvivorship_en.pdf, p.8
-```
-
-Why this matters for {Client}:
-> {From workbook — how the trust hierarchy reflects the business reality:
-> which source holds the most reliable data and why, what decay means for
-> this client's specific data freshness challenge}
-
-Where to navigate:
-```
-Business 360 Console → Explore → c360.person → Survivorship tab → Edit All
-```
-
-What to do:
-```
-Section 1 — Source Ranking:
-  Set trust rank for each source system. Rank 1 = most trusted.
-  Sources not listed are treated as equal lowest trust.
-
-{For each source from workbook Sheet 3:}
-  Rank {N}: {Source System}  (internal ID: {id})
-  Why: {reasoning from workbook}
-
-Section 2 — Decay Rules (if applicable):
-{From workbook Sheet 3, or "No decay rules for this deployment."}
-  Source:   {name}
-  Max:      {max}  Min: {min}  Unit: {unit}  Period: {period}  Pattern: {pattern}
-  Why: {reasoning from workbook}
-
-  Decay reduces a source's trust score over time. Use for engagement
-  or marketing sources where contact data ages and is not actively
-  corrected. Do NOT apply decay to compliance or regulatory sources.
-
-⚠️ Do not modify the predefined verifier Address_Verifier_OOTB.
-   Source: Best Practices Guide
-
-Click Save before leaving the page.
-```
-
-What you will see when done:
-```
-The Survivorship tab reflects your source ranking (numbered list)
-and any decay rules saved below it. The Save button is no longer
-highlighted. If you navigate away without saving, the config is lost.
-```
-
-Verify:
-> Survivorship tab shows source ranking and decay rules as entered above, saved state.
-
----
-
-### Step 3 [UI] — Confirm Match Model Active
-
-Irreversible action profile (condensed from Pre-Flight C):
-```
-⚠️ TIMING CRITICAL — Must be Published before Step 4 (seeding records).
-   If records load before publish: they have no match keys and will never match.
-   Recovery: "Publish and Regenerate Match Keys" — re-index job (minutes for
-   empty org, hours for large volumes).
-   Source: B360_April2026_ConfigureMatchAndMerge_en.pdf, p.8
-```
-
-What is a match model?
-```
-person.ruleset1 is the predefined configuration that defines when two records
-represent the same real person. It uses fuzzy name matching — "John Smith"
-and "Jon Smyth" can still be identified as the same person.
-
-"Published" = active in the org, generating match keys for every record loaded.
-"Draft"     = exists but not running. Records loaded in Draft state have no keys.
-```
-
-Why this matters for {Client}:
-> {From workbook — the near-duplicate pairs loaded in Step 4 can only be matched
-> and consolidated if the model is active when those records arrive}
-
-Where to navigate:
-```
-Business 360 Console → Explore → c360.person → Match tab
-```
-
-What to do:
-```
-1. Look for person.ruleset1 in the match model list
-2. Check the status column
-
-   ── IF status = "Published" ──────────────────────────────
-   ✅ No action needed. Type [done] to proceed to Step 4.
-   ─────────────────────────────────────────────────────────
-
-   ── IF status = "Draft" or model is not visible ──────────
-   🔴 Activate before seeding records:
-
-     a. Click person.ruleset1 to open it
-     b. Click Publish in the top-right corner
-     c. Select "Publish and Regenerate Match Keys"
-        (activates the model AND prepares the matching index)
-     d. A banner appears: "Regenerate Match Keys job started successfully"
-     e. Click My Jobs in the top navigation
-     f. Wait until the job row shows status "Succeeded"
-     g. Type [done]
-
-   For an empty org this job finishes in under a minute.
-   Source: Workshop Lab Guide, LAB 5.1 steps 17–19
-   ─────────────────────────────────────────────────────────
-```
-
-What you will see when done:
-```
-person.ruleset1 shows "Published" in the Match tab status column.
-If you ran the publish job: My Jobs shows "Succeeded" for the
-Regenerate Match Keys job.
-```
-
-Verify:
-> Match tab → person.ruleset1 status = "Published"
-
----
-
-## SEGMENT 3 — Data & Validation
-
-Steps 4–7 load and validate data. **All of Segment 2 must be complete before Step 4.** Step 5 is UI; Steps 4, 6, and 7 are scripts.
-
----
-
-### Step 4 [SCRIPT] — Seed Records
-
-Prerequisites — confirm all three before running:
-```
-  ✓ Step 1 complete — source systems created, Internal IDs verified
-  ✓ Step 2 complete — survivorship configured and saved
-  ✓ Step 3 complete — person.ruleset1 Published
-
-  REST API is not designed for bulk. Cap: 50 records.
-  For > 50 records, use an ingress job instead.
-  Source: B360_April2026_(REST-API)Reference_en.pdf, p.8
-```
-
-Why this matters for {Client}:
-> {From workbook — what the seed records prove: the near-duplicate pairs are the
-> core test for this use case. If M&M consolidates them correctly, the deployment works.}
-
-Run:
-```
-python3 ~/Informatica-MDM-kit/scripts/mdm_seed_records.py
-```
-
-What to enter when prompted:
-```
-  Source system internal ID:  {from Step 1}
-  Record count:               {from workbook Sheet 5}
-  CSV path (or press Enter for manual):  {from workbook Sheet 5}
-```
-
-What the output means:
-```
-  ✓ Record seeded: <sourcePKey>   — record accepted by the API
-  ✗ Error on record <N>: <detail> — check the field format (lookup fields must
-                                    be objects: {"Name": "Female", "Code": "F"})
-  Authentication failed            — re-check org URL and credentials
-```
-
-Verify:
-> Re-run `mdm_scan_org.py` → Section 4 shows record count = {expected from workbook}
-
----
-
-### Step 5 [UI] — Define Match & Merge Job
-
-Prerequisite:
-```
-  ⚠️ person.ruleset1 must be Published (Step 3) before it appears
-     in the Match Model dropdown. Confirm Step 3 is complete.
-     Only one M&M job can run at a time for c360.person.
-     Source: B360_April2026_DefineJobs_en.pdf, p.24
-```
-
-Why this matters for {Client}:
-> {From workbook — this job definition is the trigger for consolidating the
-> seeded records into golden records}
-
-Where to navigate:
-```
-Business 360 Console → left navigation → + New → Jobs → Match and Merge → Create
-```
-
-What to do:
-```
-Fill in the following fields exactly:
-
-  Display Name:        {job_name from workbook Sheet 4}
-  Process:             MDMMatchMerge
-  Process Type:        Match and Merge
-  Business Entity:     c360.person
-  Match Model Name:    person.ruleset1
-  Match Model Version: Latest Version
-  Skip grouping potential matches: Unchecked
-
-Click Save.
-
-After saving — copy the jobDefinitionId:
-  Go to Business 360 Console → Jobs → click {job name}
-  The jobDefinitionId appears in the job detail panel or URL
-  Paste it here — I will carry it into Step 6
-```
-
-What you will see when done:
-```
-The job appears in the Jobs list with the Display Name you entered.
-Status shows "Ready" or similar (not "Running" — it hasn't been triggered yet).
-```
-
-Verify:
-> Jobs list → {job name} visible → copy and provide jobDefinitionId
-
----
-
-### Step 6 [SCRIPT] — Trigger Match & Merge
-
-Prerequisites:
-```
-  ✓ Step 4 complete — records seeded
-  ✓ Step 5 complete — M&M job defined, jobDefinitionId in hand
-```
-
-Why this matters for {Client}:
-> {From workbook — M&M runs the matching engine across all seeded records,
-> identifies the near-duplicate pairs, and consolidates them into golden records}
-
-Run:
-```
-python3 ~/Informatica-MDM-kit/scripts/mdm_trigger_match_merge.py
-```
-
-What to enter when prompted:
-```
-  jobDefinitionId:  {from Step 5}
-```
-
-What the output means:
-```
-  Polling every 10 seconds... (normal — job is running)
-
-  Phase updates shown as they occur:
-    Lock the Job → Match → Merge → Index for Search →
-    Group Potential Matches → Release the Job
-
-  Terminal states:
-    SUCCESS  ✅ — all phases completed. Proceed to Step 7.
-    WARNING  ⚠️ — completed with issues. Go to Business 360 Console
-                   → My Jobs → click the job → read the error detail.
-                   WARNING is not total failure — investigate before deciding.
-    FAILED   🔴 — job did not complete. Do not proceed to Step 7.
-                   Report the error here and we will diagnose.
-    STOPPED / SKIPPED — do not proceed. Report here.
-
-  Source: B360_April2026_(REST-API)Reference_en.pdf, p.128
-```
-
-Verify:
-> Business 360 Console → My Jobs → M&M job shows SUCCESS (or investigated WARNING)
-
----
-
-### Step 7 [SCRIPT] — Verify Golden Records
-
-Why this matters for {Client}:
-> {From workbook — this step confirms the deployment achieved its goal:
-> the near-duplicate pairs are consolidated into single golden records,
-> with the correct source winning survivorship for each field}
-
-Run:
-```
-python3 ~/Informatica-MDM-kit/scripts/mdm_verify_records.py
-```
-
-What to enter when prompted:
-```
-  (org credentials — same as prior scripts)
-```
-
-What the output means:
-```
-  For each record found:
-
-    businessId: MDM-xxxxx        ← "MDM" prefix = golden record ✅
-    consolidation: CONSOLIDATED  ← merged from multiple source records ✅
-    searchIndex: SEARCH_INDEXED  ← indexed and searchable ✅
-    sources: [salesforce_crm, digital_banking]  ← both sources contributing ✅
-
-  If a record shows consolidation: LINKED or NONE:
-    It was not matched. Check that its source system internal ID matches
-    exactly what was created in Step 1, and that the model was Published
-    before this record was seeded (Step 3).
-```
-
-Use case validation — check in Business 360 Console:
-```
-  Customer 360 → search for a seeded customer name
-  → Source Records tab
-
-  ✅ Both {source 1} and {source 2} appear as contributing sources
-  ✅ Green-highlighted fields = {primary source} survivorship winners
-  ✅ The number of golden records = number of unique real people
-     (not number of source records — duplicates consolidated)
-```
-
-Verify:
-> Near-duplicate pairs from Step 4 appear as single CONSOLIDATED golden records
-> with both source systems visible in the xref / Source Records tab
-
----
-
-### Session record — structure and timing
-
-Two files are maintained in parallel and updated after every signoff:
-
-- `MDM_Deployment_Session_{Client}.json` — machine-readable state; drives PDF generation
-- `MDM_Deployment_Session_{Client}.md` — human-readable audit log
-- `MDM_Deployment_Session_{Client}.pdf` — shareable artifact; regenerated in full after every signoff
-
-**On Step 1 signoff — create the JSON with this structure:**
-
-```json
-{
-  "client": "{Client}",
-  "org": "{org URL from scan}",
-  "pattern": "{deployment pattern}",
-  "entity": "c360.person",
-  "started": "{date}",
-  "output_dir": "{same directory as Discovery Workbook}",
-  "steps": [
-    { "number": 1, "name": "Create Source Systems",        "status": "complete", ... },
-    { "number": 2, "name": "Configure Survivorship",       "status": "pending" },
-    { "number": 3, "name": "Verify Match Model Published", "status": "pending" },
-    { "number": 4, "name": "Seed Records (API)",           "status": "pending" },
-    { "number": 5, "name": "Define Match & Merge Job",     "status": "pending" },
-    { "number": 6, "name": "Trigger Match & Merge (API)",  "status": "pending" },
-    { "number": 7, "name": "Verify Golden Records",        "status": "pending" }
-  ]
-}
-```
-
-Step object when complete:
-```json
-{
-  "number": 1,
-  "name": "Create Source Systems",
-  "status": "complete",
-  "completed_date": "{date}",
-  "signed_off_by": "{name}",
-  "table": {
-    "headers": ["column 1", "column 2", ...],
-    "rows": [["value", "value", ...], ...]
-  },
-  "notes": ["optional note shown below the table"]
-}
-```
-
-**On Step 1 signoff — also create the markdown file with this header, then append Step 1:**
-
-```markdown
-# MDM Deployment Session — {Client}
-
-**Started:** {date}
-**Org:** {org URL}
-**Business Entity:** c360.person
-**Pattern:** {deployment pattern}
-**Source:** MDM_Discovery_{Client}.xlsx
-
----
-```
-
-**After each step signoff — append this block:**
-
-```markdown
-## ✅ Step {N} — {Step Name}
-**Completed:** {date}
-
-{step-specific values — source system IDs, survivorship ranking, decay rules,
- job name, jobDefinitionId, record counts, M&M result, verification outcome}
-
-**Signed off by:** {name}  |  **Date:** {date}
-
----
-```
-
-**For any skipped step — append:**
-
-```markdown
-## ⏭ Step {N} — {Step Name} — SKIPPED
-**Reason:** {why skipped}  |  **Date:** {date}
-
----
-```
-
-**After Step 7 signoff — append the closing block and print completion:**
-
-```markdown
-## Key Values for Reference
-
-| Item | Value |
-|------|-------|
-| Source systems created | {name (internal_id) for each} |
-| Survivorship ranking | {rank list} |
-| Decay rules | {summary or none} |
-| M&M job name | {name} |
-| jobDefinitionId | {id} |
-| Records seeded | {count} |
-| Golden records verified | {count} |
-
-## Use Case Validation
-
-{From workbook — the specific validation outcome and whether it passed}
-
-## Source Documents
-
-- MDM_UseCase_{Client}_APPROVED.pdf
-- MDM_Discovery_{Client}.xlsx
-```
-
-Then print:
-
-```
-✓ Deployment complete — {Client}
-
-Session record:
-  MDM_Deployment_Session_{Client}.md
-  All 7 steps signed off — ready for handoff or archive.
-
-If you need to re-run any step or debug an issue, return to this
-session and describe what you see — I can walk you through it.
-
-Post-deployment API quick reference:
-  Seed a record:      POST /business-entity/.../entity/c360.person?sourceSystem=&sourcePKey=
-  Trigger M&M:        POST /job/.../jobInstance/MatchMerge
-  Poll job status:    GET  /job/.../jobInstance/<jobInstanceId>
-  Search records:     POST /search/.../search
-  Read golden record: GET  /business-entity/.../entity/c360.person/<businessId>
-  Read source xref:   GET  /business-entity/.../entity/c360.person/<businessId>/xref
-```
