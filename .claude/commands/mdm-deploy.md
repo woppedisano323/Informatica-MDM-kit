@@ -12,6 +12,48 @@ This skill picks up where `/mdm-setup` left off. You receive a completed `MDM_Di
 
 ---
 
+## Glossary
+
+Draw from these definitions when introducing a term for the first time or when the consultant asks what something means. One sentence, conversational — no jargon inside the definition.
+
+| Term | Definition |
+|---|---|
+| **Golden Record** | The unified master record MDM creates after deduplicating and merging source records — the single trusted view of a real-world entity. |
+| **Source Record** | An individual record from one source system. Multiple source records from different systems can merge into one golden record. |
+| **Source System** | An origin of data (e.g., Salesforce CRM, core banking system), identified in MDM by a Display Name and an immutable Internal ID. |
+| **Internal ID** | The system identifier for a source system, entity, or field group — auto-generated from the display name and locked permanently after creation. |
+| **Survivorship** | The rules that determine which source system's value appears on the golden record when sources disagree on a field. |
+| **Trust Score** | A numeric measure of how reliable a source's data is; higher-ranked sources score higher, and DQ validation failures reduce the score. |
+| **Trust Ranking** | The ordered list of source systems from most trusted (Rank 1) to least trusted — drives survivorship when scores are equal. |
+| **Decay** | Gradual reduction of a source's trust score over time; used for marketing/engagement sources where data ages quickly. |
+| **Match Model** | The configuration defining when two records represent the same real-world entity; must be Published before data is loaded. |
+| **Match Key** | A token generated at load time from name and address fields; used by the matching engine to find potential duplicates. |
+| **Fuzzy Match** | Probabilistic matching that tolerates variations (JOHN ≈ Jon, St. ≈ Street); used for names and addresses. |
+| **Exact Match** | Requires identical values — no tolerance for variation; used for identifiers and email addresses. |
+| **Merge Strategy** | What happens when a match is found: Automated (merge immediately), Manual (queue for steward review), or Threshold-based (score-driven). |
+| **Match Criterion** | The pattern a Fuzzy rule uses — Resident (name + address, FSI standard), Individual (name + ID), Organization, or Fields (generic). |
+| **Population** | Language and geography context for match key generation — Usa means English-language US data. |
+| **Field Group** | A named collection of related fields on an entity (e.g., Address, Phone, or custom groups like X_WealthProfile). |
+| **fgid** | The Source Primary Key for a field group instance — a CSV column named {fieldGroupInternalId}_fgid that identifies one row within a record's field group. |
+| **sourcePKey** | The source system's primary key for a record (e.g., client_id); used by MDM to link a golden record back to its contributing source records. |
+| **DQ Rule** | A Data Quality rule that standardizes or validates field values during ingress — three types: Basic (built-in B360 functions), Advanced (Cloud DQ spec), DaaS (external service). |
+| **Severity** | The outcome when a DQ validation fails — Information (record saves), Warning (trust score downgraded), or Error (record rejected). |
+| **Trust Downgrade %** | The percentage deducted from a source's trust score when a DQ rule fails; directly affects which source wins survivorship for that field. |
+| **DaaS** | Informatica Data as a Service — cloud enrichment for address, name, email, and phone standardization; Address Verification is included in MDM SaaS, others require separate entitlements. |
+| **CDI** | Cloud Data Integration — the IDMC component for building reusable ETL mappings to load source data into MDM; the recommended production loading path. |
+| **Secure Agent** | A local runtime that executes CDI mappings; must be installed, running, and connected to IDMC before any mapping can run. |
+| **Business 360 Connector** | The CDI target connector that loads records into an MDM entity, configured with entity ID, source system ID, and operation type (Upsert). |
+| **IDMC** | Informatica Intelligent Data Management Cloud — the platform hosting CDI, Cloud DQ, MDM, CDGC, and other Informatica services. |
+| **Ingress Job** | A CDI mapping run that loads source records through the full pipeline: Extract → Stage → Cleanse/Transform (DQ fires) → Load → Index → Generate Match Keys. |
+| **Consolidation Status** | The merge state of a record after Match and Merge — CONSOLIDATED (merged from multiple sources), LINKED (matched, pending review), or NONE (no match). |
+| **Business ID** | The unique identifier MDM generates for each golden record (e.g., FSI4AB78YU2WE2CD); format is set at entity creation and cannot change after records exist. |
+| **Blank-Canvas Entity** | A custom MDM entity built from scratch — no inherited smart fields or predefined DQ rules; required for custom deployments to avoid smart field privilege issues. |
+| **Smart Fields** | Predefined field types (Address, Phone, Electronic Address) that carry built-in DQ validation rules and require dictionary asset type privileges to execute at ingress. |
+| **Business Application** | The B360 layer that exposes MDM entities to end users and File Import; custom entities must be registered here before they appear in the entity picker. |
+| **Publish** | Activating a match model so it generates match keys for records as they load; records loaded before publish have no match keys and will never be matched. |
+
+---
+
 ## Begin Deployment
 
 Invoked as: `/mdm-deploy <path/to/MDM_Discovery_<Client>.xlsx>`
@@ -2227,3 +2269,47 @@ Post-deployment API quick reference:
   Read golden record:         GET  /business-entity/.../entity/c360.person/<businessId>
   Read source xref:           GET  /business-entity/.../entity/c360.person/<businessId>/xref
 ```
+
+---
+
+## Glossary
+
+Quick-reference definitions for terms used in this skill and the Discovery Workbook.
+If a client or stakeholder asks what something means mid-deployment, surface the relevant entry here.
+
+| Term | Definition |
+|---|---|
+| **Golden Record** | The unified master record created by MDM after deduplicating and merging source records. The single trusted view of a real-world entity. |
+| **Source Record** | An individual record contributed by a source system. Multiple source records can merge into one golden record. |
+| **Source System** | An origin of data (e.g., Salesforce CRM, core banking). Defined in MDM by a Display Name and an immutable Internal ID. |
+| **Internal ID** | The system identifier for a source system, entity, or field group. Auto-generated from the display name. Cannot be renamed or deleted after creation. |
+| **Survivorship** | The rules that decide which source system's field value appears on the golden record when sources conflict. Driven by trust ranking. |
+| **Trust Score** | A numeric measure of how reliable a source's data is for a given field. Higher-ranked sources start with higher scores. DQ failures reduce the score. |
+| **Trust Ranking** | The ordered list of source systems from most trusted (Rank 1) to least trusted. Determines which source wins survivorship when scores are equal. |
+| **Decay** | Gradual reduction of a source's trust score over time. Applied to sources where data ages quickly. Not applied to compliance or regulatory sources. |
+| **Match Model** | The configuration defining when two records represent the same real-world entity. Contains match rules. Must be Published before data is loaded. |
+| **Match Key** | A token generated from a record at load time, derived from name and address fields. Used by the matching engine to efficiently find potential duplicates. |
+| **Match Rule** | A rule within a match model — defines the field type (Person_Name, Address), match approach (Fuzzy or Exact), and merge strategy. |
+| **Fuzzy Match** | Probabilistic matching that tolerates variations: JOHN ~ Jon, St. ~ Street, Smith ~ Smyth. Used for names and addresses. |
+| **Exact Match** | Requires identical values — no tolerance for variation. Used for unique identifiers and email addresses. |
+| **Merge Strategy** | What happens when a match is found. Automated: merge immediately. Manual: queue for steward review. Threshold-based: score-driven. |
+| **Match Criterion** | The pattern a Fuzzy rule uses. Resident: name + address (FSI standard). Individual: name + ID. Person_Name: name only. Organization: org name. |
+| **Population** | Language and geography context for match key generation. Usa = English-language US data. Affects how names and addresses are tokenized. |
+| **Field Group** | A named collection of related fields on an entity. Standard examples: Address, Phone. Custom examples: X_WealthProfile, X_MortgageLoan. |
+| **fgid** | Field Group Source Primary Key. A CSV column that uniquely identifies one instance of a field group within a record. Named `{fieldGroupInternalId}_fgid`. |
+| **sourcePKey** | The source system's primary key for a record (e.g., client_id). Unique within a source system. Links golden records back to source records. |
+| **DQ Rule** | Data Quality Rule — standardizes or validates field values during ingress. Three types: Basic (predefined B360 functions), Advanced (Cloud DQ), DaaS (external service). |
+| **Basic Rule** | A DQ rule using predefined functions built into Business 360. No external dependency. Includes: Title Case, Trim, Regular Match, Concatenate with Spaces. |
+| **Advanced Rule** | A DQ rule using a Cloud Data Quality rule specification. Requires CDQ entitlement. Used for identifier validation (SSN, NPI, DUNS) and custom formats. |
+| **DaaS** | Data as a Service — Informatica's cloud data enrichment. Address Verification is included in standard MDM SaaS. Name Standardization and others require separate entitlements. |
+| **Severity** | The outcome when a DQ validation rule fails. Information: logs only. Warning: trust score downgraded. Error: record rejected at ingress. |
+| **Trust Downgrade %** | The percentage deducted from a source's trust score when a DQ validation rule fails. Directly affects which source wins survivorship. |
+| **CDI** | Cloud Data Integration — the IDMC component for building ETL mappings to load source data into MDM. Recommended for production data loading. |
+| **Secure Agent** | A local runtime environment that executes CDI mappings. Must be installed, running, and connected to IDMC before any CDI mapping can run. |
+| **Business 360 Connector** | The CDI target connector that loads records into an MDM entity. Configured with entity internal ID, source system internal ID, and operation (Upsert). |
+| **IDMC** | Informatica Intelligent Data Management Cloud — the platform hosting CDI, Cloud DQ, MDM, CDGC, and other Informatica services. |
+| **Ingress Job** | A CDI mapping execution that loads source records into MDM. Pipeline stages: Extract → Stage → Cleanse/Transform (DQ fires) → Load → Index → Generate Match Keys. |
+| **Consolidation Status** | The merge state of a record after Match and Merge. CONSOLIDATED: merged. LINKED: matched but pending review. NONE: no match found. |
+| **Business ID** | The unique identifier MDM generates for each golden record (e.g., FSI4AB78YU2WE2CD). Cannot change after records are loaded. |
+| **Blank-Canvas Entity** | A custom MDM entity created from scratch — no inherited smart fields or predefined DQ rules. Required for custom deployments to avoid smart field privilege issues at ingress. |
+| **Business Application** | The B360 application layer that exposes MDM entities to end users. Custom entities must be registered here before they appear in File Import or the C360 UI. |
