@@ -1,0 +1,101 @@
+client_id,first_name,last_name,middle_name,birth_date,street_address,city,state,postal_code,phone,email,portfolio_id,portfolio_tier,risk_rating,advisor_id,onboarding_date
+ORION_001,James,MORRISON,,1968-03-15,142 Oak St,Riverside,CA,92501,9513456789,james.morrison@email.com,PORT-81482,Conservative,Medium,ADV-132,1968-01-03
+ORION_002,ROBERT,Sullivan,,1975-07-22,2251 Vine Ct,Temecula,ca,92590,9517234561,rsullivan@webmail.net,PORT-64987,Moderate,Medium,ADV-703,1975-05-26
+ORION_003,Linda,Park,,1982-11-08,509 Brentwood Dr,Moreno Valley,CA,92553,951-876-5432,linda.park@gmail.com,PORT-54118,Conservative,Low,ADV-489,1982-02-12
+ORION_004,Susan,Williams,M.,1960-04-30,4401 Sierra Vista Blvd,Palm Springs,CA,92264,760.555.1234,swilliams@hotmail.com,PORT-20328,Moderate,High,ADV-949,1960-11-20
+ORION_005,Maria,Rodriguez,,1978-09-12,445 Brockton Ave,San Bernardino,California,92411,909.888.7766,maria.r@outlook.com,PORT-20458,Moderate,Low,ADV-489,1978-05-15
+ORION_006,Christopher,Lee,,1985-02-17,3301 Haven Ave,Rancho Cucamonga,CA,91730,9097654321,c.lee@companymail.com,PORT-94939,Conservative,Medium,ADV-646,1985-12-08
+ORION_007,JENNIFER,Williams,R.,1990-06-25,728 Citrus Ave,Fontana,CA,92335,909-654-3210,jen.williams@email.com,PORT-40021,Conservative,High,ADV-510,1990-05-03
+ORION_008,THOMAS,Kim,J.,1972-12-03,512 Orange Street,Redlands,CA,92373,9095432109,tkim@webmail.net,PORT-70142,Moderate,High,ADV-242,1972-04-24
+ORION_009,Kevin,JOHNSON,,1988-08-19,2250 Roy Rogers Dr,Victorville,CA,92392,760-432-1098,kjohnson@gmail.com,PORT-28131,Moderate,Medium,ADV-193,1988-01-28
+ORION_010,DANIEL,Garcia,L.,1965-01-27,8910 Arrow Hwy,Rancho Cucamonga,CA,91730,9093210987,d.garcia@hotmail.com,PORT-71348,Moderate,High,ADV-666,1965-01-22
+ORION_011,Patricia,Martinez,,1970-05-14,1122 Magnolia Ave,Riverside,CA,92503,951-210-9876,pmartinez@outlook.com,PORT-48469,Aggressive,Medium,ADV-564,1970-01-24
+ORION_012,Michael,ANDERSON,,1983-10-06,3345 Victoria Ave,San Bernardino,ca,92407,9091098765,m.anderson@email.com,PORT-49117,Moderate,Medium,ADV-256,1983-06-25
+ORION_013,BARBARA,Taylor,A.,1957-07-31,676 6th Street,Corona,CA,92879,951-098-7654,btaylor@webmail.net,PORT-57576,Aggressive,Medium,ADV-159,1957-04-19
+ORION_014,William,THOMAS,,1979-03-22,1890 Hamner Ave,Norco,California,92860,951-087-6543,wthomas@gmail.com,PORT-26828,Aggressive,Medium,ADV-371,1979-09-28
+ORION_015,Elizabeth,Jackson,D.,1994-09-09,2200 E Highland Ave,Highland,CA,92346,9090765432,ejackson@hotmail.com,PORT-95180,Aggressive,Medium,ADV-629,1994-08-04
+ORION_016,RICHARD,WHITE,,1968-11-18,555 N Euclid Ave,Upland,CA,91786,909-065-4321,rwhite@outlook.com,PORT-19305,Conservative,Medium,ADV-169,1968-01-28
+ORION_017,Margaret,Harris,,1981-06-07,789 W Base Line St,Rialto,CA,92376,9090543210,mharris@email.com,PORT-84847,Moderate,Medium,ADV-348,1981-08-26
+ORION_018,Charles,SANCHEZ,J.,1963-02-14,4100 N Mountain Ave,Ontario,CA,91762,9094321098,csanchez@webmail.net,PORT-17100,Conservative,Low,ADV-512,1963-12-11
+ORION_019,Dorothy,CLARK,,1976-08-28,1500 S Haven Ave,Ontario,CA,91761-4006,909.678.9012,dclark@gmail.com,PORT-70637,Moderate,Low,ADV-553,1976-09-04
+ORION_020,JOSEPH,Ramirez,B.,1990-12-11,900 E Mission Blvd,Pomona,CA,91766,909-789-0123,jramirez@hotmail.com,PORT-63269,Aggressive,Medium,ADV-318,1990-07-02
+ORION_021,HELEN,LEWIS,,1955-04-03,200 W College St,Covina,CA,91722,626.890.1234,hlewis@outlook.com,PORT-65444,Moderate,Medium,ADV-258,1955-04-10
+ORION_022,MARK,ROBINSON,A.,1987-01-25,330 N Azusa Ave,Azusa,CA,91702-8811,6269012345,mrobinson@email.com,PORT-79615,Moderate,Low,ADV-620,1987-02-28
+ORION_023,RUTH,Walker,D.,1969-07-16,1800 Puente Ave,Baldwin Park,CA,91706,6260123456,rwalker@webmail.net,PORT-42271,Moderate,Low,ADV-734,1969-02-14
+ORION_024,Donald,Perez,,1982-03-04,4500 Peck Rd,El Monte,CA,91732,626.123.4567,dperez@gmail.com,PORT-41285,Aggressive,Medium,ADV-234,1982-11-21
+ORION_025,Sharon,Hall,B.,1973-10-20,11200 Valley Blvd,El Monte,California,91731,6262345678,shall@hotmail.com,PORT-23104,Conservative,Medium,ADV-618,1973-05-05
+ORION_026,Paul,Young,J.,1961-05-08,1200 S Atlantic Blvd,Monterey Park,CA,91754,3233456789,pyoung@outlook.com,PORT-49651,Moderate,Low,ADV-783,1961-09-10
+ORION_027,Deborah,ALLEN,E.,1986-09-29,300 N Garfield Ave,Alhambra,ca,91801-3546,626.345.6789,dallen@email.com,PORT-46930,Moderate,Medium,ADV-834,1986-06-07
+ORION_028,Jason,King,,1993-02-13,500 W Las Tunas Dr,Temple City,CA,91780,626-456-7890,jking@webmail.net,PORT-22097,Aggressive,High,ADV-145,1993-01-11
+ORION_029,Karen,Wright,,1978-06-06,9600 Garvey Ave,South El Monte,CA,91733,626.567.8901,kwright@gmail.com,PORT-83519,Conservative,Low,ADV-177,1978-12-05
+ORION_030,Steven,Scott,,1967-11-22,2100 Huntington Dr,San Marino,ca,91108-6050,626.678.9012,sscott@hotmail.com,PORT-15229,Aggressive,Medium,ADV-798,1967-04-22
+ORION_031,NANCY,Torres,L.,1984-04-17,1100 S Fremont Ave,Alhambra,CA,91803,626-789-0123,ntorres@outlook.com,PORT-31299,Moderate,Medium,ADV-125,1984-03-24
+ORION_032,Andrew,Nguyen,,1991-08-31,400 W Garvey Ave,Monterey Park,CA,91754,323-012-3456,anguyen@email.com,PORT-44970,Moderate,Low,ADV-491,1991-01-28
+ORION_033,Betty,HILL,J.,1959-01-09,700 S Atlantic Blvd,Los Angeles,CA,90022,323-123-4567,bhill@webmail.net,PORT-39219,Conservative,Medium,ADV-508,1959-06-09
+ORION_034,Joshua,Flores,,1996-07-14,1400 E Cesar Chavez,Los Angeles,CA,90033,3232345678,jflores@gmail.com,PORT-53404,Conservative,Low,ADV-998,1996-05-06
+ORION_035,Donna,Green,,1971-12-27,2500 Whittier Blvd,Los Angeles,CA,90023,323.345.6789,dgreen@hotmail.com,PORT-67199,Moderate,Low,ADV-494,1971-10-07
+ORION_036,RYAN,Adams,,1988-05-03,800 N Alvarado St,Los Angeles,CA,90026,2135678901,radams@outlook.com,PORT-97900,Moderate,High,ADV-541,1988-02-22
+ORION_037,Amanda,Baker,B.,1979-09-18,1600 W 6th St,Los Angeles,CA,90017,213.678.9012,abaker@email.com,PORT-97410,Aggressive,High,ADV-512,1979-12-10
+ORION_038,Raymond,GONZALEZ,L.,1964-03-07,3200 Olympic Blvd,Los Angeles,CA,90006,2137890123,rgonzalez@webmail.net,PORT-84593,Aggressive,Medium,ADV-661,1964-01-10
+ORION_039,Melissa,Nelson,,1992-11-30,950 S Vermont Ave,Los Angeles,CA,90006,213.012.3456,mnelson@gmail.com,PORT-98555,Moderate,Medium,ADV-912,1992-12-06
+ORION_040,Gregory,Carter,S.,1975-06-21,1050 W Pico Blvd,Los Angeles,CA,90015,310-123-4567,gcarter@hotmail.com,PORT-98184,Aggressive,Medium,ADV-925,1975-04-05
+ORION_041,CAROLYN,MITCHELL,,1983-02-08,4400 Santa Monica Blvd,Los Angeles,CA,90029-7790,3232345678,cmitchell@outlook.com,PORT-85454,Moderate,Medium,ADV-606,1983-07-08
+ORION_042,PATRICK,Perez,B.,1970-08-14,2700 Hyperion Ave,Los Angeles,CA,90027-9486,323.345.6789,pperez@email.com,PORT-16582,Moderate,Medium,ADV-968,1970-02-15
+ORION_043,CHRISTINE,Roberts,,1987-04-25,1900 Hillhurst Ave,Los Angeles,CA,90027,323.456.7890,croberts@webmail.net,PORT-90301,Moderate,Medium,ADV-950,1987-09-15
+ORION_044,Frank,Turner,,1962-10-11,600 N Western Ave,Los Angeles,CA,90004-5543,3235678901,fturner@gmail.com,PORT-73517,Moderate,High,ADV-550,1962-02-23
+ORION_045,Kathleen,PHILLIPS,,1995-01-06,800 S Normandie Ave,Los Angeles,CA,90005-4788,323.678.9012,kphillips@hotmail.com,PORT-30028,Moderate,Low,ADV-524,1995-07-11
+ORION_046,Raymond,Campbell,,1977-07-19,2100 W Adams Blvd,Los Angeles,CA,90018,3237890123,rcampbell@outlook.com,PORT-12560,Moderate,Medium,ADV-588,1977-01-12
+ORION_047,Janet,Parker,L.,1980-03-28,3400 S Figueroa St,Los Angeles,CA,90007,2130123456,jparker@email.com,PORT-38906,Aggressive,Medium,ADV-379,1980-07-16
+ORION_048,HAROLD,Evans,L.,1968-09-05,1700 W Jefferson Blvd,Los Angeles,CA,90018,323-123-4567,hevans@webmail.net,PORT-91560,Moderate,Low,ADV-503,1968-10-19
+ORION_049,Mildred,EDWARDS,,1989-05-23,900 W Martin Luther King Jr Blvd,Los Angeles,CA,90037-5262,323.234.5678,medwards@gmail.com,PORT-52906,Moderate,Medium,ADV-434,1989-06-25
+ORION_050,Roy,COLLINS,L.,1973-12-16,2300 S Broadway,Los Angeles,CA,90007-1317,3233456789,rcollins@hotmail.com,PORT-80702,Conservative,High,ADV-329,1973-11-03
+ORION_051,Alice,Stewart,D.,1985-06-01,1100 W 190th St,Gardena,ca,90248-3496,310-789-0123,astewart@outlook.com,PORT-26544,Aggressive,Low,ADV-677,1985-04-15
+ORION_052,Walter,Sanchez,,1971-01-12,2500 Pacific Coast Hwy,Torrance,CA,90505,310-012-3456,wsanchez@email.com,PORT-31465,Aggressive,Low,ADV-692,1971-01-10
+ORION_053,Evelyn,Morris,,1958-08-23,900 N Crenshaw Blvd,Inglewood,CA,90302-4978,310-123-4567,emorris@webmail.net,PORT-49529,Moderate,Low,ADV-915,1958-10-26
+ORION_054,ARTHUR,Rogers,B.,1993-04-07,4200 Centinela Ave,Los Angeles,CA,90066,310.234.5678,arogers@gmail.com,PORT-74251,Conservative,Medium,ADV-470,1993-11-27
+ORION_055,Doris,REED,,1976-10-29,1800 W Imperial Hwy,Hawthorne,CA,90250,3103456789,dreed@hotmail.com,PORT-80539,Aggressive,Medium,ADV-546,1976-12-19
+ORION_056,RAYMOND,Cook,B.,1961-03-15,3100 W Manchester Ave,Inglewood,CA,90305,310.456.7890,rcook@outlook.com,PORT-84691,Moderate,Medium,ADV-444,1961-01-16
+ORION_057,Gloria,MORGAN,,1989-07-08,700 S La Brea Ave,Inglewood,CA,90301,3105678901,gmorgan@email.com,PORT-46211,Moderate,Low,ADV-629,1989-04-03
+ORION_058,RALPH,Bell,,1966-12-20,2200 E Century Blvd,Los Angeles,CA,90002,3106789012,rbell@webmail.net,PORT-74332,Aggressive,Low,ADV-195,1966-05-08
+ORION_059,Phyllis,MURPHY,J.,1982-05-14,1400 W 120th St,Los Angeles,CA,90044,310.789.0123,pmurphy@gmail.com,PORT-82140,Aggressive,High,ADV-819,1982-08-09
+ORION_060,Willie,BAILEY,J.,1974-09-27,4600 S Main St,Los Angeles,ca,90037,3108901234,wbailey@hotmail.com,PORT-34267,Moderate,Medium,ADV-856,1974-08-09
+ORION_061,Brandon,Cruz,,1991-02-18,500 W Baseline Rd,Claremont,CA,91711-4180,909.700.1234,bcruz@email.com,PORT-39816,Aggressive,Medium,ADV-409,1991-01-23
+ORION_062,Brittany,REYES,R.,1984-08-09,1200 N Indian Hill Blvd,Pomona,CA,91767,9097012345,breyes@webmail.net,PORT-74340,Conservative,Low,ADV-687,1984-05-16
+ORION_063,Dylan,Richardson,E.,1997-03-25,600 S Garey Ave,Pomona,CA,91766,909-702-3456,drichardson@gmail.com,PORT-62521,Aggressive,Low,ADV-690,1997-11-22
+ORION_064,HEATHER,COX,,1969-11-07,900 N Towne Ave,Pomona,CA,91767,909-703-4567,hcox@hotmail.com,PORT-83147,Aggressive,Medium,ADV-894,1969-09-13
+ORION_065,Ethan,Howard,L.,1993-06-14,1500 E Holt Ave,Pomona,CA,91767,9097045678,ehoward@outlook.com,PORT-23006,Moderate,Medium,ADV-370,1993-11-03
+ORION_066,MEGAN,WARD,,1978-01-30,2000 S Garey Ave,Pomona,California,91766,9097056789,mward@email.com,PORT-71592,Aggressive,Low,ADV-337,1978-05-23
+ORION_067,Tyler,Torres,,1986-09-22,300 W Mission Blvd,Pomona,CA,91766,9097067890,ttorres@webmail.net,PORT-87304,Moderate,Medium,ADV-217,1986-09-08
+ORION_068,Samantha,Peterson,B.,1990-04-11,1800 N Garey Ave,Pomona,California,91767,9097078901,speterson@gmail.com,PORT-84607,Aggressive,Medium,ADV-227,1990-08-23
+ORION_069,Aaron,Gray,,1975-12-05,400 E Alvarado St,Pomona,CA,91767,9097089012,agray@hotmail.com,PORT-15224,Aggressive,High,ADV-718,1975-05-01
+ORION_070,RACHEL,Ramirez,S.,1982-07-28,700 S Hamilton Blvd,Pomona,CA,91766-5415,9097090123,rramirez@outlook.com,PORT-15273,Moderate,Medium,ADV-631,1982-11-15
+ORION_071,Nathan,JAMES,,1995-02-16,1100 N Park Ave,Pomona,CA,91768,909-700-1235,njames@email.com,PORT-71605,Aggressive,Medium,ADV-441,1995-06-22
+ORION_072,HANNAH,WATSON,,1988-10-03,200 S San Antonio Ave,Pomona,CA,91767,909.701.2346,hwatson@webmail.net,PORT-82102,Conservative,Medium,ADV-190,1988-06-09
+ORION_073,Justin,Brooks,,1972-05-20,550 W Phillips Blvd,Pomona,CA,91766,9097023457,jbrooks@gmail.com,PORT-81118,Aggressive,Medium,ADV-155,1972-04-17
+ORION_074,Amber,Kelly,A.,1980-08-15,1300 E Mission Blvd,Pomona,CA,91766,909.703.4568,akelly@hotmail.com,PORT-67424,Aggressive,Low,ADV-129,1980-11-20
+ORION_075,Logan,Sanders,,1994-03-08,800 S Reservoir St,Pomona,California,91766,909-704-5679,lsanders@outlook.com,PORT-24871,Aggressive,Low,ADV-763,1994-03-16
+ORION_076,Ashley,Price,L.,1967-11-25,650 N Park Ave,Pomona,CA,91768,909-705-6780,aprice@email.com,PORT-69871,Moderate,Medium,ADV-492,1967-04-20
+ORION_077,Derek,Bennett,E.,1983-06-12,1700 S Garey Ave,Pomona,CA,91766,909.706.7891,dbennett@webmail.net,PORT-76550,Aggressive,Low,ADV-389,1983-12-10
+ORION_078,Crystal,Wood,C.,1991-09-29,1000 E Holt Ave,Pomona,CA,91767,909.707.8902,cwood@gmail.com,PORT-82340,Moderate,Medium,ADV-566,1991-06-28
+ORION_079,TRAVIS,Barnes,,1976-02-04,250 W Mission Blvd,Pomona,CA,91766,909-708-9013,tbarnes@hotmail.com,PORT-51704,Aggressive,Medium,ADV-495,1976-11-26
+ORION_080,Stephanie,Ross,,1989-07-21,1550 N Garey Ave,Pomona,California,91767,9097090124,sross@outlook.com,PORT-53515,Conservative,Medium,ADV-202,1989-09-15
+ORION_081,KYLE,HENDERSON,C.,1984-04-17,900 E Alvarado St,Pomona,California,91767,909.700.1236,khenderson@email.com,PORT-54375,Moderate,Medium,ADV-765,1984-02-28
+ORION_082,Alexandra,Coleman,,1971-10-09,350 S Hamilton Blvd,Pomona,CA,91766,909.701.2347,acoleman@webmail.net,PORT-80912,Conservative,Low,ADV-340,1971-11-22
+ORION_083,Trevor,Jenkins,L.,1998-01-26,1450 W Mission Blvd,Pomona,CA,91766,9097023458,tjenkins@gmail.com,PORT-23173,Aggressive,Medium,ADV-810,1998-05-01
+ORION_084,MONICA,Perry,,1979-05-13,600 N Towne Ave,Pomona,CA,91767-9702,909.703.4569,mperry@hotmail.com,PORT-84177,Moderate,Medium,ADV-279,1979-02-20
+ORION_085,Zachary,Powell,,1992-08-30,1250 S Garey Ave,Pomona,CA,91766-8555,9097045680,zpowellabs@outlook.com,PORT-43289,Aggressive,High,ADV-782,1992-01-26
+ORION_086,Tiffany,Long,,1986-03-06,750 E Holt Ave,Pomona,California,91767,9097056781,tlong@email.com,PORT-49210,Aggressive,High,ADV-567,1986-05-07
+ORION_087,Cameron,Patterson,,1974-09-19,1050 N Towne Ave,Pomona,CA,91767,909.706.7892,cpatterson@webmail.net,PORT-48696,Conservative,Medium,ADV-381,1974-01-19
+ORION_088,Vanessa,Hughes,S.,1981-12-07,400 W Holt Ave,Pomona,CA,91767,909.707.8903,vhughes@gmail.com,PORT-40162,Moderate,High,ADV-324,1981-11-07
+ORION_089,Spencer,Flores,C.,1995-06-24,1600 S Garey Ave,Pomona,CA,91766,9097089014,sflorespm@hotmail.com,PORT-15167,Aggressive,Medium,ADV-134,1995-10-12
+ORION_090,Miranda,WASHINGTON,,1969-03-11,850 N Garey Ave,Pomona,CA,91767-3165,9097090125,mwashington@outlook.com,PORT-57953,Moderate,High,ADV-950,1969-03-09
+ORION_091,Jared,Butler,E.,1987-08-28,1100 W Holt Ave,Pomona,CA,91767,909-700-1237,jbutler@email.com,PORT-71385,Conservative,Medium,ADV-872,1987-04-28
+ORION_092,Cassandra,Simmons,,1993-01-15,300 E Mission Blvd,Pomona,CA,91766,909-701-2348,csimmons@webmail.net,PORT-61717,Conservative,High,ADV-649,1993-02-15
+ORION_093,Brandon,Foster,,1977-06-02,1400 N Park Ave,Pomona,CA,91768,909.702.3459,bfoster@gmail.com,PORT-24201,Moderate,Medium,ADV-125,1977-10-18
+ORION_094,Danielle,Gonzalez,M.,1990-10-19,700 S Garey Ave,Pomona,CA,91766,909.703.4570,dgonzalez@hotmail.com,PORT-25292,Moderate,Low,ADV-138,1990-05-16
+ORION_095,MARCUS,BRYANT,,1964-04-06,500 E Alvarado St,Pomona,CA,91767,9097045681,mbryant@outlook.com,PORT-80804,Aggressive,Medium,ADV-524,1964-11-04
+ORION_096,Alexis,Alexander,E.,1985-11-23,1300 N Hamilton Blvd,Pomona,California,91768,909.705.6782,aalexander@email.com,PORT-68287,Moderate,High,ADV-201,1985-11-12
+ORION_097,Derrick,Russell,,1978-07-10,900 W Mission Blvd,Pomona,CA,91766-3001,909.706.7893,drussell@webmail.net,PORT-22015,Moderate,Low,ADV-151,1978-06-08
+ORION_098,Jasmine,Griffin,,1997-02-27,1700 E Holt Ave,Pomona,CA,91767,9097078904,jgriffin@gmail.com,PORT-38305,Moderate,High,ADV-892,1997-03-26
+ORION_099,Andre,DIAZ,C.,1982-09-14,200 N Garey Ave,Pomona,CA,91767,909-708-9015,adiaz@hotmail.com,PORT-24408,Conservative,Medium,ADV-115,1982-06-26
+ORION_100,Brianna,Hayes,,1988-04-01,1500 S Hamilton Blvd,Pomona,CA,91766-7897,9097090126,bhayes@outlook.com,PORT-24896,Conservative,Medium,ADV-559,1988-06-17

@@ -1,0 +1,101 @@
+borrower_id,first_name,last_name,birth_date,address_line1,city,state,zip_code,phone,email,loan_number,loan_type,loan_amount,loan_status,property_address,interest_rate,origination_date
+ENCO_001,James,Morrison,03/15/1968,142 Oak St,Riverside,CA,92501,(951) 345-6789,james.morrison@email.com,LN-862569,Conventional,877886.58,In Process,142 Oak St,6.073,01/02/2022
+ENCO_002,Robert,Sullivan,07/22/1975,2251 Vine Ct,Temecula,CA,92590,(951) 723-4561,rsullivan@webmail.net,LN-565108,Conventional,1369046.79,Closed,2251 Vine Ct,5.933,02/05/2019
+ENCO_003,Linda,Park,1982-11-08,509 Brentwood Dr,Moreno Valley,CA,92553,(951) 876-5432,linda.park@gmail.com,LN-726410,Conventional,583367.07,In Process,509 Brentwood Dr,3.897,12/04/2025
+ENCO_004,Susan,Williams,1960-04-30,4401 Sierra Vista Blvd,Palm Springs,CA,92264,(760) 555-1234,swilliams@hotmail.com,LN-573489,FHA,737957.64,In Process,4401 Sierra Vista Blvd,5.095,12/04/2020
+ENCO_005,Maria,Rodriguez,09/12/1978,445 Brockton Ave,San Bernardino,CA,92411,,maria.r@outlook.com,LN-597305,Conventional,318592.22,Active,445 Brockton Ave,3.873,02/24/2026
+ENCO_006,Christopher,LEE,02/17/1985,3301 Haven Ave,Rancho Cucamonga,CA,91730,(909) 765-4321,c.lee@companymail.com,LN-688967,VA,1071017.24,In Process,3301 Haven Ave,4.914,11/25/2021
+ENCO_007,Jennifer,Williams,1990-06-25,728 Citrus Ave,Fontana,CA,92335,(909) 654-3210,jen.williams@email.com,LN-468727,Conventional,951294.07,Active,728 Citrus Ave,4.119,08/08/2016
+ENCO_008,Thomas,Kim,12/03/1972,512 Orange St.,Redlands,CA,92373,(909) 543-2109,tkim@webmail.net,LN-549956,Conventional,1466910.58,Active,512 Orange Street,6.131,12/09/2015
+ENCO_009,KEVIN,Johnson,08/19/1988,2250 Roy Rogers Dr,Victorville,CA,92392,(760) 432-1098,kjohnson@gmail.com,LN-106402,FHA,1330821.52,In Process,2250 Roy Rogers Dr,3.778,12/21/2015
+ENCO_010,DANIEL,Garcia,01/27/1965,8910 Arrow Hwy,Rancho Cucamonga,CA,91730,(909) 321-0987,d.garcia@hotmail.com,LN-265055,VA,605128.58,Closed,8910 Arrow Hwy,6.607,10/20/2016
+ENCO_011,Patricia,MARTINEZ,1970-05-14,1122 Magnolia Ave,Riverside,CA,92503,,pmartinez@outlook.com,LN-185544,VA,776046.87,In Process,1122 Magnolia Ave,5.443,08/14/2019
+ENCO_012,MICHAEL,Anderson,10/06/1983,3345 Victoria Ave,San Bernardino,CA,92407,,m.anderson@email.com,LN-811163,Conventional,971074.53,Closed,3345 Victoria Ave,3.682,07/20/2015
+ENCO_013,BARBARA,Taylor,07/31/1957,676 6th St.,Corona,CA,92879,(951) 098-7654,btaylor@webmail.net,LN-444061,Conventional,210048.88,In Process,676 6th St.,5.021,12/08/2023
+ENCO_014,William,Thomas,03/22/1979,1890 Hamner Ave,Norco,CA,92860,(951) 087-6543,wthomas@gmail.com,LN-878086,Conventional,767085.47,In Process,1890 Hamner Ave,7.185,06/19/2021
+ENCO_015,Elizabeth,Jackson,09/09/1994,2200 E Highland Ave,Highland,CA,92346,,ejackson@hotmail.com,LN-121869,VA,423435.13,In Process,2200 E Highland Ave,6.828,06/03/2021
+ENCO_016,Richard,White,1968-11-18,555 N Euclid Ave,Upland,CA,91786,(909) 065-4321,rwhite@outlook.com,LN-514991,VA,1169546.27,Active,555 N Euclid Ave,4.832,03/03/2023
+ENCO_017,Margaret,Harris,06/07/1981,789 W Base Line St,Rialto,CA,92376,(909) 054-3210,mharris@email.com,LN-468154,Conventional,1445690.35,Active,789 W Base Line St,4.445,03/09/2018
+ENCO_018,CHARLES,SANCHEZ,1963-02-14,4100 N Mountain Ave,Ontario,CA,91762,,csanchez@webmail.net,LN-910389,Conventional,842352.13,In Process,4100 N Mountain Ave,6.225,10/21/2025
+ENCO_019,Dorothy,Clark,1976-08-28,1500 S Haven Ave,Ontario,CA,91761,(909) 678-9012,dclark@gmail.com,LN-561124,Conventional,809597.41,Closed,1500 S Haven Ave,6.685,10/02/2020
+ENCO_020,Joseph,Ramirez,1990-12-11,900 E Mission Blvd,Pomona,CA,91766,,jramirez@hotmail.com,LN-972097,VA,299750.3,Active,900 E Mission Blvd,5.96,09/13/2022
+ENCO_021,Helen,Lewis,1955-04-03,200 W College St,Covina,CA,91722,,hlewis@outlook.com,LN-949153,Conventional,1047388.69,Closed,200 W College St,5.92,09/05/2015
+ENCO_022,Mark,Robinson,1987-01-25,330 N Azusa Ave,Azusa,CA,91702,(626) 901-2345,mrobinson@email.com,LN-188425,Conventional,1039965.22,Active,330 N Azusa Ave,4.491,08/15/2023
+ENCO_023,Ruth,WALKER,07/16/1969,1800 Puente Ave,Baldwin Park,CA,91706,(626) 012-3456,rwalker@webmail.net,LN-528625,VA,1082567.04,Active,1800 Puente Ave,6.657,11/11/2016
+ENCO_024,Donald,Perez,03/04/1982,4500 Peck Rd,El Monte,CA,91732,(626) 123-4567,dperez@gmail.com,LN-992931,Conventional,1453733.04,Active,4500 Peck Rd,4.833,10/22/2017
+ENCO_025,Sharon,Hall,1973-10-20,11200 Valley Blvd,El Monte,CA,91731,(626) 234-5678,shall@hotmail.com,LN-235215,Conventional,1121484.22,Active,11200 Valley Blvd,4.738,07/21/2020
+ENCO_026,Paul,Young,1961-05-08,1200 S Atlantic Blvd,Monterey Park,CA,91754,(323) 345-6789,pyoung@outlook.com,LN-818709,Conventional,321488.85,In Process,1200 S Atlantic Blvd,5.534,01/12/2019
+ENCO_027,DEBORAH,ALLEN,1986-09-29,300 N Garfield Ave,Alhambra,CA,91801,(626) 345-6789,dallen@email.com,LN-337547,FHA,401428.72,Closed,300 N Garfield Ave,6.878,02/17/2023
+ENCO_028,Jason,King,02/13/1993,500 W Las Tunas Dr,Temple City,CA,91780,(626) 456-7890,jking@webmail.net,LN-903531,Conventional,370363.75,In Process,500 W Las Tunas Dr,4.117,03/27/2026
+ENCO_029,Karen,Wright,06/06/1978,9600 Garvey Ave,South El Monte,CA,91733,(626) 567-8901,kwright@gmail.com,LN-530816,VA,1079271.8,Active,9600 Garvey Ave,7.378,10/10/2026
+ENCO_030,Steven,Scott,11/22/1967,2100 Huntington Dr,San Marino,CA,91108,(626) 678-9012,sscott@hotmail.com,LN-922471,Jumbo,1375166.64,Active,2100 Huntington Dr,4.971,10/15/2022
+ENCO_031,Nancy,Torres,1984-04-17,1100 S Fremont Ave,Alhambra,CA,91803,(626) 789-0123,ntorres@outlook.com,LN-269930,FHA,1241636.99,Active,1100 S Fremont Ave,6.992,01/21/2022
+ENCO_032,Andrew,Nguyen,08/31/1991,400 W Garvey Ave,Monterey Park,CA,91754,(323) 012-3456,anguyen@email.com,LN-992512,Conventional,570581.92,Active,400 W Garvey Ave,4.591,09/05/2021
+ENCO_033,BETTY,Hill,1959-01-09,700 S Atlantic Blvd,Los Angeles,CA,90022,(323) 123-4567,bhill@webmail.net,LN-127965,Jumbo,269233.95,Closed,700 S Atlantic Blvd,4.443,02/12/2018
+ENCO_034,JOSHUA,Flores,1996-07-14,1400 E Cesar Chavez,Los Angeles,CA,90033,(323) 234-5678,jflores@gmail.com,LN-929822,FHA,378879.46,Closed,1400 E Cesar Chavez,7.17,08/23/2017
+ENCO_035,Donna,Green,1971-12-27,2500 Whittier Blvd,Los Angeles,CA,90023,(323) 345-6789,dgreen@hotmail.com,LN-119927,VA,480351.17,Active,2500 Whittier Blvd,5.695,12/20/2023
+ENCO_036,Ryan,Adams,05/03/1988,800 N Alvarado St,Los Angeles,CA,90026,,radams@outlook.com,LN-350021,Jumbo,1030637.25,In Process,800 N Alvarado St,3.751,08/20/2023
+ENCO_037,AMANDA,Baker,09/18/1979,1600 W 6th St,Los Angeles,CA,90017,,abaker@email.com,LN-550089,Conventional,999252.46,Active,1600 W 6th St,5.783,03/22/2025
+ENCO_038,RAYMOND,Gonzalez,03/07/1964,3200 Olympic Blvd,Los Angeles,CA,90006,(213) 789-0123,rgonzalez@webmail.net,LN-631971,Conventional,920397.54,In Process,3200 Olympic Blvd,6.993,01/21/2021
+ENCO_039,Melissa,Nelson,11/30/1992,950 S Vermont Ave,Los Angeles,CA,90006,(213) 012-3456,mnelson@gmail.com,LN-461551,FHA,1152823.33,Active,950 S Vermont Ave,6.586,12/25/2020
+ENCO_040,GREGORY,Carter,06/21/1975,1050 W Pico Blvd,Los Angeles,CA,90015,(310) 123-4567,gcarter@hotmail.com,LN-970720,Conventional,804009.77,In Process,1050 W Pico Blvd,6.027,03/03/2026
+ENCO_041,Carolyn,Mitchell,02/08/1983,4400 Santa Monica Blvd,Los Angeles,CA,90029,,cmitchell@outlook.com,LN-309159,Conventional,610274.57,Closed,4400 Santa Monica Blvd,5.562,09/16/2019
+ENCO_042,PATRICK,Perez,08/14/1970,2700 Hyperion Ave,Los Angeles,CA,90027,(323) 345-6789,pperez@email.com,LN-150126,Conventional,631502.09,Active,2700 Hyperion Ave,6.697,07/13/2026
+ENCO_043,Christine,Roberts,04/25/1987,1900 Hillhurst Ave,Los Angeles,CA,90027,,croberts@webmail.net,LN-825686,Jumbo,677551.01,Closed,1900 Hillhurst Ave,6.705,12/14/2016
+ENCO_044,Frank,Turner,10/11/1962,600 N Western Ave,Los Angeles,CA,90004,(323) 567-8901,fturner@gmail.com,LN-207581,Conventional,626295.88,Closed,600 N Western Ave,4.726,10/23/2021
+ENCO_045,KATHLEEN,Phillips,01/06/1995,800 S Normandie Ave,Los Angeles,CA,90005,(323) 678-9012,kphillips@hotmail.com,LN-469685,Conventional,1497595.78,Closed,800 S Normandie Ave,6.058,01/03/2025
+ENCO_046,Raymond,Campbell,1977-07-19,2100 W Adams Blvd,Los Angeles,CA,90018,(323) 789-0123,rcampbell@outlook.com,LN-132653,FHA,1303270.1,In Process,2100 W Adams Blvd,3.639,02/08/2025
+ENCO_047,Janet,Parker,1980-03-28,3400 S Figueroa St,Los Angeles,CA,90007,(213) 012-3456,jparker@email.com,LN-812048,Jumbo,1433470.59,Closed,3400 S Figueroa St,5.276,02/19/2017
+ENCO_048,Harold,Evans,1968-09-05,1700 W Jefferson Blvd,Los Angeles,CA,90018,(323) 123-4567,hevans@webmail.net,LN-218959,Conventional,1156377.32,In Process,1700 W Jefferson Blvd,5.571,09/04/2019
+ENCO_049,Mildred,Edwards,05/23/1989,900 W Martin Luther King Jr Blvd,Los Angeles,CA,90037,(323) 234-5678,medwards@gmail.com,LN-827691,Jumbo,460231.84,Active,900 W Martin Luther King Jr Blvd,6.911,08/06/2026
+ENCO_050,Roy,COLLINS,1973-12-16,2300 S Broadway,Los Angeles,CA,90007,(323) 345-6789,rcollins@hotmail.com,LN-435112,Conventional,651652.88,Active,2300 S Broadway,5.7,05/10/2017
+ENCO_051,Connor,Myers,1986-05-12,3300 Wilshire Blvd,Los Angeles,CA,90010,(213) 555-1234,cmyers@email.com,LN-633469,FHA,357771.19,Active,3300 Wilshire Blvd,6.668,04/26/2022
+ENCO_052,DESTINY,Ford,11/29/1993,4500 W Sunset Blvd,Los Angeles,CA,90027,(213) 555-2345,dford@webmail.net,LN-678443,FHA,995532.87,Active,4500 W Sunset Blvd,3.763,07/23/2026
+ENCO_053,Garrett,Hamilton,08/16/1971,700 N Fairfax Ave,Los Angeles,CA,90046,(213) 555-3456,ghamilton@gmail.com,LN-231414,VA,1035040.17,In Process,700 N Fairfax Ave,5.363,09/12/2017
+ENCO_054,Hailey,Graham,1984-03-03,1800 S Robertson Blvd,Los Angeles,CA,90035,,hgraham@hotmail.com,LN-235300,Jumbo,853722.92,Active,1800 S Robertson Blvd,6.826,09/05/2019
+ENCO_055,IAN,Sullivan,1977-10-20,2900 W Pico Blvd,Los Angeles,CA,90006,(213) 555-5678,isullivan@outlook.com,LN-644103,VA,1299713.82,Closed,2900 W Pico Blvd,4.285,09/09/2017
+ENCO_056,Jade,Wallace,06/07/1995,400 S La Cienega Blvd,Los Angeles,CA,90048,(213) 555-6789,jwallace@email.com,LN-720556,Conventional,400452.55,Closed,400 S La Cienega Blvd,6.87,10/02/2015
+ENCO_057,KENDALL,Woods,1968-01-24,1100 W Olympic Blvd,Los Angeles,CA,90015,(213) 555-7890,kwoods@webmail.net,LN-321048,Conventional,741562.82,Active,1100 W Olympic Blvd,5.492,11/18/2019
+ENCO_058,Leah,Cole,09/11/1981,600 S Hoover St,Los Angeles,CA,90005,(213) 555-8901,lcole@gmail.com,LN-525818,VA,789607.37,Active,600 S Hoover St,4.132,07/16/2022
+ENCO_059,MASON,West,04/28/1989,2200 S Figueroa St,Los Angeles,CA,90007,(213) 555-9012,mwest@hotmail.com,LN-869864,VA,1467986.37,Active,2200 S Figueroa St,6.543,09/18/2016
+ENCO_060,Naomi,Jordan,12/15/1974,800 W Washington Blvd,Los Angeles,CA,90015,(213) 555-0123,njordan@outlook.com,LN-201514,Conventional,577275.61,In Process,800 W Washington Blvd,6.957,07/08/2017
+ENCO_061,Oliver,Owen,1998-07-02,1400 S Flower St,Los Angeles,CA,90015,,oowen@email.com,LN-267082,Jumbo,1494760.23,In Process,1400 S Flower St,5.495,05/16/2015
+ENCO_062,PAIGE,Reynolds,1983-02-19,3100 W 8th St,Los Angeles,CA,90005,(213) 555-2346,preynolds@webmail.net,LN-711680,VA,263255.57,Closed,3100 W 8th St,5.48,11/22/2022
+ENCO_063,Quentin,SPENCER,09/06/1970,1900 S Figueroa St,Los Angeles,CA,90007,,qspencer@gmail.com,LN-377319,Conventional,675510.93,In Process,1900 S Figueroa St,4.964,07/02/2024
+ENCO_064,Riley,Hawkins,05/23/1992,500 S Hill St,Los Angeles,CA,90013,(213) 555-4568,rhawkins@hotmail.com,LN-572230,Conventional,563636.88,Active,500 S Hill St,4.015,02/13/2020
+ENCO_065,Sierra,Burns,1966-12-10,2600 S Grand Ave,Los Angeles,CA,90007,(213) 555-5679,sburns@outlook.com,LN-308727,Conventional,861859.27,Active,2600 S Grand Ave,3.681,03/23/2020
+ENCO_066,Tanner,Dixon,06/27/1987,1200 W 7th St,Los Angeles,CA,90017,(213) 555-6780,tdixon@email.com,LN-246570,VA,1410779.36,Closed,1200 W 7th St,4.15,10/24/2019
+ENCO_067,Uma,Lawson,1979-03-14,900 S Spring St,Los Angeles,CA,90014,(213) 555-7891,ulawson@webmail.net,LN-690268,VA,817360.38,Active,900 S Spring St,4.973,11/04/2021
+ENCO_068,Violet,Steele,1994-10-01,3500 Wilshire Blvd,Los Angeles,CA,90010,(213) 555-8902,vsteele@gmail.com,LN-127941,Conventional,816967.28,Active,3500 Wilshire Blvd,6.386,10/16/2017
+ENCO_069,Wesley,Barker,1962-06-18,700 S Alvarado St,Los Angeles,CA,90057,(213) 555-9013,wbarker@hotmail.com,LN-961574,Conventional,514855.53,Active,700 S Alvarado St,4.263,08/11/2021
+ENCO_070,XENA,Castillo,01/05/1985,2000 W 6th St,Los Angeles,CA,90057,(213) 555-0124,xcastillo@outlook.com,LN-594514,Conventional,1145622.73,Active,2000 W 6th St,5.575,09/11/2025
+ENCO_071,Yolanda,Stone,1973-08-22,1600 S Hoover St,Los Angeles,CA,90006,(213) 555-1236,ystone@email.com,LN-659024,VA,910155.19,Closed,1600 S Hoover St,5.94,04/08/2019
+ENCO_072,Zach,Perkins,1991-04-09,400 N Alvarado St,Los Angeles,CA,90026,(213) 555-2347,zperkins@webmail.net,LN-403042,Conventional,469461.13,In Process,400 N Alvarado St,4.768,06/18/2026
+ENCO_073,Abel,NICHOLS,1980-11-26,1000 W Temple St,Los Angeles,CA,90012,(213) 555-3458,anichols@gmail.com,LN-513697,VA,1440991.52,Active,1000 W Temple St,4.662,05/23/2016
+ENCO_074,Beth,Grant,07/13/1969,2400 S Vermont Ave,Los Angeles,CA,90007,(213) 555-4569,bgrant@hotmail.com,LN-311883,Conventional,552472.54,Closed,2400 S Vermont Ave,4.049,10/24/2024
+ENCO_075,Cecil,LYNCH,1996-02-28,800 W 1st St,Los Angeles,CA,90012,(213) 555-5680,clynch@outlook.com,LN-344146,Conventional,330257.35,Closed,800 W 1st St,6.369,02/22/2017
+ENCO_076,DIANA,Hart,1977-09-15,1500 E 1st St,Los Angeles,CA,90033,(213) 555-6781,dhart@email.com,LN-598807,Jumbo,1045700.3,Closed,1500 E 1st St,4.785,11/02/2016
+ENCO_077,Edwin,Sharp,1988-05-02,3700 W Sunset Blvd,Los Angeles,CA,90026,(213) 555-7892,esharp@webmail.net,LN-139110,FHA,743250.48,Active,3700 W Sunset Blvd,7.236,01/27/2021
+ENCO_078,Fiona,HOLT,1972-12-19,600 S Beaudry Ave,Los Angeles,CA,90017,(213) 555-8903,fholt@gmail.com,LN-403528,Conventional,212047.32,Active,600 S Beaudry Ave,7.214,06/10/2022
+ENCO_079,Glen,Vega,1985-08-06,1100 S Figueroa St,Los Angeles,CA,90015,(213) 555-9014,gvega@hotmail.com,LN-992400,Conventional,808427.0,Active,1100 S Figueroa St,6.735,06/06/2026
+ENCO_080,Holly,Bates,03/23/1993,2800 Wilshire Blvd,Los Angeles,CA,90005,(213) 555-0125,hbates@outlook.com,LN-929179,VA,938115.59,Active,2800 Wilshire Blvd,4.202,11/13/2021
+ENCO_081,Irving,HAYNES,1967-10-10,700 W Olympic Blvd,Los Angeles,CA,90015,,ihaynes@email.com,LN-247442,Jumbo,620682.17,Active,700 W Olympic Blvd,3.527,07/08/2022
+ENCO_082,Jocelyn,Lane,06/27/1981,1300 S Grand Ave,Los Angeles,CA,90015,(213) 555-2348,jlane@webmail.net,LN-111991,VA,1049788.38,Active,1300 S Grand Ave,3.748,02/15/2019
+ENCO_083,KIRK,Oliver,1994-01-14,500 W 7th St,Los Angeles,CA,90017,(213) 555-3459,koliver@gmail.com,LN-907236,VA,1097377.49,Closed,500 W 7th St,4.97,04/08/2017
+ENCO_084,Lydia,Hicks,1975-08-31,2100 S Vermont Ave,Los Angeles,CA,90007,(213) 555-4570,lhicks@hotmail.com,LN-836038,Conventional,1386635.95,Active,2100 S Vermont Ave,6.547,11/25/2024
+ENCO_085,Miles,WADE,04/17/1989,900 W Washington Blvd,Los Angeles,CA,90015,(213) 555-5681,mwade@outlook.com,LN-181896,Conventional,345871.43,Active,900 W Washington Blvd,5.791,03/06/2020
+ENCO_086,Nina,Malone,1963-11-04,1700 W 8th St,Los Angeles,CA,90057,(213) 555-6782,nmalone@email.com,LN-612573,Conventional,1368556.16,In Process,1700 W 8th St,6.735,08/05/2023
+ENCO_087,Oscar,Patton,1997-06-21,400 S Alvarado St,Los Angeles,CA,90057,(213) 555-7893,opatton@webmail.net,LN-423139,Conventional,228301.6,Closed,400 S Alvarado St,6.766,12/07/2024
+ENCO_088,PAULA,Osborne,1983-02-08,3200 W Pico Blvd,Los Angeles,CA,90006,(213) 555-8904,posborne@gmail.com,LN-163182,Conventional,1481978.42,In Process,3200 W Pico Blvd,3.627,07/06/2017
+ENCO_089,Quinn,Weaver,1970-09-25,1000 S Spring St,Los Angeles,CA,90014,(213) 555-9015,qweaver@hotmail.com,LN-501058,Jumbo,1330506.37,In Process,1000 S Spring St,5.003,11/22/2023
+ENCO_090,ROSA,Cross,04/12/1987,2500 S Figueroa St,Los Angeles,CA,90007,(213) 555-0126,rcross@outlook.com,LN-512151,Conventional,365551.21,Active,2500 S Figueroa St,6.839,01/10/2022
+ENCO_091,Sam,Garrett,1978-12-29,800 W 3rd St,Los Angeles,CA,90048,(213) 555-1238,sgarrett@email.com,LN-359535,Jumbo,650007.66,Closed,800 W 3rd St,4.254,12/25/2016
+ENCO_092,TARA,Thornton,1991-07-16,1400 W 6th St,Los Angeles,CA,90017,(213) 555-2349,tthornton@webmail.net,LN-116405,FHA,467906.11,Active,1400 W 6th St,5.876,08/20/2025
+ENCO_093,Ulric,CHANDLER,1965-03-03,600 S Hope St,Los Angeles,CA,90017,(213) 555-3460,uchandler@gmail.com,LN-345722,Conventional,482449.97,Active,600 S Hope St,4.061,05/08/2026
+ENCO_094,Vera,Soto,1984-10-20,2000 S Grand Ave,Los Angeles,CA,90007,(213) 555-4571,vsoto@hotmail.com,LN-348411,VA,1339135.82,Active,2000 S Grand Ave,5.154,05/02/2023
+ENCO_095,Wade,McCoy,1996-05-07,1100 W 5th St,Los Angeles,CA,90017,(213) 555-5682,wmccoy@outlook.com,LN-547952,Conventional,844307.02,Closed,1100 W 5th St,7.266,11/13/2023
+ENCO_096,Xander,Hubbard,02/24/1972,900 S Flower St,Los Angeles,CA,90015,(213) 555-6783,xhubbard@email.com,LN-891062,Conventional,815574.47,Active,900 S Flower St,4.703,12/05/2022
+ENCO_097,Yvette,Arnold,1986-09-11,3600 Wilshire Blvd,Los Angeles,CA,90010,(213) 555-7894,yarnold@webmail.net,LN-240606,Jumbo,515716.07,Active,3600 Wilshire Blvd,4.821,02/15/2020
+ENCO_098,ZEKE,Watkins,06/28/1979,1600 S Hope St,Los Angeles,CA,90015,(213) 555-8905,zwatkins@gmail.com,LN-806396,Conventional,983798.66,Active,1600 S Hope St,4.253,10/24/2025
+ENCO_099,Al,Nunez,1988-03-15,700 W 6th St,Los Angeles,CA,90017,(213) 555-9016,anunez@hotmail.com,LN-116078,FHA,1418307.69,Active,700 W 6th St,6.488,08/08/2026
+ENCO_100,Bea,CHAMBERS,1973-10-02,2300 W 7th St,Los Angeles,CA,90057,(213) 555-0127,bchambers@outlook.com,LN-913185,VA,694860.27,Closed,2300 W 7th St,4.734,06/17/2022

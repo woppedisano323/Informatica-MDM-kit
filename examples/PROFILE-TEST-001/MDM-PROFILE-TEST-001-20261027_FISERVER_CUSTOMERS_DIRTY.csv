@@ -1,0 +1,101 @@
+account_holder_id,first_name,last_name,birth_date,street_address,city,state,zip_code,phone,email,account_number,account_type,credit_tier,branch_id,account_open_date
+FSV_001,James,Morrison,1968-03-15,142 Oak St,Riverside,CA,92501,951-345-6789,james.morrison@email.com,ACT-7219396,Money Market,Private Banking,BR-15,1968-10-28
+FSV_002,Robert,SULLIVAN,1975-07-22,2251 Vine Ct,Temecula,CA,92590,9517234561,rsullivan@webmail.net,ACT-5952504,Savings,Preferred,BR-52,1975-04-13
+FSV_003,Linda,Park,1982-11-08,509 Brentwood Dr,Moreno Valley,CA,92553,951-876-5432,linda.park@gmail.com,ACT-9197701,Checking,Private Banking,BR-31,1982-12-26
+FSV_004,Susan,WILLIAMS,1960-04-30,4401 Sierra Vista Blvd,Palm Springs,CA,92264,7605551234,swilliams@hotmail.com,ACT-1985360,Savings,Standard,BR-19,1960-11-02
+FSV_005,Maria,Rodriguez,1978-09-12,445 Brockton Ave,San Bernardino,CA,92411,9098887766,maria.r@outlook.com,ACT-4669507,Savings,Private Banking,BR-57,1978-01-20
+FSV_006,Christopher,Lee,1985-02-17,3301 Haven Ave,Rancho Cucamonga,CA,91730,(909) 765-4321,,ACT-7901115,Checking,Standard,BR-77,1985-12-09
+FSV_007,Jennifer,Williams,1990-06-25,728 Citrus Ave,Fontana,CA,92335,909-654-3210,jen.williams@email.com,ACT-4007598,Checking,Standard,BR-77,1990-03-08
+FSV_008,Thomas,Kim,1972-12-03,512 Orange Street,Redlands,CA,92373,909-543-2109,,ACT-7812009,Checking,Standard,BR-41,1972-12-08
+FSV_009,Kevin,Johnson,08-19-1988,2250 Roy Rogers Dr,Victorville,CA,92392,7604321098,kjohnson@gmail.com,ACT-2568678,Checking,Private Banking,BR-58,1988-09-16
+FSV_010,DANIEL,GARCIA,1965-01-27,8910 Arrow Hwy,Rancho Cucamonga,CA,91730,909-321-0987,d.garcia@hotmail.com,ACT-6557798,Savings,Standard,BR-77,1965-01-08
+FSV_011,Patricia,Martinez,1970-05-14,1122 Magnolia Ave,Riverside,CA,92503,(951) 210-9876,pmartinez@outlook.com,ACT-5703878,Savings,Standard,BR-94,1970-01-06
+FSV_012,Michael,Anderson,1983-10-06,3345 Victoria Ave,San Bernardino,CA,92407,9091098765,m.anderson@email.com,ACT-2290796,Money Market,Preferred,BR-82,1983-04-19
+FSV_013,Barbara,Taylor,1957-07-31,676 6th Street,Corona,CA,92879,9510987654,,ACT-2315798,Savings,Preferred,BR-54,1957-01-04
+FSV_014,William,Thomas,1979-03-22,1890 Hamner Ave,Norco,CA,92860,9510876543,wthomas@gmail.com,ACT-6475691,Checking,Preferred,BR-44,1979-08-16
+FSV_015,Elizabeth,Jackson,1994-09-09,2200 E Highland Ave,Highland,CA,92346,9090765432,ejackson@hotmail.com,ACT-2437708,Savings,Premium,BR-41,1994-12-03
+FSV_016,RICHARD,WHITE,1968-11-18,555 N Euclid Ave,Upland,CA,91786,9090654321,rwhite@outlook.com,ACT-7051545,Checking,Standard,BR-10,1968-05-15
+FSV_017,Margaret,Harris,06-07-1981,789 W Base Line St,Rialto,CA,92376,909-054-3210,mharris@email.com,ACT-9597330,Checking,Standard,BR-13,1981-02-12
+FSV_018,Charles,Sanchez,1963-02-14,4100 N Mountain Ave,Ontario,CA,91762,(909) 432-1098,csanchez@webmail.net,ACT-7506196,Checking,Preferred,BR-81,1963-04-19
+FSV_019,Dorothy,Clark,1976-08-28,1500 S Haven Ave,Ontario,CA,91761,909-678-9012,dclark@gmail.com,ACT-2061446,Savings,Private Banking,BR-45,1976-07-10
+FSV_020,Joseph,RAMIREZ,1990-12-11,900 E Mission Blvd,Pomona,CA,91766,9097890123,jramirez@hotmail.com,ACT-4280754,Checking,Standard,BR-27,1990-05-01
+FSV_021,Helen,Lewis,1955-04-03,200 W College St,Covina,CA,91722,626-890-1234,hlewis@outlook.com,ACT-8224541,Savings,Preferred,BR-48,1955-06-20
+FSV_022,Mark,Robinson,1987-01-25,330 N Azusa Ave,Azusa,CA,91702,626-901-2345,mrobinson@email.com,ACT-9237735,Savings,Preferred,BR-51,1987-07-09
+FSV_023,Ruth,Walker,07-16-1969,1800 Puente Ave,Baldwin Park,CA,91706,6260123456,rwalker@webmail.net,ACT-4018677,Savings,Standard,BR-69,1969-12-07
+FSV_024,Donald,Perez,1982-03-04,4500 Peck Rd,El Monte,CA,91732,626-123-4567,dperez@gmail.com,ACT-3335038,Money Market,Preferred,BR-42,1982-11-05
+FSV_025,Sharon,Hall,10-20-1973,11200 Valley Blvd,El Monte,CA,91731,626-234-5678,shall@hotmail.com,ACT-9965197,Savings,Preferred,BR-63,1973-09-02
+FSV_026,Paul,Young,1961-05-08,1200 S Atlantic Blvd,Monterey Park,CA,91754,3233456789,pyoung@outlook.com,ACT-2834914,Savings,Preferred,BR-95,1961-06-06
+FSV_027,Deborah,ALLEN,1986-09-29,300 N Garfield Ave,Alhambra,CA,91801,626-345-6789,dallen@email.com,ACT-6563269,Checking,Standard,BR-11,1986-02-09
+FSV_028,Jason,King,1993-02-13,500 W Las Tunas Dr,Temple City,CA,91780,(626) 456-7890,jking@webmail.net,ACT-7562142,Checking,Preferred,BR-85,1993-12-17
+FSV_029,KAREN,Wright,1978-06-06,9600 Garvey Ave,South El Monte,CA,91733,(626) 567-8901,,ACT-3376915,Money Market,Premium,BR-53,1978-08-26
+FSV_030,Steven,Scott,1967-11-22,2100 Huntington Dr,San Marino,CA,91108,6266789012,sscott@hotmail.com,ACT-2126998,Money Market,Standard,BR-24,1967-01-28
+FSV_031,Nancy,TORRES,1984-04-17,1100 S Fremont Ave,Alhambra,CA,91803,6267890123,ntorres@outlook.com,ACT-3926839,Savings,Preferred,BR-52,1984-09-14
+FSV_032,Andrew,Nguyen,1991-08-31,400 W Garvey Ave,Monterey Park,CA,91754,3230123456,anguyen@email.com,ACT-7636771,Checking,Preferred,BR-88,1991-04-15
+FSV_033,Betty,Hill,1959-01-09,700 S Atlantic Blvd,Los Angeles,CA,90022,3231234567,bhill@webmail.net,ACT-2049645,Savings,Standard,BR-78,1959-03-12
+FSV_034,Joshua,Flores,1996-07-14,1400 E Cesar Chavez,Los Angeles,CA,90033,3232345678,jflores@gmail.com,ACT-6258048,Savings,Private Banking,BR-88,1996-07-19
+FSV_035,DONNA,Green,1971-12-27,2500 Whittier Blvd,Los Angeles,CA,90023,3233456789,dgreen@hotmail.com,ACT-5990296,Savings,Standard,BR-20,1971-11-05
+FSV_036,Alice,Stewart,06-01-1985,1100 W 190th St,Gardena,CA,90248,(310) 789-0123,astewart@outlook.com,ACT-8016887,Savings,Preferred,BR-83,1985-07-14
+FSV_037,Walter,Sanchez,1971-01-12,2500 Pacific Coast Hwy,Torrance,CA,90505,(310) 012-3456,wsanchez@email.com,ACT-9214830,Money Market,Preferred,BR-33,1971-06-27
+FSV_038,Evelyn,MORRIS,1958-08-23,900 N Crenshaw Blvd,Inglewood,CA,90302,,,ACT-7441514,Savings,Standard,BR-93,1958-08-14
+FSV_039,Arthur,Rogers,1993-04-07,4200 Centinela Ave,Los Angeles,CA,90066,(310) 234-5678,arogers@gmail.com,ACT-4699871,Money Market,Standard,BR-45,1993-04-18
+FSV_040,Doris,Reed,1976-10-29,1800 W Imperial Hwy,Hawthorne,CA,90250,310-345-6789,dreed@hotmail.com,ACT-2899365,Savings,Standard,BR-44,1976-09-27
+FSV_041,Raymond,Cook,1961-03-15,3100 W Manchester Ave,Inglewood,CA,90305,310-456-7890,rcook@outlook.com,ACT-8132912,Checking,Preferred,BR-93,1961-04-10
+FSV_042,Gloria,MORGAN,1989-07-08,700 S La Brea Ave,Inglewood,CA,90301,(310) 567-8901,gmorgan@email.com,ACT-2969410,Savings,Preferred,BR-85,1989-12-12
+FSV_043,Ralph,Bell,1966-12-20,2200 E Century Blvd,Los Angeles,CA,90002,(310) 678-9012,rbell@webmail.net,ACT-1995859,Savings,Premium,BR-78,1966-05-20
+FSV_044,Phyllis,Murphy,1982-05-14,1400 W 120th St,Los Angeles,CA,90044,310-789-0123,pmurphy@gmail.com,ACT-9630451,Checking,Preferred,BR-62,1982-01-09
+FSV_045,Willie,BAILEY,1974-09-27,4600 S Main St,Los Angeles,CA,90037,3108901234,wbailey@hotmail.com,ACT-5153279,Checking,Private Banking,BR-28,1974-10-21
+FSV_046,Cal,Contreras,1985-04-19,1200 S Main St,Santa Ana,CA,92707,(714) 300-1234,ccontreras@email.com,ACT-5667852,Money Market,Private Banking,BR-72,1985-06-19
+FSV_047,DEE,Schultz,1992-10-06,2500 N Broadway,Santa Ana,CA,92706,714-300-2345,dschultz@webmail.net,ACT-7009980,Checking,Standard,BR-60,1992-04-14
+FSV_048,Ed,Barber,1969-05-23,800 W 4th St,Santa Ana,CA,92701,7143003456,ebarber@gmail.com,ACT-9142618,Money Market,Preferred,BR-16,1969-01-04
+FSV_049,Fay,Harrington,12-10-1981,1700 E McFadden Ave,Santa Ana,CA,92705,(714) 300-4567,fharrington@hotmail.com,ACT-1011340,Checking,Preferred,BR-98,1981-03-21
+FSV_050,Gil,Walton,1976-07-27,3000 S Harbor Blvd,Santa Ana,CA,92704,,gwalton@outlook.com,ACT-2382787,Money Market,Preferred,BR-93,1976-03-02
+FSV_051,Ida,Watts,1994-02-13,500 N Tustin Ave,Santa Ana,CA,92705,7143006789,,ACT-2596917,Checking,Preferred,BR-71,1994-02-05
+FSV_052,Jay,Horton,1967-09-01,1000 W Edinger Ave,Santa Ana,CA,92707,,jhorton@webmail.net,ACT-3023227,Checking,Preferred,BR-26,1967-08-03
+FSV_053,Kay,MORENO,1983-04-18,2100 E First St,Santa Ana,CA,92701,714-300-8901,kmoreno@gmail.com,ACT-3300647,Checking,Preferred,BR-92,1983-11-05
+FSV_054,LEE,Morton,1990-11-05,600 W Santa Ana Blvd,Santa Ana,CA,92701,714-300-9012,lmorton@hotmail.com,ACT-3539636,Checking,Standard,BR-97,1990-08-28
+FSV_055,Mae,Glover,06-22-1975,1500 S Flower St,Santa Ana,CA,92703,7143000123,mglover@outlook.com,ACT-8203947,Money Market,Preferred,BR-41,1975-05-21
+FSV_056,NED,Wilkins,1988-03-09,900 E 4th St,Santa Ana,CA,92701,7143001235,,ACT-6060836,Savings,Standard,BR-87,1988-09-07
+FSV_057,Ora,Ramsey,10-26-1963,2800 N Main St,Santa Ana,CA,92705,(714) 300-2346,oramsey@webmail.net,ACT-2891524,Savings,Private Banking,BR-91,1963-10-03
+FSV_058,Pat,Frazier,1997-05-13,400 S Harbor Blvd,Santa Ana,CA,92704,(714) 300-3457,pfrazier@gmail.com,ACT-8060918,Money Market,Standard,BR-97,1997-03-25
+FSV_059,Quin,Pugh,12-30-1980,1300 W McFadden Ave,Santa Ana,CA,92703,(714) 300-4568,qpugh@hotmail.com,ACT-1668183,Checking,Private Banking,BR-74,1980-05-21
+FSV_060,Rex,Swanson,1973-07-17,700 E Edinger Ave,Santa Ana,CA,92705,7143005679,rswanson@outlook.com,ACT-3561552,Money Market,Standard,BR-49,1973-02-17
+FSV_061,Sue,Mcdonald,1991-02-03,2200 S Main St,Santa Ana,CA,92707,7143006780,smcdonald@email.com,ACT-2109227,Money Market,Preferred,BR-65,1991-12-28
+FSV_062,Ted,Cobb,1966-09-21,1100 N Grand Ave,Santa Ana,CA,92701,7143007891,tcobb@webmail.net,ACT-6189026,Savings,Standard,BR-11,1966-12-05
+FSV_063,Una,HOGAN,1984-04-07,3100 E 17th St,Santa Ana,CA,92705,7143008902,uhogan@gmail.com,ACT-7238933,Savings,Preferred,BR-44,1984-12-04
+FSV_064,Val,SPARKS,1978-11-24,800 W 1st St,Santa Ana,CA,92701,(714) 300-9013,vsparks@hotmail.com,ACT-2293020,Checking,Private Banking,BR-75,1978-06-02
+FSV_065,Wes,Howe,1993-06-11,1600 S Bristol St,Santa Ana,CA,92704,(714) 300-0124,whose@outlook.com,ACT-2934976,Savings,Preferred,BR-75,1993-01-02
+FSV_066,Xia,MERCER,01-28-1970,500 E McFadden Ave,Santa Ana,CA,92705,(714) 300-1236,xmercer@email.com,ACT-1593302,Savings,Preferred,BR-93,1970-07-08
+FSV_067,Yul,Atkins,1987-08-15,2600 N Harbor Blvd,Santa Ana,CA,92703,(714) 300-2347,yatkins@webmail.net,ACT-3003215,Savings,Preferred,BR-16,1987-03-08
+FSV_068,Zoe,Moody,1982-03-02,900 S Grand Ave,Santa Ana,CA,92701,,zmoody@gmail.com,ACT-5736323,Money Market,Premium,BR-21,1982-09-15
+FSV_069,AMY,Rojas,1995-10-19,1400 W Edinger Ave,Santa Ana,CA,92707,7143004569,arojas@hotmail.com,ACT-7178606,Savings,Private Banking,BR-35,1995-12-18
+FSV_070,Bob,Booker,05-06-1972,700 S Main St,Santa Ana,CA,92701,(714) 300-5680,bbooker@outlook.com,ACT-1160974,Money Market,Standard,BR-94,1972-07-28
+FSV_071,Cam,Stein,1986-12-23,2000 E 4th St,Santa Ana,CA,92701,714-300-6781,cstein@email.com,ACT-2004872,Savings,Preferred,BR-45,1986-02-02
+FSV_072,Dawn,Wise,1979-07-10,1200 N Broadway,Santa Ana,CA,92706,714-300-7892,dwise@webmail.net,ACT-2424426,Savings,Standard,BR-74,1979-03-21
+FSV_073,Earl,HUFF,1991-04-27,300 W 1st St,Santa Ana,CA,92701,(714) 300-8903,ehuff@gmail.com,ACT-5378701,Money Market,Private Banking,BR-99,1991-12-11
+FSV_074,Fern,Mack,11-13-1965,1900 S Harbor Blvd,Santa Ana,CA,92704,7143009014,,ACT-2772642,Savings,Private Banking,BR-69,1965-06-14
+FSV_075,GUS,Poole,1984-06-30,600 E Edinger Ave,Santa Ana,CA,92705,714-300-0125,gpoole@outlook.com,ACT-3011815,Checking,Preferred,BR-97,1984-05-27
+FSV_076,Hope,Buckley,1977-01-17,2400 W McFadden Ave,Santa Ana,CA,92703,(714) 300-1237,,ACT-5164420,Money Market,Private Banking,BR-75,1977-01-22
+FSV_077,Ike,Kent,1993-08-04,800 S Bristol St,Santa Ana,CA,92704,714-300-2348,ikent@webmail.net,ACT-5191831,Checking,Private Banking,BR-23,1993-03-04
+FSV_078,JO,Mcbride,1968-03-21,1500 N Main St,Santa Ana,CA,92705,714-300-3459,jmcbride@gmail.com,ACT-2409947,Savings,Standard,BR-43,1968-02-01
+FSV_079,Ken,Hess,1982-10-08,1000 E 17th St,Santa Ana,CA,92705,(714) 300-4570,khess@hotmail.com,ACT-6562484,Checking,Standard,BR-69,1982-01-06
+FSV_080,Liz,Davenport,1989-05-25,2700 S Main St,Santa Ana,CA,92707,714-300-5681,ldavenport@outlook.com,ACT-3899223,Money Market,Preferred,BR-33,1989-05-09
+FSV_081,Mel,OSBORN,1974-12-12,700 W 4th St,Santa Ana,CA,92701,7143006782,mosborn@email.com,ACT-7912082,Savings,Private Banking,BR-17,1974-02-09
+FSV_082,Nan,Becker,1996-07-29,1100 E First St,Santa Ana,CA,92701,(714) 300-7893,nbecker@webmail.net,ACT-1327658,Checking,Preferred,BR-55,1996-08-18
+FSV_083,Owen,Padilla,1971-02-15,2100 N Harbor Blvd,Santa Ana,CA,92703,714-300-8904,opadilla@gmail.com,ACT-6349877,Savings,Preferred,BR-13,1971-05-02
+FSV_084,Peg,Mcintyre,1985-09-02,400 W McFadden Ave,Santa Ana,CA,92703,(714) 300-9015,pmcintyre@hotmail.com,ACT-2679975,Savings,Preferred,BR-40,1985-05-18
+FSV_085,Rod,Cantrell,04-19-1978,1800 S Bristol St,Santa Ana,CA,92704,(714) 300-0126,rcantrell@outlook.com,ACT-7516648,Money Market,Preferred,BR-32,1978-04-19
+FSV_086,Sky,Ware,1990-11-06,600 N Grand Ave,Santa Ana,CA,92701,7143001238,sware@email.com,ACT-3384080,Savings,Preferred,BR-73,1990-09-10
+FSV_087,TIM,SCHNEIDER,06-23-1963,2300 E Edinger Ave,Santa Ana,CA,92705,(714) 300-2349,tschneider@webmail.net,ACT-1011467,Money Market,Standard,BR-35,1963-03-11
+FSV_088,Uri,Lara,1987-01-10,900 W Edinger Ave,Santa Ana,CA,92707,(714) 300-3460,,ACT-3376537,Checking,Standard,BR-56,1987-02-12
+FSV_089,Viv,Andersen,1975-08-27,1300 S Grand Ave,Santa Ana,CA,92701,714-300-4571,,ACT-3642476,Checking,Preferred,BR-72,1975-11-11
+FSV_090,WIN,Pena,1992-03-14,800 N Bristol St,Santa Ana,CA,92703,714-300-5682,wpena@outlook.com,ACT-3941912,Checking,Premium,BR-98,1992-05-05
+FSV_091,XAN,HARMON,1980-10-01,1700 E McFadden Ave,Santa Ana,CA,92705,7143006783,,ACT-6338793,Savings,Preferred,BR-91,1980-10-04
+FSV_092,Yvonne,RUBIO,1966-04-18,500 S Harbor Blvd,Santa Ana,CA,92704,714-300-7894,yrubio@webmail.net,ACT-2488575,Money Market,Private Banking,BR-11,1966-05-07
+FSV_093,Zach,CASE,1983-11-05,2900 W 4th St,Santa Ana,CA,92703,(714) 300-8905,,ACT-8352113,Checking,Preferred,BR-62,1983-08-13
+FSV_094,Abby,Shields,1997-06-22,700 E Santa Ana Blvd,Santa Ana,CA,92701,7143009016,ashields@hotmail.com,ACT-4784650,Savings,Private Banking,BR-19,1997-01-10
+FSV_095,BEN,Lowe,01-09-1970,1400 N Main St,Santa Ana,CA,92705,714-300-0127,blowe@outlook.com,ACT-2258331,Savings,Standard,BR-53,1970-10-20
+FSV_096,Cora,Hanna,1988-08-26,2500 S Harbor Blvd,Santa Ana,CA,92704,7143001239,channa@email.com,ACT-3635764,Checking,Standard,BR-52,1988-04-07
+FSV_097,Doug,Holden,1976-03-15,1000 W 1st St,Santa Ana,CA,92701,7143002350,dholden@webmail.net,ACT-4985398,Checking,Standard,BR-60,1976-10-18
+FSV_098,Emmy,STRICKLAND,1991-10-02,300 E Edinger Ave,Santa Ana,CA,92705,714-300-3461,estrickland@gmail.com,ACT-9058573,Savings,Standard,BR-13,1991-04-06
+FSV_099,Ford,Gleason,1964-06-19,1600 S Main St,Santa Ana,CA,92707,714-300-4572,fgleason@hotmail.com,ACT-5446036,Checking,Preferred,BR-79,1964-07-06
+FSV_100,Gale,Dickson,1985-01-06,900 N Harbor Blvd,Santa Ana,CA,92703,,gdickson@outlook.com,ACT-5419132,Savings,Premium,BR-82,1985-01-05
