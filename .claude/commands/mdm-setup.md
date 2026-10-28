@@ -631,12 +631,11 @@ PROFILING → DQ RULES LINK:
   Name casing variation (ALL CAPS rows) → Title Case Basic rule
   Embedded middle initial in FIRST_NAME → Advanced Name Parser rule spec
 
-PROFILING API (alternative to UI export):
-  Base: https://{pod}-dqprofile.dm-{region}.informaticacloud.com/profiling-service/api/v1/
-  Auth: POST https://dm-{region}.informaticacloud.com/ma/api/v2/user/login → IDS-SESSION-ID
-  List profiles: GET /profile/
-  Profile detail: GET /profile/{id}
-  Script: mdm_fetch_profile_results.py (see scripts/)
+PROFILING SKILL:
+  Run /mdm-profile <path/to/MDM_Discovery_{Client}.xlsx> after this workbook
+  is complete. That skill coaches IDMC Data Profiling setup, interprets results,
+  and produces MDM_Profile_DQ_{Client}.xlsx — which feeds back into Sheets 5, 7,
+  and 9 of this workbook before /mdm-deploy runs.
 ```
 
 ---
@@ -890,20 +889,19 @@ Print:
   data quality, not assumptions.
 
   Steps:
-    1. In IDMC → Data Integration → New → Data Profiling Task
-    2. Create one task per source system, pointing at each source table
-    3. Run each task → wait for Succeeded in My Jobs
-    4. Actions → Export → save the Excel file
-    5. Paste key metrics into Sheet 9 (Profiling Results)
-    6. Revisit Sheet 4 — confirm survivorship ranking reflects
-       the completeness scores from profiling
+    Run: /mdm-profile <path/to/this_workbook>
 
-  Alternative: use mdm_fetch_profile_results.py to pull results
-  via the Data Profiling REST API (see scripts/).
+    The /mdm-profile skill will:
+      1. Guide you through IDMC Data Profiling setup per source
+      2. Interpret results and flag DQ issues
+      3. Produce MDM_Profile_DQ_{Client}.xlsx with per-source stats,
+         DQ Analysis, CDI pseudocode, and survivorship ranking
+      4. Tell you exactly what to copy back into Sheets 5, 7, and 9
 
 ──────────────────────────────────────────────────────────────────
 
-Complete the workbook and profiling, then run:
-  /mdm-deploy ~/Downloads/MDM_Discovery_{Client}.xlsx
+Complete the workbook, then run profiling before deployment:
+  /mdm-profile ~/Downloads/MDM_Discovery_{Client}.xlsx
+  /mdm-deploy  ~/Downloads/MDM_Discovery_{Client}.xlsx
 ```
 
