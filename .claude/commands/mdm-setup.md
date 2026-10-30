@@ -102,571 +102,192 @@ When a term below is used for the first time in a session, define it in one sent
 
 ## Greeting
 
-When invoked, greet the consultant and orient them to the full journey:
+When invoked, greet the consultant and get started immediately:
 
 ```
 Welcome to MDM Setup.
 
-This skill guides you through an Informatica Cloud MDM deployment in three phases:
+  Phase 1 — Use Case Alignment
+    Capture the business problem, identify the deployment pattern,
+    and produce a shareable workbook for stakeholder sign-off.
+    Output: MDM_UseCase_{Client}.xlsx
 
-  PHASE 1 — Use Case Alignment
-  We'll capture the business problem, identify the deployment pattern,
-  and document the key decisions in a shareable workbook. You share it
-  with stakeholders for review and sign-off before any technical work begins.
+  Phase 2 — Discovery Workbook
+    Translate the approved use case into technical configuration:
+    source systems, data model, survivorship, match model, data loading.
+    Output: MDM_Discovery_{Client}.xlsx  (9 sheets)
 
-  PHASE 2 — Discovery Workbook
-  Once the use case is approved, we translate it into specific technical
-  configuration: source systems, data model extensions, survivorship rules,
-  match model, data loading plan, and success criteria. The workbook is
-  pre-populated with recommendations based on your use case — you review
-  and fill any gaps.
+  Phase 3 — Deployment Coach
+    Step-by-step coaching in the live org, one action at a time.
+    Run: /mdm-deploy <path/to/MDM_Discovery_{Client}.xlsx>
 
-  PHASE 3 — Deployment Coach
-  The completed workbook drives a step-by-step deployment guide grounded
-  in official Informatica documentation. Every irreversible action is
-  flagged before you take it.
-  Run: /mdm-deploy ~/Downloads/MDM_Discovery_{Client}.xlsx
+Nothing is written to your org until Phase 3.
 
-Nothing is created in your org until Phase 3 is reviewed and confirmed.
+To begin: what is the client or project name?
 
-Let's start with Phase 1. There are two ways in:
+  (Have existing documents — system inventory, data dictionary, sample data?
+   Type "docs" and provide file paths — I'll extract signals and pre-populate
+   the workbook. Otherwise we'll go through guided questions.)
 
-  PATH A — Template
-  Start with a blank workbook and guided questions. Best when you are
-  early in the engagement or do not yet have client documents.
-
-  PATH B — Document Ingestion
-  Provide client documents — system inventories, data dictionaries,
-  compliance policies, sample data — and I will analyze them and
-  pre-populate the workbook with confidence-coded recommendations.
-
-Which path do you want to take?
-
-  Note: To run in test mode (safe for org validation — prefixes all
-  artifact names and org-written values with a test run ID), add --test:
+  Note: add --test to prefix all artifacts and org values with a test run ID:
     /mdm-setup --test
 ```
 
 ---
 
-## PATH A — Template
+## PATH A — Guided Questions
 
 ### A1 — Collect basics
 
-Ask:
+After receiving the client name, ask for the output directory:
 ```
-1. Client / project name
-2. Output directory for the workbook (default: ~/Downloads/)
+Output directory for workbooks (default: ~/Downloads/)?
 ```
 
-### A2 — Generate the Discovery Workbook
-
-Write and execute a Python/openpyxl script to produce `MDM_Discovery_<Client>.xlsx`.
-
-The workbook has 9 sheets. In template mode:
-- All data cells are **empty**
-- Each cell or section has **guidance text** (light gray, italic) explaining what to enter and why
-- Required cells are highlighted **light red (`FFB3B3`)** — must be filled before resuming
-- Recommended cells are **light yellow (`FFFFE0`)** — fill for best results
-- Reference cells (pre-filled from pattern knowledge) are **white** — review and confirm
+Then proceed immediately to the Phase 1 interview. Do not generate anything yet.
 
 ---
 
-#### Sheet 1: `Use Case`
+### A2 — Phase 1 Interview
 
-| Field | Cell color | Guidance text |
-|-------|-----------|---------------|
-| Client name | White (pre-filled) | Auto-filled from intake |
-| Business objective | Red | What problem is MDM solving? What is true after deployment that isn't true now? |
-| Primary consumers | Red | Who uses the golden record? (sales reps, marketing, compliance, analysts, downstream API) |
-| Success definition | Red | How will the client know the deployment worked? What does a correct golden record look like? |
-| Primary data quality problem | Yellow | e.g., duplicates across systems, conflicting contact data, no single customer view, compliance identity gap |
-| Deployment pattern | Yellow | Select: Customer 360 / Marketing Dedup / Compliance-KYC / Post-M&A / Data Migration / Other |
-| Pattern notes | White | Any notes on why this pattern fits or where the client differs from the typical pattern |
+Ask these questions **one at a time**, in order. Acknowledge each answer before asking the next. Do not ask all at once.
 
-Below the fields, include a **Pattern Reference** table (pre-filled, white, read-only reference):
-
-| Pattern | Typical trust ranking | Typical survivorship | Typical match strategy |
-|---------|----------------------|----------------------|-----------------------|
-| Customer 360 / Unified View | CRM first; engagement systems second | Most recently updated wins for contact fields; CRM wins for identifiers | Fuzzy Person_Name + Address; phone/email as exact secondary |
-| Marketing Deduplication | CRM first; email platform; ad platform last | Recency wins for contact fields | Fuzzy name + address; email as exact secondary |
-| Compliance / KYC / AML | Compliance system first; no decay on compliance source | Exact identifier fields always from compliance system | Exact identifier primary; fuzzy name as fallback |
-| Post-M&A Consolidation | Acquiring org first; acquired system second | Most complete field wins; acquiring org wins on conflict | Fuzzy name + address; no reliable shared identifier |
-| Data Migration Hub | Legacy first → flip to target over time | Legacy wins until target validated; strong decay on legacy | Exact legacy primary key; fuzzy as fallback |
-
----
-
-#### Sheet 2: `Source Systems`
-
-Header row (bold):
-`Display Name` | `Proposed Internal ID` | `What It Holds` | `Completeness` | `Currency` | `Recommended Rank` | `Decay?` | `Notes`
-
-Include 5 empty rows, red-highlighted.
-
-Below the table, add a **guidance block** (light gray background):
-
+**Q1 — Business objective**
 ```
-INTERNAL ID RULES (read before filling):
-• Auto-generated from Display Name: lowercase, spaces → underscores
-  Example: "Sales CRM" → sales_crm
-• IMMUTABLE after creation — cannot be renamed or deleted
-• Used in every API call, ingress job, and survivorship rule
-• Confirm the proposed ID here BEFORE creating the source system in the org
+What business problem is MDM solving here?
+What becomes true after deployment that isn't true today?
+```
 
-PREDEFINED SYSTEMS — DO NOT RECREATE (already in every org):
-• Default
-• Informatica Customer 360  (internal ID: c360.default.system)
-• Informatica DaaS  (enrichments only)
+**Q2 — Deployment pattern**
+Based on the answer to Q1, suggest the most likely pattern and confirm:
+```
+Based on what you described, this sounds like a {pattern} deployment.
 
-Source: B360_April2026_DefineSourceSystems_en.pdf, p.5
+  Customer 360 / Unified View  — one view of the customer across all systems
+  Marketing Deduplication      — clean lists for campaigns, dedup across platforms
+  Compliance / KYC / AML       — verified identity linked by regulatory IDs
+  Post-M&A Consolidation       — merge customers from acquired companies
+  Data Migration Hub           — cleansing layer before platform cutover
+
+Does that match, or is another pattern a better fit?
+```
+
+**Q3 — Primary consumers**
+```
+Who will use the golden record data?
+(e.g., marketing campaigns, CRM, compliance reporting, analytics, API consumers)
+```
+
+**Q4 — Source systems**
+```
+How many source systems are contributing customer data?
+For each: what is it called and what does it hold?
+```
+
+**Q5 — Primary data quality problem**
+```
+What is the biggest data quality problem across these sources today?
+(e.g., duplicates across systems, conflicting contact info, missing identifiers,
+no shared key across systems, format inconsistency)
+```
+
+**Q6 — Success definition**
+```
+How will you know the deployment worked?
+What does a correct golden record look like for this engagement?
 ```
 
 ---
 
-#### Sheet 3: `Data Model`
+### A3 — Generate the Use Case workbook
 
-Header row (bold):
-`Field Group Display Name` | `Field Group Internal ID` | `Source System` | `Field Display Name` | `Field Internal ID` | `Field Type` | `Notes`
+After collecting all answers from Q1–Q6, generate `MDM_UseCase_{Client}.xlsx` — a single-sheet stakeholder alignment document populated with the answers from this conversation.
 
-Include 20 empty rows. Red-highlight the Field Group columns; yellow-highlight the Field columns.
-
-Below the table, add a **guidance block** (light gray background):
+See **Use Case Workbook Spec** below for structure and color coding.
 
 ```
-FIELD GROUP RULES:
-• Add one field group per source system that contributes aggregate fields
-  not shared across all sources (e.g., account data from core banking,
-  loan data from mortgage origination, portfolio data from wealth management)
-• Use STATIC Field Group type — NOT Dynamic Field types
-  Dynamic fields cannot have DQ rules or match rules applied to them
-  Source: B360_April2026_DefineTheDataModel_en.pdf, p.18
-• Supported field types: Text | Decimal | Integer | Date | Boolean
-• Field group Internal IDs: lowercase, underscores, no reserved keywords
-  (Message Type, _ingress, fieldGroup_State, sourcePKey, parentId are reserved)
-• Field groups on predefined entities CAN be deleted
-  Custom entities CANNOT be deleted — always extend c360.person, not a custom entity
-  Source: B360_April2026_DefineTheDataModel_en.pdf, p.10
-• Nested field groups supported up to 6 levels — use sparingly
-• Reference: only fields in this sheet will be mapped in the CDI ingress (Step 6)
+✓ MDM_UseCase_{Client}.xlsx generated.
 
-FIELD GROUP SOURCE PRIMARY KEY (FGID) — ANSWER BEFORE BUILDING SOURCE CSVs:
-• Every field group used in File Import requires a Source Primary Key column in the CSV
-  (e.g., address_fgid, phone_fgid, email_fgid). This is separate from the record's
-  own Source Primary Key (client_id, borrower_id, etc.)
-• The FGID uniquely identifies a field group instance WITHIN a source record —
-  it does NOT need to be globally unique across all records
-• DISCOVERY QUESTION (answer per field group per source system):
-    How many instances of this field group does one source record have?
-    — One instance (one address per person): FGID = 1 for all rows
-    — Multiple instances (home + work + billing address): FGIDs must be
-      unique within the record (1, 2, 3...); represent each instance as a
-      separate CSV row with the same source primary key and different FGID values
-• Document the cardinality answer here before creating source CSVs.
-  Getting this wrong requires rebuilding the CSV and re-importing.
-  Source: C360_April2026_Customer360SaaS_en.pdf, p.168, p.179
+  Saved to: {output_dir}
+
+  Contents:
+    Business objective + deployment pattern
+    Source systems overview ({N} systems)
+    Primary consumers: {list}
+    Success definition
+    Open questions for stakeholder review
+
+  Next steps:
+    1. Open the workbook and review
+    2. Share with stakeholders or the client for alignment and sign-off
+    3. Once approved, run:
+
+         /mdm-setup confirm {output_dir}/MDM_UseCase_{Client}.xlsx
+
+       This locks Phase 1 as a PDF and opens the 9-sheet Discovery
+       Workbook pre-populated with your approved decisions.
+
+Nothing in your org has been touched.
 ```
 
 ---
 
-#### Sheet 4: `Survivorship`
-
-**Section A — Source Ranking**
-
-Header row: `Rank` | `Source System` | `Internal ID` | `Why This Rank`
-
-5 empty rows, yellow-highlighted.
-
-Guidance block:
-```
-Rank 1 = most trusted. Sources not listed are treated as equal lowest trust.
-Configure BEFORE any records are created in the org — trust scores are not
-retroactively recalculated.
-Source: B360_April2026_ConfigureSurvivorship_en.pdf, p.8
-```
-
-**Section B — Decay Rules**
-
-Header row: `Source System` | `Max Score` | `Min Score` | `Unit` | `Period` | `Pattern` | `Why`
-
-5 empty rows, yellow-highlighted.
-
-Guidance block:
-```
-Decay reduces trust scores over time. Use for engagement/marketing sources
-where data ages quickly. Do NOT apply to compliance or regulatory sources.
-Unit: Day / Month / Year
-Pattern: Linear / Rapid Initial Slow Later / Slow Initial Rapid Later
-Leave blank if no decay needed for this source.
-Source: B360_April2026_ConfigureSurvivorship_en.pdf, p.23
-```
-
----
-
-#### Sheet 5: `DQ Planning`
-
-**Purpose:** Capture the data quality decisions that drive Step 4 of the deployment. Every rule configured in Step 4 must be planned here first — type, function, severity, and trust impact grounded in profiling data from Sheet 9.
-
----
-
-**Section A — Field-Level Rule Plan**
-
-Header row (bold):
-`Field` | `Field Group` | `Affected Sources` | `DQ Issue` | `Rule Type` | `Function / Spec` | `Severity` | `Trust Downgrade %` | `Notes`
-
-Include 15 empty rows, yellow-highlighted.
-
-Guidance block:
-```
-DQ ISSUE TYPES (fill from profiling data in Sheet 9):
-  name_casing       — ALL CAPS or mixed case across sources → Title Case (Basic)
-  address_abbrev    — "St" vs "Street" vs "St." variation → DaaS Address
-  name_format       — "Smith, John" vs "John Smith" → DaaS Name (separate entitlement)
-  phone_format      — format variation → Regular Match or DaaS Phone
-  null_required     — null rate > 0% on a required field → Minimum Length validation
-  invalid_pattern   — format does not match expected pattern → Regular Match (Basic)
-  identifier_ssn    — SSN validation needed → DUNS SSN Validation (Advanced)
-  concat_needed     — blank-canvas entity needs fullName from firstName+lastName → Concatenate with Spaces (Basic)
-
-RULE TYPES:
-  Basic    — predefined functions built into B360. No external dependency.
-             Functions: Title Case, Trim, Concatenate with Spaces, Regular Match,
-             Minimum/Maximum Length, Minimum/Maximum Value
-  Advanced — Cloud Data Quality rule specification. Requires CDQ asset + entitlement.
-             Use for: SSN/NPI/DUNS validation, custom identifier patterns
-  DaaS     — Informatica Data-as-a-Service. Requires entitlement per service type.
-             Address Verification: included in standard MDM SaaS license
-             Name Standardization: SEPARATE entitlement — confirm before planning
-             Email Verification: confirm with Informatica licensing
-             Phone Verification: confirm with Informatica licensing
-
-SEVERITY LEVELS:
-  Information — rule runs; result recorded; record saves regardless of outcome
-  Warning     — rule runs; trust score downgraded if fails; record saves
-  Error       — rule runs; record REJECTED if fails; use with caution on ingress
-
-TRUST DOWNGRADE %:
-  How much to deduct from trust score when a field fails validation.
-  Example: 20% downgrade on address validation failure means that source's
-  address field loses 20 points — making a higher-ranked source more likely to win.
-  This is the survivorship tie-in: bad data loses the trust contest automatically.
-  Source: B360_April2026_ConfigureDataQuality_en.pdf, p.13
-```
-
----
-
-**Section B — DaaS Entitlement Check**
-
-Pre-filled table (white background, review and confirm):
-
-| DaaS Service | Entitlement | Action Required |
-|---|---|---|
-| Address Verification | Included in standard MDM SaaS license | Enable Address_Verifier_OOTB in Step 4 |
-| Name Standardization | SEPARATE entitlement — not bundled | Confirm with Informatica licensing before planning |
-| Email Verification | Confirm with Informatica licensing | Verify before planning |
-| Phone Verification | Confirm with Informatica licensing | Verify before planning |
-
-Guidance block:
-```
-Name standardization is the most commonly assumed-but-missing entitlement.
-If your plan relies on DaaS Name Standardization and the entitlement is not
-present, the rule will fail silently at ingress time.
-Confirm entitlement BEFORE adding Name Standardization to Section A.
-Alternative for name casing: use Basic → Title Case (no entitlement required).
-```
-
----
-
-**Section C — Blank-Canvas Prerequisites**
-
-Pre-filled checklist (yellow — fill before Step 4):
-
-| Prerequisite | Required when | Status |
-|---|---|---|
-| fullName Text field added to entity | Entity has separate firstName + lastName root fields (blank-canvas) | |
-| Concat Full Name DQ rule configured | fullName field exists and match model uses Person_Name | |
-
-Guidance block:
-```
-WHY FULLNAME IS REQUIRED (blank-canvas entities only):
-  The match model's Person_Name field type expects a single combined name field.
-  If your entity has firstName and lastName as separate root fields, you must:
-    1. Add a fullName Text root field to the entity (Step 2)
-    2. Configure a Basic DQ rule on fullName: Concatenate with Spaces
-       Input 1: firstName | Input 2: lastName | Output: implicit (fullName)
-  This rule must be configured BEFORE the match model is created (Step 5).
-  Doc basis: MDM.md line 882-888
-```
+### Use Case Workbook Spec: MDM_UseCase_{Client}.xlsx
 
----
+Single sheet: `Use Case Alignment`
 
-#### Sheet 6: `Match Model`
+Generate using openpyxl. Tab color: Navy (`1F3864`).
 
-Fields:
-
-| Field | Cell color | Guidance |
-|-------|-----------|---------|
-| Use person.ruleset1 as-is? | Red | Yes for standard deduplication. No requires custom match rule planning. |
-| Primary match criterion | Yellow | Person_Name / Address / Email / Phone / Identifier — what is the most reliable dedup key across sources? |
-| Match strategy | Yellow | Fuzzy (name/address variations tolerated) / Exact (identifiers must match exactly) / Both |
-| Population | Yellow | Usa for English-language US data. See ConfigureMatchAndMerge doc for other populations. |
-| Custom rules needed? | Yellow | Describe any custom rule requirements. Note: Match Strategy and Match Criterion cannot be changed after a rule is saved. |
-| M&M job name | Red | Name for the Match & Merge job definition in Business 360 Console |
-
-Guidance block:
-```
-person.ruleset1 is the predefined match model for c360.person. It is
-usable as-is for standard deduplication — fuzzy name + address with Usa population.
-
-To customize: you must create a COPY of person.ruleset1 — predefined models
-cannot be edited directly.
-
-IMPORTANT: Once a Directed AI match rule is saved, Match Strategy (Exact/Fuzzy)
-and Match Criterion cannot be changed. Delete and recreate the rule to change them.
-Source: B360_April2026_ConfigureMatchAndMerge_en.pdf, p.51
-```
-
----
-
-#### Sheet 7: `Data Loading`
-
-**Section A — Loading Path Decision**
-
-| Field | Cell color | Guidance |
-|-------|-----------|---------|
-| Loading path | Red | CDI (recommended — any volume, reusable, schedulable) / File Import (≤500 rows, smoke test or initial validation) |
-| Decision reasoning | Yellow | Why this path was chosen |
-
-Guidance block:
-```
-CDI vs. FILE IMPORT — CHOOSE BEFORE STEP 6:
-
-  File Import
-  • Best for: initial smoke test, ≤500 rows, no Secure Agent required
-  • Limitations: cannot hardcode constants (e.g., Phone Type = "Mobile"),
-    manual column additions (fgid) each schema change, not schedulable
-  • Use for: demo validation, first-load verification
-
-  CDI Ingress
-  • Best for: production deployments, any volume, automated scheduling
-  • Requires: Secure Agent, IDMC connection per source, CDI mapping per source
-  • Advantages: hardcode constants in mapping, reusable, versioned, schedulable,
-    handles field group mapping automatically via Business 360 Connector
-  Source: C360_April2026_Customer360SaaS_en.pdf, p.179
-```
-
----
-
-**Section B — File Import Configuration** *(complete if File Import chosen)*
-
-| Field | Cell color | Guidance |
-|-------|-----------|---------|
-| Intentional near-duplicates? | Yellow | Y/N — include pairs that should merge to validate M&M |
-| Near-duplicate description | Yellow | Describe the pairs |
-
-**fgid column plan** — complete per source system:
-
-Header: `Source System` | `Field Group` | `Field Group Internal ID` | `fgid Column Name` | `Value Strategy`
-
-Guidance block:
-```
-fgid COLUMN NAMING: {fieldGroupInternalId}_fgid  (camelCase internal ID of the group)
-  Standard groups: address_fgid, phone_fgid, electronicAddress_fgid,
-                   alternateName_fgid, identifier_fgid
-  Custom groups:   {X_GroupInternalId}_fgid  (e.g., X_BankAccount_fgid)
-  Value: "1" when each record has exactly one instance of the group
-         Sequential (1, 2, 3...) when a record has multiple instances
-
-DATE FIELDS — irreversible decision:
-  Date type:     accepts yyyy-MM-dd (no time suffix)
-  DateTime type: requires yyyy-MM-dd HH:mm:ss (append 00:00:00 to date-only values)
-  This field type is set in the entity (Step 2) and cannot change after records exist.
-  Confirmed per field: fill column "Date or DateTime?" in Sheet 3.
-```
-
----
-
-**Section C — CDI Ingress Configuration** *(complete if CDI chosen)*
-
-**Runtime environment:**
-
-| Field | Cell color | Guidance |
-|-------|-----------|---------|
-| Secure Agent group name | Red | Name of the runtime environment in IDMC Administrator |
-| Agent status | Yellow | Confirm agent is Running before Step 6 |
-
-**Per source system** — one block per source (repeat template):
-
-Header: `Property` | `Value`
-
-| Property | Guidance |
-|---|---|
-| Source system internal ID | From Sheet 2 — must match exactly |
-| Connection type | Salesforce / Oracle / SQL Server / Snowflake / PostgreSQL / MySQL / Flat File / other |
-| Connection name in IDMC | Existing connection name, or "new" if not yet created |
-| Source object / table / query | Exact table name or SQL query |
-| Primary key column | Column that maps to sourcePKey (no spaces, no / \ . % ; ") |
-| Date fields | List each date column and whether it is Date or DateTime type in the entity |
-| Constants needed | Fields the CDI mapping must hardcode (e.g., phoneType = "Mobile") |
-| Field groups to map | From Sheet 3 — list groups this source contributes to |
-| Mapping name | {sourceName}_to_{entityInternalId} |
-
-Guidance block:
-```
-CDI MAPPING STRUCTURE (Business 360 Connector):
-  Source transformation:
-    Connection: {connection name}
-    Object: {table or query from above}
-
-  Target transformation:
-    Connector: Business 360 Connector
-    Business Entity: {entity internal ID}
-    Source System: {source system internal ID from Sheet 2}
-    Operation: Upsert
-
-  Field mapping format for custom field groups:
-    {fieldGroupInternalId}.{fieldInternalId}
-    Example: X_Portfolio.portfolioId
-
-  sourcePKey rules:
-    No spaces, no / \ . % ; " characters
-    Test mode: prefix TEST_{NNN}_
-
-  Constants (hardcode in mapping — not possible in File Import):
-    Add an Expression transformation between Source and Target
-    Output a constant string for fields the source does not provide
-    (e.g., phoneType = "Mobile", addressType = "Home")
-
-  Connection setup (if connection does not exist):
-    IDMC → Administration → Connections → New Connection
-    Select connection type → provide credentials → Test → Save
-    Secure Agent must be Running before connection can be tested
-
-  Mapping publication:
-    Save mapping → click Publish to activate
-    A mapping must be Published before the ingress job in Step 7 can run it
-
-Source: B360_April2026_Business360Connector_en.pdf
-```
-
----
-
-**Section D — Field Mapping Reference** *(pre-filled, white)*
-
-Standard entity root fields:
-
-| Field Display Name | Internal ID | Type | CDI Target Path |
-|---|---|---|---|
-| First Name | firstName | Text | firstName |
-| Middle Name | middleName | Text | middleName |
-| Last Name | lastName | Text | lastName |
-| Full Name | fullName | Text | fullName |
-| Birth Date | birthDate | DateTime | birthDate |
-
-Custom field groups — format reminder:
-```
-{fieldGroupInternalId}.{fieldInternalId}
-Source Primary Key column maps to: {fieldGroupInternalId}.sourcePKey
-```
-
----
-
-#### Sheet 8: `Success Criteria`
-
-Pre-filled checklist (white, review and confirm):
-
-| Step | What to verify | How to verify | Confirmed? |
-|------|---------------|---------------|------------|
-| Step 1 — Source Systems | All source systems present with correct Internal IDs | Business 360 Console → Source Systems | |
-| Step 2 — Data Model | All field groups visible on c360.person canvas | Business 360 Console → Explore → c360.person | |
-| Step 3 — Survivorship | Source ranking and decay rules saved | c360.person → Survivorship tab | |
-| Step 4 — Data Quality | Rule associations visible on Data Quality tab | c360.person → Data Quality tab | |
-| Step 5 — Match Model | person.ruleset1 status = Published | c360.person → Match tab | |
-| Step 6 — CDI Ingress | All source mappings Published in IDMC | IDMC → Data Integration → Mappings | |
-| Step 7 — Ingress Job | All source ingress jobs show Succeeded | IDMC → My Jobs + mdm_scan_org.py record count | |
-| Step 8 — M&M Trigger | M&M job completed with SUCCESS | mdm_trigger_match_merge.py output | |
-| Step 9 — Golden Records | Golden records exist, near-duplicate pairs consolidated, aggregate fields populated | mdm_verify_records.py output | |
-
-**Use case validation row** (yellow — fill based on use case):
-
-| Use Case Validation | What correct looks like for THIS deployment | Verified? |
-|----|----|----|
-| [fill from Use Case sheet] | [describe expected outcome] | |
-
----
-
-#### Sheet 9: `Profiling Results`
-
-**Purpose:** Capture IDMC Data Profiling task results for each source system before finalizing Sheets 4 (Survivorship) and DQ configuration. This sheet grounds survivorship ranking and DQ rule selection in measured data quality, not assumptions.
-
-**When to populate:** After generating this workbook, run a Data Profiling task in IDMC against each source object (one task per source system). Export results (Actions → Export) and fill this sheet. Then revisit Sheet 4 (Survivorship) and confirm rankings reflect completeness scores.
-
-One section per source system. Header row (bold):
-`Column` | `Declared Type` | `Row Count` | `Null Count` | `Null %` | `Distinct Count` | `Distinct %` | `Pattern Count` | `Top Pattern` | `Top Pattern %` | `Notes / DQ Issues`
-
-Color coding:
-- **Red** — Null % > 10% or Pattern Count > 2 (format inconsistency flag)
-- **Yellow** — Null % 1–10% or Pattern Count = 2
-- **White** — clean (Null % = 0, single pattern)
-
-Below each source section, add a **DQ Summary** row:
-```
-Overall Completeness:  {%}
-Format Issues:         {list affected columns}
-Survivorship Signal:   {based on completeness — recommended rank and why}
-DQ Rules Indicated:    {list rule type → field, grounded in profiling data}
-```
-
-Guidance block (light gray):
-```
-PROFILING → SURVIVORSHIP LINK:
-  Higher completeness score = higher trust rank.
-  More format patterns on a field = stronger case for a DQ standardization rule.
-  Compare null rates across sources for shared fields — the source with lower
-  null rate on name/address/phone should rank higher for those fields.
-
-PROFILING → DQ RULES LINK:
-  Pattern Count > 1 on phone/zip/date → standardization rule needed
-  Null % > 0 on required fields → completeness validation rule
-  Inferred type ≠ declared type → format validation rule
-  Name casing variation (ALL CAPS rows) → Title Case Basic rule
-  Embedded middle initial in FIRST_NAME → Advanced Name Parser rule spec
-
-PROFILING SKILL:
-  Run /mdm-profile <path/to/MDM_Discovery_{Client}.xlsx> after this workbook
-  is complete. That skill coaches IDMC Data Profiling setup, interprets results,
-  and produces MDM_Profile_DQ_{Client}.xlsx — which feeds back into Sheets 5, 7,
-  and 9 of this workbook before /mdm-deploy runs.
-```
-
----
-
-### A3 — Phase 1 complete — deliver Use Case workbook
-
-```
-✓ Phase 1 complete.
-
-We've captured the business context for {Client}, identified the deployment
-pattern ({pattern name}), and documented all key decisions and open questions.
-
-What was produced:
-  MDM_UseCase_{Client}.xlsx  →  ~/Downloads/
-
-What to do next:
-  1. Open the workbook and review each section
-  2. Share it with stakeholders, peers, or the client for alignment
-  3. Resolve the open questions in Section 5 before proceeding
-  4. Once approved, run:
-
-       /mdm-setup confirm ~/Downloads/MDM_UseCase_{Client}.xlsx
-
-     This will:
-       • Lock the approved use case as a PDF (the official record)
-       • Open Phase 2 — the Discovery Workbook with technical configuration
-
-Nothing in your org has been touched. Phase 2 does not start until you confirm.
-```
-
----
+**Section 1 — Engagement**
+
+| Field | Value | Cell color |
+|-------|-------|-----------|
+| Client | {Client} | White (pre-filled) |
+| Date | {today} | White (pre-filled) |
+| Deployment Pattern | {pattern} | White (pre-filled from Q2) |
+| Pattern Notes | {reasoning} | White |
+
+**Section 2 — Business Objective**
+
+Populated from Q1. Multi-line text cell with wrap. Yellow background.
+
+**Section 3 — Source Systems**
+
+Table populated from Q4:
+
+Header: `System Name` | `What It Holds` | `Proposed Rank`
+
+One row per source. Yellow background.
+
+**Section 4 — Primary Consumers**
+
+Populated from Q3. Yellow background.
+
+**Section 5 — Primary DQ Problem**
+
+Populated from Q5. Yellow background.
+
+**Section 6 — Success Definition**
+
+Populated from Q6. Yellow background.
+
+**Section 7 — Open Questions**
+
+Pre-populated with standard follow-up questions for the identified deployment pattern. Red background — must be resolved before /mdm-setup confirm.
+
+Standard open questions by pattern:
+
+| Pattern | Open questions to pre-populate |
+|---------|-------------------------------|
+| Customer 360 | Is there a single shared identifier across systems? What is the dedup tolerance (same name / address = same person)? Which system is authoritative for contact data? |
+| Post-M&A | What is the overlap % estimate between the two customer bases? Is there a mapping table from the acquired system? Which system wins on conflict? |
+| Compliance/KYC | Which regulatory frameworks apply (KYC, AML, GDPR, HIPAA)? Is there an authoritative compliance system of record? What are the retention requirements? |
+| Marketing Dedup | What campaign platform consumes the golden record? What is the acceptable false-positive rate for merges? |
+| Data Migration Hub | What is the cutover timeline? Will the legacy system be decommissioned? What is the rollback plan? |
+
+**Section 8 — Pattern Reference** *(white, read-only)*
+
+Pre-filled pattern reference table (same as current skill — typical trust ranking, survivorship, match strategy per pattern).
 
 ## PATH B — Document Ingestion
 
