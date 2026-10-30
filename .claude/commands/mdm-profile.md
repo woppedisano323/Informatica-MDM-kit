@@ -327,21 +327,20 @@ For each completed task, export the results to Excel:
   Open the profiling task → click the ⋮ (three-dot) menu next to
   the Save and Run buttons → Export Details.
 
-  This downloads the results as an xlsx file.
+  The file downloads to your browser's default Downloads folder.
+  The file name defaults to the task name you set in P3:
+    {TaskName}.xlsx
+    (e.g., FISERVER_20261027_profile.xlsx)
 
-  Save with a consistent naming convention:
-    m_{SourceName}_Profile_Run{N}.xlsx
-    (e.g., m_FiServer_Profile_Run1.xlsx)
+  If you want to keep exports organized with the engagement files,
+  move them to the same folder as your Discovery Workbook.
 
-  Keep all files in the same folder — I will read them together
-  in P6.
-
-What folder did you save them to?
+  Confirm all {N} files are downloaded, then proceed.
 ```
 
-Once path is confirmed:
+Once confirmed:
 ```
-Reading {N} profiling exports from: {path}
+Reading {N} profiling exports.
 ```
 
 Read all profiling export files. The export contains six sheets:
@@ -409,12 +408,11 @@ Field            Null%   Patterns  Top Pat%  Flag    Finding
 - Null % must be 0% — any nulls will cause record rejection on load
 - Distinct % should be ~100% — lower indicates potential duplicate keys in the source
 
-After printing the interpretation:
+After printing the interpretation table, state:
 ```
-Does this match what you observed? Any fields to look at more closely?
+These are the profiling results for all {N} sources.
+Key MDM-critical findings captured above. Moving to DQ Analysis.
 ```
-
-Wait for confirmation or questions before moving to P7.
 
 ---
 
@@ -449,12 +447,23 @@ Trust score downgrade is configured separately per rule association as a percent
   - Phone Verification: separate DaaS entitlement required
   - Email Verification: separate DaaS entitlement required
 
+⚠️  Advanced rule associations require a Cloud DQ rule specification
+    to exist in IDMC Data Quality before it can be associated to the
+    entity field. How that specification is built depends on the
+    client environment:
+    • If using Informatica CLAIRE / ICDQ — a separate DQ skill can
+      generate a CLAIRE-ready input for those rules.
+    • If using another DQ product — work with the DQ team to create
+      the rule spec and import it into IDMC before /mdm-deploy.
+    Document which fields need Advanced rules here. Building the
+    rule specifications is a separate workstream from MDM setup.
+
 ⚠️  DaaS entitlement check before recommending Phone or Email DaaS: confirm the client has the entitlement and the license file has been uploaded. Without the license file, ingress jobs fail at the load step.
 
-After printing the analysis:
+After printing the draft DQ Analysis table, note any rules marked ? for trust downgrade % — those values are set by the consultant based on business requirements. Then:
 ```
-Any issues I missed or rules you want to add?
-Type "done" when the DQ Analysis table is complete.
+Any rules to add, remove, or adjust?
+Type "done" when the DQ Analysis is complete.
 ```
 
 ---
