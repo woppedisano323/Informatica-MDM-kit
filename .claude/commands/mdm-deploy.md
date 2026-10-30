@@ -65,11 +65,14 @@ Invoked as: `/mdm-deploy <path/to/MDM_Discovery_<Client>.xlsx>`
 
 Phase 2 is complete. Here is what was configured:
 
+  Client:           {Client}
+  Entity:           {entity name from Sheet 3 — custom entity created for this deployment}
   Source systems:   {list with internal IDs}
   Data model:       {N} custom field groups planned
   Survivorship:     {ranking + decay summary}
-  Match model:      {person.ruleset1 as-is / custom}
-  Data loading:     {CDI / REST API}, {source connection type}
+  Match model:      {match model name from Sheet 6}
+  Data loading:     Pre-deployment validation: C360 File Import (sample CSVs)
+                    Production pipeline: {CDI / API — separate downstream project}
   Success criteria: {validation intent from workbook}
 
 What happens now:
@@ -94,16 +97,15 @@ What happens now:
 
 Read the completed workbook. Check:
 - All red cells are filled (required fields)
+- **Entity name and type confirmed (Sheet 3)** — deployment uses a custom entity, not c360.person directly
 - Source system Internal IDs are confirmed (Sheet 2)
-- Data model field groups are defined (Sheet 3)
+- Data model field groups defined (Sheet 3) — standard fields (Person_Name, Address, Phone, Electronic Address) plus any custom groups
+- Data model reviewed and approved by stakeholders — golden record design signed off before any org configuration begins
 - Survivorship ranking is populated (Sheet 4)
 - DQ Planning sheet populated (Sheet 5) — at least one rule row with Rule Type and Severity filled
-- Blank-canvas prerequisites checked (Sheet 5 Section C) — fullName field status confirmed
-- DaaS entitlement check completed (Sheet 5 Section B) — any DaaS rules confirmed against license
 - Match model decision is made (Sheet 6)
-- CDI configuration complete if CDI path chosen (Sheet 7 Section C) — Secure Agent group and connections named
-- M&M job name is filled (Sheet 6)
 - Profiling Results are populated (Sheet 9) — at least one source section with completeness score and DQ issues noted
+- Sample CSV files prepared for pre-deployment validation — one per source system, matching the approved data model
 
 If any required fields are still empty, list them and stop:
 
@@ -127,9 +129,10 @@ python3 ~/Informatica-MDM-kit/scripts/mdm_scan_org.py
 
 Reconcile scan results with the workbook:
 - Source systems in the workbook already exist in the org with different Internal IDs → flag conflict before proceeding
-- Records already exist in c360.person → survivorship warning (trust scores not retroactively recalculated)
-- person.ruleset1 is Draft or not found → note — will require action in Step 5
-- Custom field groups already exist on c360.person → compare with workbook Sheet 3, flag conflicts
+- Records already exist in the deployment entity ({entity from Sheet 3}) → survivorship warning (trust scores not retroactively recalculated)
+- The custom entity does not yet exist → expected for new deployments; will be created in Step 2b
+- Custom field groups already exist on the entity → compare with workbook Sheet 3, flag conflicts
+- c360.person is a predefined org fixture — confirm the deployment entity is the custom one from Sheet 3, not c360.person
 
 ---
 
@@ -642,25 +645,34 @@ you can plan the full deployment before starting.
 ──────────────────────────────────────────────────────────────────
 
 Org state confirmed:
-  c360.person:         {from scan}
-  person.ruleset1:     {Published / Draft / Not found}
-  Records in org:      {count}
+  Deployment entity:   {entity from Sheet 3} (custom — created in Step 2b)
+  c360.person:         {from scan — predefined fixture, not the deployment target}
+  Records in entity:   {count — must be 0 before Steps 3 and 6}
   Source systems:      {list from scan}
   Existing M&M jobs:   {list from scan}
 
-{If records > 0:}
-  ⚠️  Records already exist.
+{If records > 0 in the deployment entity:}
+  ⚠️  Records already exist in {entity}.
       Survivorship timing (B above) may already be violated.
       Flag to org admin and confirm before proceeding.
 
 ──────────────────────────────────────────────────────────────────
 
 SEGMENT 2 (Steps 1–5) — UI only. All configuration before any
-  data enters the org. Must complete in this order.
+  data enters the org. Must complete in this order:
+    Step 1  — Create source systems
+    Step 2b — Create custom entity, add all fields, build UI assets
+    Step 2  — Add custom field groups to the entity
+    Step 3  — Configure survivorship
+    Step 4  — Configure data quality rules
+    Step 5  — Configure and publish match model
 
-SEGMENT 3 (Steps 6–9) — Mix of UI and scripts. Load data, run
-  matching, verify results. All of Segment 2 must be complete
-  before Step 6 starts.
+SEGMENT 3 (Steps 6–9) — Load, validate, and verify. All of
+  Segment 2 must be complete before Step 6 starts:
+    Step 6  — Pre-deployment validation: load sample CSVs via File Import
+    Step 7  — Monitor ingress jobs, confirm records loaded correctly
+    Step 8  — Define and run Match & Merge
+    Step 9  — Verify golden records against success criteria
 
 Before you type [ready]:
   Open MDM_Deployment_Steps_{Client}.xlsx → Pre-Flight tab
@@ -804,12 +816,13 @@ Stop. Ask one clarifying question. Do not give the next action until the discrep
 
 ## SEGMENT 2 — Foundation Steps (UI Only, Strict Order)
 
-Steps 1 through 5 must complete in sequence before any data enters the org. All five are UI-only — no scripts run until Step 7. The ordering is not flexible:
-- Step 1 creates the source systems referenced by internal ID in Step 3 and Step 6
-- Step 2 must complete before records exist — field groups deleted after loading cause data loss
-- Step 3 must complete before any records exist (irreversible action B)
-- Step 4 must complete before Step 7 — DQ rules do not run retroactively
-- Step 5 must complete before Step 6 starts (irreversible action C)
+Steps 1 through 5 must complete in sequence before any data enters the org. All are UI-only — no data loading until Step 6. The ordering is not flexible:
+- Step 1 creates the source systems referenced by internal ID in Steps 3 and 6
+- Step 2b creates the custom entity and all UI assets — must complete before Steps 2, 3, 4, 5
+- Step 2 adds custom field groups to the entity — must complete before records exist (data loss risk)
+- Step 3 must complete before any records exist (irreversible action B — survivorship timing)
+- Step 4 must complete before Step 6 — DQ rules do not run retroactively
+- Step 5 must complete before Step 6 starts (irreversible action C — match keys at load time)
 
 ---
 
@@ -1023,13 +1036,13 @@ Verify:
 
 ---
 
-### Step 2b [UI] — Custom Entity: Create Entity and Build UI Assets *(only applies when using a custom entity, not c360.person)*
+### Step 2b [UI] — Create Custom Entity and Build UI Assets
 
-> Skip this step entirely if the deployment uses the predefined c360.person entity directly.
-> Required when the deployment uses a custom entity (a copy of Person or a blank-canvas entity).
+> This is the primary entity creation step for all deployments. The deployment entity is always a custom blank-canvas entity — not c360.person, which is a predefined org fixture you do not deploy client data into directly.
+>
+> Must complete before Step 2 (custom field groups), Step 3 (survivorship), and File Import in Step 6.
 
-This step implements Step 1 and Steps 9-12 of the DefineTheDataModel 12-step process.
-Must complete before Step 3 (Survivorship), and before File Import in Step 6.
+This step implements Steps 1–3 and Steps 9–12 of the DefineTheDataModel 12-step process.
 
 ---
 
@@ -1083,28 +1096,60 @@ Both are effectively irreversible after records are loaded.
 ```
 
 Click OK.
-The entity is created and a blank canvas appears. Next: add fields (Step 2 of the 12-step process).
+The entity is created and a blank canvas appears. A blank-canvas entity has NO fields by default — all field types must be added manually before anything else.
 
 ---
 
-#### Part 1 — Verify field searchability (DefineTheDataModel Step 3)
+#### Part 0b — Add Standard Field Types (blank-canvas entities)
 
-Before building the search layout, confirm which fields are searchable on the custom entity.
-Only fields with "searchable" enabled in their field properties appear in the Search Layout picker.
+A blank-canvas entity has an empty canvas. Before adding custom field groups (Step 2) or building UI assets, add the standard field types that every person entity needs.
 
 ```
-B360 → Explore → {custom entity} → open a field → check field properties
+B360 → Explore → {custom entity} → Actions → Edit  (opens the canvas)
 
-Known defaults on Person copies:
-  ✅ First Name, Last Name   — searchable by default
-  ✅ Address fields (city, state, postal code) — searchable by default
-  ✅ Phone Number            — searchable by default
-  ❌ Full Name               — calculated field, NOT available in search layout
+In the right panel → expand "Basic Fields" section
+
+Add these standard field types by double-clicking each:
+  1. Person_Name       — gives First Name, Last Name, Middle Name, Suffix, Full Name
+  2. Address           — gives Address Line 1, City, State, Postal Code, Country
+  3. Phone             — gives Number, Phone Type
+  4. Electronic Address — gives Email Address, Electronic Address Type
+
+For each field type added:
+  - A dialog appears for the field group Display Name and Internal ID
+  - Accept the defaults or set per the Discovery Workbook Sheet 3
+  - Click Add / OK
+
+Full Name:
+  Full Name is a calculated field that can be created on the entity.
+  Navigate to Basic Fields → add a Text field named "Full Name" (internalId: fullName)
+  A Concatenate DQ rule will be added in Step 4 to populate it from firstName + lastName.
+  This field is required for the match model (Step 5).
+
+After adding all standard field types:
+  Click Save (select "Save without indexing" — entity has no records yet)
+```
+
+---
+
+#### Part 1 — Verify and enable field searchability (DefineTheDataModel Step 3)
+
+Before building the search layout, confirm which fields are searchable. Only fields with "searchable" enabled in their field properties appear in the Search Layout picker.
+
+```
+B360 → Explore → {custom entity} → open each field → check field properties
+
+On a blank-canvas entity after adding standard field types:
+  ✅ First Name, Last Name   — searchable by default after adding Person_Name type
+  ✅ Address fields           — searchable by default after adding Address type
+  ✅ Phone Number            — searchable by default after adding Phone type
+  ❌ Full Name               — calculated field; NOT available in the Search Layout
+                               picker (use First Name + Last Name there instead)
   ❌ Email Address           — NOT searchable by default; must enable manually
 
-To enable Email as searchable:
-  Open the Electronic Address field in the Email Address field group
-  → field properties → enable search/reports → Save entity
+To enable Email Address as searchable:
+  Open the Electronic Address field group → Email Address field
+  → field properties → enable "Searchable" → Save entity
 ```
 
 #### Part 2 — Create Search Layout Component
@@ -1162,8 +1207,10 @@ Page Designer — drag from Standard Components panel (left side) onto canvas:
        Image:             leave empty
        Line 1:            Last Name        ← only 1 field allowed per line
        Line 2:            First Name
-       Highlighted Field: Full Name        ← calculated field; available for display here
-                                             even though not in search layout picker
+       Highlighted Field: Full Name        ← created as a Text field in Part 0b;
+                                             available here as Highlighted Field even
+                                             though it does not appear in the Search
+                                             Layout picker (use First/Last Name there)
 
   2. Fields → select "Basic Fields" field group
   3. Fields → select "Address" field group
@@ -1708,14 +1755,17 @@ Verify:
 
 ---
 
-### Step 6 [UI] — Load Data
+### Step 6 [UI] — Load Data (Pre-Deployment Validation)
 
-Two paths — CDI Ingress (production) or C360 File Import (smoke test / small volume).
-Present both to the consultant. CDI is the recommended path for any production deployment.
+**Always start with File Import (Path A).** Before any production pipeline is built, validate the complete MDM configuration — entity, field groups, survivorship, DQ rules, match model — against a representative sample data set. This is not a smoke test; it is the formal pre-deployment validation that proves the configuration is correct.
+
+The consultant prepares the sample CSVs (one per source system) matching the approved data model. These are small, representative files with real-enough data to trigger matches, DQ rules, and survivorship. No CDI mapping or production pipeline work is needed at this stage.
+
+**Path B (CDI / production pipeline) is a separate downstream project** — handed off to the client's engineering team after the configuration is validated in Path A. The deploy skill does not coach the full CDI build; it provides the validated MDM configuration spec as the hand-off artifact.
 
 ---
 
-#### Path A — C360 File Import *(≤ 500 rows, smoke test, or initial validation)*
+#### Path A — C360 File Import *(pre-deployment validation — required before production pipeline)*
 
 **Date fields — design decision that cannot be reversed after records exist:**
 ```
@@ -1932,77 +1982,92 @@ Verify:
 
 ---
 
-### Step 7 [UI] — Run Ingress Job
+### Step 7 [UI] — Monitor Ingress and Confirm Records Loaded
 
 Prerequisites:
 ```
-  ✓ Step 5 complete — person.ruleset1 Published (match keys generated at load time)
-  ✓ Step 6 complete — all CDI mappings Published
-  ✓ Step 4 complete — DQ rules configured (they execute during Cleanse/Transform)
+  ✓ Step 5 complete — match model Published (match keys generated at load time)
+  ✓ Step 6 complete — File Import jobs submitted or CDI mappings running
+  ✓ Step 4 complete — DQ rules configured (execute during Cleanse/Transform)
 ```
 
 Why this matters for {Client}:
-> {From workbook — loading all source records triggers the full ingress pipeline.
+> {From workbook — every record loaded triggers the full ingress pipeline.
 > DQ rules fire during Cleanse/Transform. Match keys are generated at load time.
 > All sources must finish loading before M&M runs in Step 8.}
 
-Where to navigate:
+---
+
+#### Path A — File Import monitoring
+
+```
+C360 → My Jobs (or B360 Console → My Jobs)
+
+Each File Import job appears as a single entry per source file.
+Wait for status: Succeeded before importing the next source file.
+
+After each import check:
+  → Note the total records imported (shown in job summary)
+  → Confirm the count matches expected rows in your sample CSV
+
+Terminal states:
+  Succeeded  ✅ — all records processed
+  Warning    ⚠️ — completed with issues; open job → review DQ failure rows
+  Failed     🔴 — do not proceed; report the error for diagnosis
+
+After all source files complete:
+  → Run mdm_scan_org.py to verify total record count in the entity
+  Expected total: {sum of sample CSV row counts across all sources}
+```
+
+---
+
+#### Path B — CDI ingress monitoring
+
 ```
 IDMC → Data Integration → Mappings → select mapping → Run
 IDMC → My Jobs  (to monitor)
-```
 
-What to do:
-```
-For each source system mapping from Step 6:
-  1. Open the mapping → click Run
-  2. Note the job instance ID for monitoring
-
-Pipeline stages visible in My Jobs as the job progresses:
+Pipeline stages visible as the job progresses:
   Extract              — reading from source system
   Stage                — loading to staging area
   Cleanse/Transform    — DQ rules execute here (Step 4 rules fire)
-  Load                 — writing records to c360.person
+  Load                 — writing records to {entity}
   Index                — building search indexes
-  Generate Match Keys  — generating match tokens (Step 5 model must be Published)
+  Generate Match Keys  — generating match tokens (match model must be Published)
 
-Wait for each mapping run to show Succeeded before running the next.
+Wait for each mapping run: Succeeded before running the next source.
 
-Terminal states:
-  Succeeded  ✅ — all records processed. Note the record count.
-  Warning    ⚠️ — completed with issues. Review job log.
-             DQ validation failures appear here. Review before Step 8.
-  Failed     🔴 — do not proceed. Report the error for diagnosis.
-
-After all source mappings complete:
+After all mappings complete:
   → Run mdm_scan_org.py to verify total record count
   Expected total: {sum of record counts across all sources from workbook}
 ```
 
 What you will see when done:
 ```
-Business 360 Console → Jobs → Ingress: completed entries per source system.
+My Jobs → completed entries per source system, all Succeeded.
 mdm_scan_org.py record count matches expected total.
 ```
 
 Verify:
-> Re-run mdm_scan_org.py → record count = {total expected across all sources}
+> mdm_scan_org.py → record count = {total expected across all sources}
 
 ---
 
-### Step 8 [UI + SCRIPT] — Define and Trigger Match & Merge
+### Step 8 [UI] — Define and Trigger Match & Merge
 
 Prerequisites:
 ```
   ✓ Step 7 complete — all records loaded, record count verified
-  ✓ Step 5 complete — person.ruleset1 Published
+  ✓ Step 5 complete — match model Published
 ```
 
-**Part A — Define the M&M Job [UI]**
+**Part A — Define and Run the M&M Job [UI]**
 
 Why this matters for {Client}:
-> {From workbook — the M&M job definition is the named configuration that
-> the matching engine runs against c360.person to consolidate duplicates}
+> {From workbook — the M&M job runs the matching engine against the deployment
+> entity to find duplicate records across all source systems and consolidate them
+> into golden records}
 
 Where to navigate:
 ```
@@ -2038,75 +2103,32 @@ Records that met the match threshold are merged into golden records.
 Records in the manual merge threshold (70-79) appear in the steward queue.
 ```
 
-**Part B — Trigger Match & Merge [SCRIPT]**
-
-Run:
+M&M job phases visible in My Jobs as it runs:
 ```
-python3 ~/Informatica-MDM-kit/scripts/mdm_trigger_match_merge.py
-```
-
-What to enter when prompted:
-```
-  jobDefinitionId:  {from Part A above}
-```
-
-What the output means:
-```
-  Polling every 10 seconds... (normal — job is running)
-
-  Phase updates shown as they occur:
-    Lock the Job → Match → Merge → Index for Search →
-    Group Potential Matches → Release the Job
+  Lock the Job → Match → Merge → Index for Search →
+  Group Potential Matches → Release the Job
 
   Terminal states:
-    SUCCESS  ✅ — all phases completed. Proceed to Step 9.
-    WARNING  ⚠️ — completed with issues. Go to Business 360 Console
-                   → My Jobs → click the job → read the error detail.
-                   WARNING is not total failure — investigate before deciding.
-    FAILED   🔴 — job did not complete. Do not proceed to Step 9.
-                   Report the error here and we will diagnose.
-    STOPPED / SKIPPED — do not proceed. Report here.
-
-  Source: B360_April2026_(REST-API)Reference_en.pdf, p.128
+    Succeeded  ✅ — all phases completed. Proceed to Step 9.
+    Warning    ⚠️ — completed with issues.
+                    B360 → My Jobs → click the job → read the error detail.
+                    Warning is not total failure — investigate before deciding.
+    Failed     🔴 — do not proceed. Report the error here and we will diagnose.
+    Stopped / Skipped — do not proceed. Report here.
 ```
 
 Verify:
-> Business 360 Console → My Jobs → M&M job shows SUCCESS (or investigated WARNING)
+> B360 Console → My Jobs → M&M job shows Succeeded (or investigated Warning)
 
 ---
 
-### Step 9 [SCRIPT] — Verify Golden Records
+### Step 9 [UI] — Verify Golden Records
 
 Why this matters for {Client}:
 > {From workbook — this step confirms the deployment achieved its goal:
 > near-duplicate pairs consolidated into single golden records, correct source
 > winning survivorship for each field, and aggregate fields from all contributing
 > sources visible on the golden record}
-
-Run:
-```
-python3 ~/Informatica-MDM-kit/scripts/mdm_verify_records.py
-```
-
-What to enter when prompted:
-```
-  (org credentials — same as prior scripts)
-```
-
-What the output means:
-```
-  For each record found:
-
-    businessId: MDM-xxxxx        ← "MDM" prefix = golden record ✅
-    consolidation: CONSOLIDATED  ← merged from multiple source records ✅
-    searchIndex: SEARCH_INDEXED  ← indexed and searchable ✅
-    sources: [source_a, source_b]  ← contributing source systems ✅
-
-  If a record shows consolidation: LINKED or NONE:
-    It was not matched. Check that its source system internal ID matches
-    exactly what was created in Step 1, and that the model was Published
-    before this record was loaded (Step 5).
-```
 
 Use case validation — check in Customer 360:
 ```
@@ -2151,19 +2173,20 @@ Two files are maintained in parallel and updated after every signoff:
   "client": "{Client}",
   "org": "{org URL from scan}",
   "pattern": "{deployment pattern}",
-  "entity": "c360.person",
+  "entity": "{entity name from Sheet 3}",
   "started": "{date}",
   "output_dir": "{same directory as Discovery Workbook}",
   "steps": [
-    { "number": 1, "name": "Create Source Systems",        "status": "complete", ... },
-    { "number": 2, "name": "Extend Data Model",            "status": "pending" },
-    { "number": 3, "name": "Configure Survivorship",       "status": "pending" },
-    { "number": 4, "name": "Configure Data Quality",       "status": "pending" },
-    { "number": 5, "name": "Confirm Match Model Active",   "status": "pending" },
-    { "number": 6, "name": "Configure CDI Ingress",        "status": "pending" },
-    { "number": 7, "name": "Run Ingress Job",              "status": "pending" },
-    { "number": 8, "name": "Define and Trigger Match & Merge", "status": "pending" },
-    { "number": 9, "name": "Verify Golden Records",        "status": "pending" }
+    { "number": 1,  "name": "Create Source Systems",           "status": "complete", ... },
+    { "number": "2b","name": "Create Custom Entity & UI Assets","status": "pending" },
+    { "number": 2,  "name": "Extend Data Model",               "status": "pending" },
+    { "number": 3,  "name": "Configure Survivorship",          "status": "pending" },
+    { "number": 4,  "name": "Configure Data Quality",          "status": "pending" },
+    { "number": 5,  "name": "Configure & Publish Match Model", "status": "pending" },
+    { "number": 6,  "name": "Load Data (Pre-Deployment Validation)", "status": "pending" },
+    { "number": 7,  "name": "Monitor Ingress & Confirm Records", "status": "pending" },
+    { "number": 8,  "name": "Define and Trigger Match & Merge","status": "pending" },
+    { "number": 9,  "name": "Verify Golden Records",           "status": "pending" }
   ]
 }
 ```
