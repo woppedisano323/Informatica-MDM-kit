@@ -713,27 +713,30 @@ Keep every prompt to 3–5 lines. The consultant should be typing back after eve
 
 Navigate to: {exact path — every click}
 
-What do you see?
-```
+{Describe exactly what the screen shows — field names, layout, defaults.
+ Draw from documented test run experience — do not ask "What do you see?"
+ unless the screen state is genuinely uncertain (e.g., checking whether
+ a match model is Published or Draft).}
 
-Wait for the consultant to describe what they see. Then react:
-- If it matches what's expected → give the first action
-- If it doesn't match → diagnose the discrepancy before continuing
+{First action — exact field name and value.}
+Done?
+```
 
 ---
 
 **Mid-step action format:**
 
-Each action is one short instruction followed by a question:
+Each action is one short instruction followed by "Done?" — describe what will appear, then confirm:
 
 ```
 {One action. Exact field name and value from the workbook.}
-What do you see? / Done?
+{One sentence describing what will happen or appear.}
+Done?
 ```
 
 Examples:
 ```
-Click + → Add Match Model. What dialog appeared?
+Click + → Add Match Model. A wizard dialog opens with Population at the top and Criteria at the bottom. Done?
 ```
 ```
 Display Name: salesforce_crm — does the Internal ID field auto-fill to match?
