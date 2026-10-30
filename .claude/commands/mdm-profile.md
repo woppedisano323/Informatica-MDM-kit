@@ -178,79 +178,89 @@ Ready to create the first profiling task. Which source are we starting with?
 
 Use micro-step coaching. Repeat this step for each source system.
 
-**Step opening:**
+**Folder guidance (before first task):**
 
 ```
 ── STEP 3 OF 10 — Create Profiling Task: {SourceName} ───────────────
 
-This creates the profiling configuration object for {SourceName}.
-The task will not run until P4.
+Before creating the first task, a note on organization:
 
-Navigate to: IDMC → Data Profiling → New
-
-What do you see?
+  If you have 3 or fewer sources, no folder needed — go straight
+  to the task. If you have more than 3 sources (or expect multiple
+  tasks per source), consider creating one folder per source to
+  keep tasks organized. Your choice — we will proceed either way.
 ```
 
-Wait. If they see the new task dialog, continue:
+**Navigate to the new task form:**
 
 ```
-Set these fields:
-  Name:        {RunID}_{SourceName}_Profile   (e.g., PROFILE-TEST-001-20261027_ORION_Profile)
+From IDMC home, open the Data Profiling chicklet.
+
+From the Data Profiling screen, click New.
+
+In the task form that opens, you can set the project and folder
+location here if needed.
+```
+
+**Asset Details:**
+
+```
+Under Asset Details, set:
+  Name:        {SourceName}_{YYYYMMDD}_profile
+               (e.g., FISERVER_20261027_profile)
   Description: MDM profiling run — {SourceName} — {date}
-
-Done?
 ```
 
+**Source tab — connect and select file:**
+
 ```
-Source Type: {Connection / Upload File} — which fits your setup?
+On the Source tab:
+  1. Select your Connection (the connection pointing to the
+     Secure Agent SrcFiles directory or your data source).
+  2. Select the source file or table:
+       {filename}.csv  (or table name for database sources)
+
+A panel appears at the bottom with three tabs:
+  Columns · Filters · Data Preview
+
+⚠️  You must select at least one column — the task will not run
+    without a column selected. Select all columns for MDM profiling.
+
+Confirm the data preview shows the expected columns and rows.
 ```
 
-React to their answer:
-
-**If Connection (flat file connection to agent SrcFiles):**
-```
-Select Connection: {connection name pointing to Secure Agent SrcFiles directory}
-
-Once connected, choose the source file:
-  {filename}.csv
-
-What columns appear in the preview?
-```
-
-If column count in preview matches the file header → proceed.
-If columns are missing or preview shows no data:
+If column count in preview does not match the source file:
 ```
 ⚠️  Column count mismatch — known IDMC profiling issue.
 
-  Root cause: internal metadata object from a prior profiling task
-  on this file has a stale column count.
+  Root cause: a prior profiling task on this same file name left
+  stale metadata. The preview may show fewer columns or no data.
 
   Fix:
-    1. Cancel this task — do NOT save it.
-    2. Navigate to Data Profiling → All Tasks.
-    3. Delete any prior profiling task that used this same file name.
-    4. Return here and create a fresh task.
+    1. Do NOT save this task.
+    2. Go back to the Data Profiling task list.
+    3. Delete any prior task that used this same file name.
+    4. Click New and recreate the task from scratch with a new name.
 
-  After recreating: does the preview now show all {N} columns?
+  After recreating: confirm the preview shows all {N} columns.
 ```
 
-**If Upload File:**
-```
-Upload: {filename}.csv
-
-After upload completes, does the data preview show all {N} columns?
-```
-
-Continue once columns are confirmed:
+**Schedule tab — Secure Agent and row depth:**
 
 ```
-Profiling Depth: Standard
-Sampling: All Rows
+On the Schedule tab:
+  Select your Secure Agent — it must show as Running.
 
-Select all columns — click "Select All" if available.
+  Under Advanced Options:
+    Row depth (n-rows): leave as default (all rows) unless the
+    source file is very large (500K+ rows). For MDM profiling,
+    all rows is recommended to catch low-frequency patterns.
+```
 
-Save and close (do NOT run yet — we will run all tasks together in P4).
-Done?
+**Save:**
+
+```
+Click Save (not Run — we will run in P4).
 ```
 
 **Step close:**
@@ -259,8 +269,8 @@ Done?
 
    Task name: {task_name}
    Source:    {file or table name}
-   Columns:   {N} selected
-   Depth:     Standard / All Rows
+   Columns:   all selected
+   Agent:     {agent name}
 
 {If more sources remain:} Repeat for next source: {NextSourceName}.
 {If all sources done:} All profiling tasks created. Moving to P4 — Run.
@@ -273,36 +283,34 @@ Done?
 ```
 ── STEP 4 OF 10 — Run Profiling Tasks ───────────────────────────────
 
-Running all {N} profiling tasks. Run them one at a time if you want
-to monitor each individually, or all together if the UI supports it.
+Open each profiling task you created in P3 and click Run
+(top-right button, separate from Save).
 
-Navigate to: Data Profiling → All Tasks
+Run one task at a time so you can monitor each individually.
 
-For each task, click Actions → Run.
+To monitor progress: go to My Jobs in IDMC. You will see the
+profiling task appear as a running job.
 
-After each run completes, confirm Status = Succeeded.
+Once the job completes, go back to the profiling task and click
+Update — this refreshes the task and loads the profiling stats.
+Without clicking Update, the Column Profile results will not appear.
 
-⚠️  "Completed" with a warning icon is NOT the same as Succeeded.
-    If you see "Completed" but metrics are empty on the Column Profile
-    sheet after export — this is the column count mismatch issue.
-    See P3 for the fix (delete and recreate the task).
-
-What is the status of the first task?
+What status do you see for the first task?
 ```
 
 React to status:
-- **Succeeded** → proceed to next source or to P5
-- **Failed** → ask for the task log; diagnose from error codes
-- **Completed (0 rows written)** → column count mismatch → send back to P3 fix
-- **Running for more than 5 minutes on a 100-row file** → check Secure Agent status in IDMC Administrator
+- **Succeeded** → click Update on the task, confirm stats appear, then proceed to next source
+- **Failed** → ask for the task log from My Jobs; diagnose from error codes
+- **Completed with empty stats after Update** → column count mismatch → send back to P3 fix (delete and recreate)
+- **Running for more than 5 minutes on a small file** → check Secure Agent status in IDMC Administrator
 
-Once all tasks show Succeeded:
+Once all tasks show Succeeded and stats are visible after Update:
 ```
-✓  All {N} profiling tasks completed successfully.
+✓  All {N} profiling tasks completed.
 
-   {SourceName 1}: Succeeded
-   {SourceName 2}: Succeeded
-   {SourceName 3}: Succeeded
+   {SourceName 1}: Succeeded — stats loaded
+   {SourceName 2}: Succeeded — stats loaded
+   {SourceName 3}: Succeeded — stats loaded
 
 Moving to export.
 ```
@@ -316,12 +324,16 @@ Moving to export.
 
 For each completed task, export the results to Excel:
 
-  Data Profiling → {task name} → Actions → Export
+  Open the profiling task → click the ⋮ (three-dot) menu next to
+  the Save and Run buttons → Export Details.
+
+  This downloads the results as an xlsx file.
 
   Save with a consistent naming convention:
     m_{SourceName}_Profile_Run{N}.xlsx
+    (e.g., m_FiServer_Profile_Run1.xlsx)
 
-  Keep all three files in the same folder — I will read them together
+  Keep all files in the same folder — I will read them together
   in P6.
 
 What folder did you save them to?
@@ -332,7 +344,15 @@ Once path is confirmed:
 Reading {N} profiling exports from: {path}
 ```
 
-Read all profiling export files. Parse the "Column Profile" sheet and "Patterns" sheet from each. Build an internal map: source → field → stats.
+Read all profiling export files. The export contains six sheets:
+Column Profile · Values · Statistics · Patterns · Data Types · Properties
+
+Parse the following sheets for each source:
+- **Column Profile** — field-level stats: null %, distinct %, pattern count, top pattern %, min/max value
+- **Patterns** — per-field format patterns using X (alpha) / 9 (digit) notation with frequency %
+- **Data Types** — IDMC's type inference per field (important for detecting numeric inference on phone, date ambiguity)
+
+Build an internal map: source → field → stats.
 
 ---
 
@@ -341,68 +361,57 @@ Read all profiling export files. Parse the "Column Profile" sheet and "Patterns"
 ```
 ── STEP 6 OF 10 — Interpret Profiling Results ───────────────────────
 
-Reading results for all {N} sources. Here is what I found:
+Reading results for all {N} sources.
 ```
 
-For each source, print a condensed interpretation table:
+For each source, print a condensed interpretation table using actual values from the export. Focus on the MDM-critical fields — these directly affect match quality, load success, and golden record accuracy:
 
 ```
 {SourceName}
 ─────────────────────────────────────────────────────────────────
 Field            Null%   Patterns  Top Pat%  Flag    Finding
 ─────────────────────────────────────────────────────────────────
-first_name       0%      7         29%       🔴      ALL CAPS subset — INITCAP needed
-last_name        0%      6         31%       🔴      ALL CAPS subset — INITCAP needed
-phone            0%      3         42%       🔴      3 formats: dots/dashes/plain
-birth_date       0%      1         100%      ✅      Single format — clean
-state            0%      2         90%       🟡      2-char + full name mix
-postal_code      0%      2         81%       🟡      5-digit + 5+4 mix
-email            0%      —         —         ✅      0% null
+{field}          {n}%    {n}       {n}%      {flag}  {finding}
 ...
 ```
 
-Apply these interpretation rules when reading any export:
+**DQ Issue Flag logic:**
+- 🔴 RED — null% > 10% OR pattern count > 2
+- 🟡 YELLOW — null% 1–10% OR pattern count = 2
+- ✅ GREEN — null% = 0% AND pattern count ≤ 1
 
-**Phone fields:**
-- Pattern count 1 = clean (rare for real data)
-- Pattern count 2 = two dominant formats — one CDI rule handles it
-- Pattern count 3+ = flag RED — REG_REPLACE('[^0-9]','') strips all separators in one pass
-- Null % > 0 on phone = note the %; match rules using phone will not fire for null records
-- If data type shows Integer or Decimal → phone was ingested as all-digit numeric — wrap with TO_CHAR() before REG_REPLACE in CDI
+**MDM-critical fields to always check:**
 
-**Name fields (first_name, last_name):**
-- Pattern count > 3 = mixed casing (Title Case, UPPER, lower, etc.) — INITCAP in CDI
-- Pattern count 1 with top pattern ~100% = single casing — confirm visually
-- INITCAP does not handle hyphenated names perfectly (Mary-Jane → Mary-jane) — document as known limitation
+**Phone / Mobile:**
+- Null % directly controls match rule firing — any null % means those records cannot match on phone
+- Pattern count reflects actual format variation (e.g., `(999)999-9999` vs `999-999-9999` vs `9999999999`)
+- Check Data Types sheet: if Integer or Decimal appears for phone, some records stored digits with no separators — note this for load-time handling
+- Pattern count includes NULL as a pattern in the Patterns sheet — check whether null is a separate line item
 
-**Date / DOB fields:**
-- Pattern count 1 = single format — check which format before assuming clean
-- Pattern count 2 = mixed formats — IIF detect + TO_DATE in CDI required
-- ⚠️ Date Type Inference False Positive: If data type shows `Date(year/dd/mm)` on a YYYY-MM-DD field where all months are ≤ 12 — this is an engine ambiguity. Open the raw CSV and confirm the actual format before writing any transformation rule.
-- If the profiling export shows 0% null on birth_date but some records clearly have placeholder dates (1900-01-01, 9999-12-31) — note these as DQ issues; they will not show as null but are logically missing
+**Email:**
+- Null % is the key metric — controls which match rules fire
+- Distinct % near 100% expected (each person has a unique email)
 
-**State / Province fields:**
-- Pattern count 2 = abbreviation + full name mix (e.g., CA + California)
-- IIF(LENGTH(UPPER(state))>2, '{state_abbrev}', UPPER(state)) normalizes in CDI
-- If count > 2, check Patterns sheet to enumerate all variants before writing the IIF chain
+**DOB / Birth Date:**
+- Pattern count > 1 = mixed formats — look at Patterns sheet to identify the formats present (e.g., `9999-99-99` vs `99-99-9999`)
+- Check Data Types sheet for date inference: IDMC may infer `Date(year/dd/mm)` on a YYYY-MM-DD field when all month values are ≤ 12 — this is an engine ambiguity, not a data issue. Open the raw source file to confirm the actual format before deciding on any transformation.
 
-**Postal / ZIP fields:**
-- Pattern count 2 = 5-digit + 5+4 mix
-- SUBSTR(postal_code,1,5) strips the +4 suffix; harmless on already-5-digit values
+**First Name / Last Name:**
+- Pattern count on name fields reflects **name length variation** (XXX, XXXX, XXXXX...), not casing
+- Pattern count alone cannot determine whether casing is an issue
+- To check casing: open the Values sheet in the export or sample the source CSV directly — look for records in ALL CAPS or all lowercase
 
-**Email fields:**
-- Null % is the key metric — it directly controls which match rules fire
-- Distinct % near 100% = good (each person has a unique email, as expected)
-- Pattern count > 3 = look at Patterns sheet for non-standard TLD or format issues
+**State / Province:**
+- Pattern count > 1 = format mix (e.g., two-char abbreviation vs full name)
+- Check Patterns sheet to see exactly which variants are present before deciding on a transform
 
-**Identifier / ID fields:**
-- Distinct % should be ~100% — lower = potential duplicates in source data, flag it
-- Null % should be 0% — any nulls on a primary key = data integrity issue
+**Source Primary Key:**
+- Null % must be 0% — any nulls will cause record rejection on load
+- Distinct % should be ~100% — lower indicates potential duplicate keys in the source
 
-After printing the interpretation, ask:
+After printing the interpretation:
 ```
-Does this match what you observed when running the profiles?
-Any fields I should look at more closely?
+Does this match what you observed? Any fields to look at more closely?
 ```
 
 Wait for confirmation or questions before moving to P7.
@@ -415,7 +424,8 @@ Wait for confirmation or questions before moving to P7.
 ── STEP 7 OF 10 — DQ Analysis ───────────────────────────────────────
 
 Based on the profiling results, here are the DQ issues I recommend
-addressing in MDM, mapped to rule type and CDI transformation:
+addressing in MDM. For each issue, map it to:
+  Source · Field · Issue · Rule Type · Function · Severity · Trust Downgrade %
 ```
 
 For each issue found, print a recommendation row:
@@ -424,26 +434,22 @@ For each issue found, print a recommendation row:
 {Source} | {Field} | {Issue} | {Rule Type} | {Function} | {Severity} | {Trust Downgrade %}
 ```
 
-Severity guidance:
-- **Error** (record rejected): reserved for primary key / sourcePKey null or critical identity field completely missing
-- **Warning** (trust score downgraded): use for format inconsistency, casing, date format, phone format — the record is still useful but trust is reduced
-- **Information** (record saved, no trust impact): use for optional fields, low-severity cosmetic issues
+**Severity levels (from Informatica MDM documentation):**
+- **Information** — minor data quality issues; users can save records in the UI
+- **Warning** — less severe issues; users can save records in the UI
+- **Error** — severe issues; users cannot save records in the UI (unless error remediation is enabled on the entity); records are rejected on ingress only if "Reject records that fail validation" is enabled on the objective
 
-Trust downgrade % guidance:
-- Phone format / casing: 5–10%
-- Missing optional field (email, middle name): 0% unless used in match
-- Missing phone/email when used in match rule: 10–15%
-- Address format: 5–10% (DaaS verification rule applies its own trust logic)
-- Date format (impacts age/DOB-based decisions): 5%
+Trust score downgrade is configured separately per rule association as a percentage you define. It applies on ingress/CDI load regardless of severity level. There are no prescribed defaults — set the percentage based on business requirements and how much that field matters for match and survivorship.
 
-Rule type guidance:
-- **Basic**: Built-in MDM functions — Title Case, Uppercase, Max Length, Regular Match (regex validation post-load). Configured in B360 entity settings.
-- **Advanced**: Cloud DQ rule specification — used for complex multi-field validation or external lookups. Only if a spec already exists or is worth authoring.
-- **DaaS**: Address Verification (predefined, included in MDM SaaS — disabled by default, must be explicitly enabled), Phone Verification (real-time, separate entitlement), Email Verification (real-time, separate entitlement).
+**Rule type guidance:**
+- **Basic** — predefined MDM functions configured directly on the business entity field. Available functions include: Title Case, Uppercase, Lowercase, Maximum Length, Minimum Length, Regular Match (regex), No Spaces, Allowed Characters, Date Range, No Future Date, Concatenate. Use for straightforward single-field validation or standardization.
+- **Advanced** — Cloud DQ rule specification. Use for complex validation, multi-field logic, or when a rule spec already exists in Data Quality. Requires mapping input/output fields of the spec to business entity fields.
+- **DaaS** — Informatica Data as a Service enrichment plugins run via EVO (Enrichment and Validation Orchestrator) in post-October 2025 orgs:
+  - Address Verification: predefined rule included in MDM SaaS — disabled by default on blank-canvas entities; must be explicitly enabled. Requires DaaS license file to be uploaded.
+  - Phone Verification: separate DaaS entitlement required
+  - Email Verification: separate DaaS entitlement required
 
-⚠️  DaaS entitlement check: Before recommending DaaS rules, confirm with the client:
-- Address Verification: available in MDM SaaS but predefined rule must be explicitly enabled in the entity
-- Phone / Email DaaS: requires separate entitlement — check the license before putting these in the deployment plan
+⚠️  DaaS entitlement check before recommending Phone or Email DaaS: confirm the client has the entitlement and the license file has been uploaded. Without the license file, ingress jobs fail at the load step.
 
 After printing the analysis:
 ```
@@ -453,46 +459,44 @@ Type "done" when the DQ Analysis table is complete.
 
 ---
 
-### P8 — CDI transformation pseudocode
+### P8 — Load-time transformation requirements
 
 ```
-── STEP 8 OF 10 — CDI Transformations ───────────────────────────────
+── STEP 8 OF 10 — Load-Time Transformation Requirements ─────────────
 
-For each DQ issue that is best fixed at load time (not post-load via
-MDM rule), here is the CDI expression transform to apply in the
-mapping canvas:
+Based on profiling, here are the fields that need transformation
+before or during load into MDM. These are requirements — how they
+are implemented depends on your load architecture (CDI flat file
+mapping, API-based ingestion, staging layer, etc.).
 ```
 
-Print one row per transform:
+For each field with a transformation requirement, document:
 
 ```
-{Source} | {Field} | {CDI Expression} | {Reason} | {Output Example}
+{Source} | {Field} | {Issue found in profiling} | {Transform needed} | {Output example}
 ```
 
-Standard library:
+**Reference expressions for standard CDI flat file mappings:**
 
-| Issue | CDI Expression |
+If your load architecture uses Cloud Data Integration with an Expression transformation before the Business 360 Connector target, these pseudocode expressions apply. Adjust for your actual architecture.
+
+| Issue | Reference Expression |
 |---|---|
-| ALL CAPS name | `INITCAP(first_name)` |
-| Phone — all formats | `REG_REPLACE(phone, '[^0-9]', '')` |
-| Phone — all formats + null | `IIF(ISNULL(phone) OR phone='', NULL, REG_REPLACE(phone,'[^0-9]',''))` |
-| Phone — all-digit numeric (Integer/Decimal) | `IIF(ISNULL(phone), NULL, REG_REPLACE(TO_CHAR(phone),'[^0-9]',''))` |
+| Name casing (confirmed via Values sheet) | `INITCAP(first_name)` |
+| Phone — multiple formats | `REG_REPLACE(phone, '[^0-9]', '')` |
+| Phone — multiple formats with nulls | `IIF(ISNULL(phone) OR phone='', NULL, REG_REPLACE(phone,'[^0-9]',''))` |
+| Phone — numeric type inference (TO_CHAR wrap needed) | `IIF(ISNULL(phone), NULL, REG_REPLACE(TO_CHAR(phone),'[^0-9]',''))` |
 | DOB — mixed MM/DD/YYYY + YYYY-MM-DD | `IIF(INSTR(birth_date,'/')>0, TO_DATE(birth_date,'MM/DD/YYYY'), TO_DATE(birth_date,'YYYY-MM-DD'))` |
-| DOB — mixed MM-DD-YYYY + YYYY-MM-DD | `IIF(SUBSTR(birth_date,3,1)='-' AND SUBSTR(birth_date,1,2)<='12', TO_DATE(birth_date,'MM-DD-YYYY'), TO_DATE(birth_date,'YYYY-MM-DD'))` |
-| State — full name + abbreviation | `IIF(LENGTH(UPPER(state))>2, '{abbrev}', UPPER(state))` |
-| Postal code — strip +4 | `SUBSTR(postal_code, 1, 5)` |
+| State — abbreviation + full name mix | `IIF(LENGTH(UPPER(state))>2, '{abbrev}', UPPER(state))` |
+| Postal code — 5+4 suffix | `SUBSTR(postal_code, 1, 5)` |
 | Email — preserve null | `IIF(ISNULL(email) OR email='', NULL, email)` |
 
-After printing transforms:
+⚠️  These are reference expressions for a standard flat file CDI mapping. Real engagements may source data from APIs, staging tables, CDC feeds, or other architectures — the transformation logic is the same but the implementation layer varies. This step surfaces what needs to be handled; CDI/ETL design is a separate architectural conversation.
+
+After documenting requirements:
 ```
-These pseudocode expressions go into the CDI mapping canvas in the
-Expression transformation before the Business 360 Connector target.
-
-One Expression transformation per source in the mapping handles
-all field-level transforms — no need for separate transformations
-per field.
-
-Does this match your CDI mapping plan? Any transforms to adjust?
+Any transforms to add or adjust based on your load architecture?
+Type "done" when the CDI Transformations tab is complete.
 ```
 
 ---
@@ -534,20 +538,35 @@ Adjust ranking if the consultant provides additional context, then confirm.
 
 ### P10 — Generate workbook and update Discovery Workbook
 
+Using the findings accumulated in P6–P9, generate two outputs:
+
+**Output 1 — MDM_Profile_DQ_{Client}.xlsx** (the artifact)
+
+Use openpyxl to generate the workbook directly. Populate each sheet from the structured findings captured during this session:
+- Source tabs: field stats from the profiling exports (P6)
+- DQ Analysis tab: issues and rule mappings from P7
+- CDI Transformations tab: load-time requirements from P8
+- Summary tab: survivorship ranking and rationale from P9
+
+See Workbook Spec below for sheet structure, colors, and column definitions.
+
+**Output 2 — generate_mdm_profile_dq_{client}.py** (the generator script)
+
+Write the Python script used to generate the workbook to disk alongside the workbook. This allows the consultant to re-run it, modify it, or share it as part of the engagement record.
+
 ```
 ── STEP 10 OF 10 — Generate Profile/DQ Workbook ─────────────────────
 
-Generating MDM_Profile_DQ_{Client}.xlsx...
+Generating MDM_Profile_DQ_{Client}.xlsx from this session's findings...
+Also writing generate_mdm_profile_dq_{client}.py for re-use.
 ```
-
-Call `generate_mdm_profile_dq_workbook()` (see Workbook Spec below) to produce the output file.
 
 When complete:
 ```
-✓  MDM_Profile_DQ_{Client}.xlsx generated.
+✓  Two outputs generated:
 
-   Sheets: Glossary | Source 1—{Name} | Source 2—{Name} | Source 3—{Name} |
-           DQ Analysis | CDI Transformations | Summary
+   MDM_Profile_DQ_{Client}.xlsx   — the engagement artifact
+   generate_mdm_profile_dq_{client}.py — re-runnable generator script
 
    Saved to: {output_path}
 
@@ -560,13 +579,13 @@ What to copy back into MDM_Discovery_{Client}.xlsx before /mdm-deploy:
             Severity, Trust Downgrade %, EVO Object Group flag.
 
   Sheet 7 (Data Loading → CDI section)
-    → Copy CDI Transformations pseudocode for each source.
-      Paste into the "CDI Mapping Notes / Expressions" section.
+    → Copy load-time transformation requirements from CDI Transformations tab.
 
   Sheet 9 (Profiling Results)
-    → Copy the DQ Summary block from each source tab.
-      Fill completeness score, RED/YELLOW field list, and key findings.
-      This sheet is the gate check in /mdm-deploy R1.
+    → Copy the summary block from each source tab.
+      Fill completeness score, flagged fields, and key findings.
+      This sheet is the gate check in /mdm-deploy — it must be
+      populated before deployment can proceed.
 
   Sheet 4 (Survivorship)
     → Update ranking to match the survivorship recommendation in Summary.
