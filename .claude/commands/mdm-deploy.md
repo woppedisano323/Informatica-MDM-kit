@@ -1527,7 +1527,13 @@ B360 → Explore → {project folder} → {custom entity} → Match tab
 
 ---
 
-#### PATH A — Predefined entity (c360.person or copy)
+#### PATH A — Custom entity (primary path — no predefined match model exists)
+
+The custom entity has no match model yet. Create one from scratch using PATH B below.
+
+---
+
+#### PATH B — Predefined entity only (c360.person deployed directly)
 
 A predefined match model (person.ruleset1) already exists. Check its status:
 
@@ -1545,9 +1551,9 @@ A predefined match model (person.ruleset1) already exists. Check its status:
 
 ---
 
-#### PATH B — Custom / blank-canvas entity
+#### PATH A continued — Custom / blank-canvas entity: Create match model from scratch
 
-No match model exists. Create one from scratch.
+No match model exists on a new custom entity. Create one now.
 Doc basis: MDM.md lines 5193–5240, 6234–6392.
 
 ```
