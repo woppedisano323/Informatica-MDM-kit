@@ -121,18 +121,13 @@ Please fill these in the workbook and re-run:
 
 ---
 
-### R2 — Run org scan
+### R2 — Pre-flight org review (UI)
 
-```bash
-python3 ~/Informatica-MDM-kit/scripts/mdm_scan_org.py
-```
-
-Reconcile scan results with the workbook:
-- Source systems in the workbook already exist in the org with different Internal IDs → flag conflict before proceeding
-- Records already exist in the deployment entity ({entity from Sheet 3}) → survivorship warning (trust scores not retroactively recalculated)
+Before proceeding, confirm the following in the B360 Console:
+- Source systems in the workbook do not already exist in the org with conflicting Internal IDs
+- No records already exist in the deployment entity ({entity from Sheet 3}) — if they do, survivorship warning applies (trust scores not retroactively recalculated)
 - The custom entity does not yet exist → expected for new deployments; will be created in Step 2b
-- Custom field groups already exist on the entity → compare with workbook Sheet 3, flag conflicts
-- c360.person is a predefined org fixture — confirm the deployment entity is the custom one from Sheet 3, not c360.person
+- c360.person is a predefined org fixture — the deployment entity is the custom one from Sheet 3, not c360.person
 
 ---
 
@@ -2025,7 +2020,7 @@ Terminal states:
   Failed     🔴 — do not proceed; report the error for diagnosis
 
 After all source files complete:
-  → Run mdm_scan_org.py to verify total record count in the entity
+  → C360 → search for any loaded name to confirm records are visible
   Expected total: {sum of sample CSV row counts across all sources}
 ```
 
@@ -2048,18 +2043,18 @@ Pipeline stages visible as the job progresses:
 Wait for each mapping run: Succeeded before running the next source.
 
 After all mappings complete:
-  → Run mdm_scan_org.py to verify total record count
+  → C360 → search for any loaded name to confirm records are visible
   Expected total: {sum of record counts across all sources from workbook}
 ```
 
 What you will see when done:
 ```
 My Jobs → completed entries per source system, all Succeeded.
-mdm_scan_org.py record count matches expected total.
+Records visible in C360 search — count matches expected total.
 ```
 
 Verify:
-> mdm_scan_org.py → record count = {total expected across all sources}
+> C360 search → records visible, count = {total expected across all sources}
 
 ---
 
