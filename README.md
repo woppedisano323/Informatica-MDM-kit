@@ -45,15 +45,15 @@ Run next: `/mdm-deploy <path/to/MDM_Discovery_<Client>.xlsx>`
 
 ### `/mdm-deploy`
 
-**Phase 3 — Deployment Coach.** Reads the completed Discovery Workbook, runs a read-only org scan, validates pre-flight conditions, then walks through all 9 deployment steps using micro-step coaching (one action at a time, wait for confirmation before advancing):
+**Phase 3 — Deployment Coach.** Reads the completed Discovery Workbook, validates pre-flight conditions, then walks through all 9 deployment steps using micro-step coaching (one action at a time, wait for confirmation before advancing):
 
 1. Source Systems
 2. Extend Data Model
 3. Survivorship
 4. Data Quality Rules
 5. Match Model
-6. CDI Ingress — Source 1
-7. CDI Ingress — Sources 2 + 3
+6. Load Data
+7. Monitor Ingress
 8. Match and Merge
 9. Validate Golden Records
 
@@ -91,8 +91,8 @@ FSI scenario with three source systems (ORION wealth management, ENCOMPASS loan 
 
 | Script | Purpose |
 |--------|---------|
-| `scripts/mdm_scan_org.py` | Read-only org scan — entity status, match model, source systems, record count, job definitions |
 | `scripts/mdm_session_pdf.py` | Regenerate deployment session PDF from session JSON — called after every step signoff |
+| `scripts/mdm_overview_pdf.py` | Regenerate `MDM_Setup_Skill_Overview.pdf` — run after skill content changes |
 
 ---
 
@@ -111,7 +111,6 @@ FSI scenario with three source systems (ORION wealth management, ENCOMPASS loan 
 ## Prerequisites
 
 - Informatica Cloud MDM org with Customer 360 SaaS provisioned
-- Secure Agent installed, running, and connected to IDMC
 - Python 3 with `openpyxl` and `reportlab` (`pip install openpyxl reportlab`)
 - IDMC username and password
 
@@ -126,6 +125,8 @@ Open this repo in Claude Code, then:
 ```
 
 Follow the three-skill sequence. Each skill tells you when to move to the next one.
+
+For full detail on each skill, see [`docs/skill_overview.md`](docs/skill_overview.md).
 
 ---
 

@@ -21,7 +21,7 @@ Consultant runs /mdm-profile <path/to/MDM_Discovery_<Client>.xlsx>
        Updates: Discovery Workbook sheets 5, 7, 9
 
 Consultant runs /mdm-deploy <path/to/MDM_Discovery_<Client>.xlsx>
-  └─ Pre-flight scan + conflict check
+  └─ Pre-flight checks + conflict review
   └─ 9 deployment steps, one action at a time
        Output: MDM_Deployment_Steps_<Client>.xlsx + session PDF
 ```
@@ -53,7 +53,7 @@ Each skill gates the next. `/mdm-deploy` validates that Sheet 9 (Profiling Resul
 | 3 — Data Model | Custom field groups — field type, internal ID, source, Date vs DateTime decision, fgid plan |
 | 4 — Survivorship | Source ranking + reasoning; decay rules (Max/Min score, Unit, Period) |
 | 5 — DQ Planning | Per-field rule plan (Basic/Advanced/DaaS), severity, trust downgrade %, DaaS entitlement check, blank-canvas prereqs |
-| 6 — Match Model | person.ruleset1 vs custom, match criterion, strategy, population, M&M job name |
+| 6 — Match Model | Custom match model (primary) or predefined match model decision, match criterion, strategy, population, M&M job name |
 | 7 — Data Loading | CDI vs File Import; Secure Agent, connections, per-source mapping config, CDI expression notes |
 | 8 — Success Criteria | Per-step verification checklist (9 steps) |
 | 9 — Profiling Results | IDMC Data Profiling summary — completeness scores, DQ flags, key findings per source; gate check for /mdm-deploy |
@@ -116,9 +116,8 @@ Each skill gates the next. `/mdm-deploy` validates that Sheet 9 (Profiling Resul
 
 **Pre-flight checks (before any steps):**
 - Reads and validates Discovery Workbook (all required fields populated)
-- Runs read-only org scan (`mdm_scan_org.py`)
+- UI review: confirm no source system ID collisions, no existing records in the deployment entity, no legacy M&M jobs
 - Generates `MDM_Deployment_Steps_<Client>.xlsx` (write-once step reference workbook)
-- Conflict check: source system ID collisions, existing records, legacy M&M jobs
 
 **9 Deployment Steps:**
 
@@ -128,15 +127,15 @@ Each skill gates the next. `/mdm-deploy` validates that Sheet 9 (Profiling Resul
 | 2 — Extend Data Model | UI | Add custom field groups to the blank-canvas entity |
 | 3 — Survivorship | UI | Configure source ranking + decay rules |
 | 4 — Data Quality Rules | UI | Configure Basic, Advanced, and DaaS rules; set severity + trust downgrade % |
-| 5 — Match Model | UI | Publish person.ruleset1 or configure custom match model |
-| 6 — CDI Ingress (Source 1) | CDI | Create mapping (Source → Expression transforms → Business 360 Connector); run ingress job |
-| 7 — CDI Ingress (Sources 2+3) | CDI | Repeat CDI mapping for remaining sources |
+| 5 — Match Model | UI | PATH A (custom entity): create match model from scratch via Directed AI wizard, publish. PATH B (predefined entity): select existing match model. |
+| 6 — Load Data | UI | File Import with sample CSVs (pre-deployment validation). CDI production pipeline is a separate downstream project. |
+| 7 — Monitor Ingress | UI | Confirm all source ingress jobs Succeeded; verify record counts in C360 |
 | 8 — Match and Merge | UI | Run M&M job; confirm job completes |
 | 9 — Validate Golden Records | UI | Verify consolidation status, source record contributions, trust scores |
 
 **Coaching format (every step):**
 1. Orient — one sentence on what the step does and why it matters
-2. Navigate — exact path; ask what the consultant sees
+2. Navigate — exact path from documented experience; describe the screen, give the action, ask Done?
 3. Act — one action at a time; wait for response
 4. React — diagnose unexpected state before continuing
 5. Verify — confirm outcome before closing the step
@@ -157,7 +156,7 @@ Each skill gates the next. `/mdm-deploy` validates that Sheet 9 (Profiling Resul
 | Decision | What | Why |
 |----------|------|-----|
 | Blank-canvas entity | Use B360 → New → Business Entity (not copy of c360.person) | Person copy inherits smart fields with DQ rule associations requiring dictionary privileges — causes silent load failures on all Picklist fields |
-| CDI as primary load path | Cloud Data Integration mappings → Business 360 Connector | Supports any volume; enables Expression transforms (INITCAP, REG_REPLACE, TO_DATE); REST API seeding is fallback only (≤50 records) |
+| File Import as pre-deployment validation | Sample CSVs loaded via C360 File Import before production pipeline | Validates entity config, DQ rules, match keys, and survivorship without requiring CDI setup. CDI production pipeline is a separate downstream project. |
 | Survivorship before records | Configure ranking before first record loads | Trust scores not retroactively recalculated |
 | Match model published before load | Publish before CDI ingress | Records loaded before publish have no match keys and will never be matched |
 | EVO for DQ rules | Post-Oct 2025 orgs use Enrichment and Validation Orchestrator | Requires Enrichment Provider + Enrichment Scenario Group permissions in Administrator |
