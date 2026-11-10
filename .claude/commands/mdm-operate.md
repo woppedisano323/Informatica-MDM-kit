@@ -90,9 +90,11 @@ One step at a time. Nothing changes in the org until you execute each action.
 
 **Step 1 — Create a custom user role**
 
+Ask the consultant what they want to call the approver role. Suggest a name that reflects the entity and responsibility — e.g., `{Entity} Workflow Approver`. Record the chosen name as `{custom role name}` for the steps that follow.
+
 ```
 IDMC → Administrator → User Roles → New Role
-  Name: MDM Workflow Approver
+  Name: {custom role name}  (e.g., MDM Workflow Approver)
   Save
 ```
 
@@ -101,7 +103,7 @@ Ask: "Done?"
 **Step 2 — Assign View Tasks privilege**
 
 ```
-User Roles → MDM Workflow Approver
+User Roles → {custom role name}
   → Services list → Human Tasks
   → Features tab → View Tasks ✓
   → Save
@@ -116,7 +118,7 @@ Ask: "Done?"
 ```
 IDMC → Administrator → Users → select the approver user
   → Roles tab → assign:
-      MDM Workflow Approver ✓
+      {custom role name} ✓
       Business360ProcessExecutor ✓
   → Save
 ```
@@ -132,7 +134,7 @@ Ask: "Done?"
 **Step 4 — Grant Workflow Approver privilege for the entity**
 
 ```
-B360 Console → Security → MDM Workflow Approver
+B360 Console → Security → {custom role name}
   → select {entity name} from the entity list
   → Records tab:
       Read ✓
@@ -144,7 +146,7 @@ B360 Console → Security → MDM Workflow Approver
   → Save
 ```
 
-This step is what makes the MDM Workflow Approver role appear in the business event Approvers dropdown. Without Workflow Approver on the Features tab, the role will not appear.
+This step is what makes the {custom role name} role appear in the business event Approvers dropdown. Without Workflow Approver on the Features tab, the role will not appear.
 
 Note: Predefined roles (Customer 360 Data Steward, etc.) do not appear in B360 Console → Security and cannot be configured here. Custom roles only.
 
@@ -206,7 +208,7 @@ Open the Service step. In the Properties panel:
 
 ```
 General tab:
-  Name: Review Record
+  Name: {entity} Review  (e.g., FSI Customer Review)
 
 Service tab:
   Service Type: System Service
@@ -223,8 +225,8 @@ Then click the **Input Fields tab** and configure:
 Template      Field    template
 TaskTypes     Field    taskTypes
 Change List   Field    input
-TaskName      Content  Review Record
-Task Actions  Content  Approve;Reject
+TaskName      Content  {task name from General tab above}  (e.g., FSI Customer Review)
+Task Actions  Content  {actions}  (e.g., Approve;Reject — use semicolons to separate)
 ```
 
 - **TaskName** is the label that appears in the approver's Workflow Inbox as the task title.
@@ -281,13 +283,13 @@ On the Workflow Tasks page:
 Name list:     Additional Workflows
 Process:       {entity} Approval  (the process published in Step 9)
 
-Tasks section: select the task → Review Record
+Tasks section: select the task → {task name from Step 8}
 Task Details:
   Title:    Review {Entity} Record
-  Priority: Normal
-  Due In:   3  (days)
+  Priority: {High / Normal / Low}  — Normal for standard review
+  Due In:   {N} days  — 3–5 days recommended for standard review
 
-User Roles:    Customer 360 Manager  (and/or MDM Workflow Approver)
+User Roles:    {approver role}  — Customer 360 Manager and/or {custom role name}
 
 Page Settings: optionally select the View/Edit page for the entity
                (controls what the approver sees when they open the task)
@@ -297,8 +299,8 @@ Click **Next**. The Workflow Properties page appears:
 
 ```
 Title:    Review {Entity} Record
-Priority: Normal
-Due In:   3
+Priority: {High / Normal / Low}
+Due In:   {N}
 ```
 
 Click **Save**.
@@ -375,7 +377,7 @@ Surface these proactively at the relevant step — do not list all upfront.
 | MDM > HumanTask greyed out in Service tab — means process was created from scratch, not from template | R3 Step 8 |
 | Business events are enabled by default — no separate activation needed | R4 Step 10 |
 | Cannot change a business event's workflow while records are pending approval | R4 Step 10 — before saving |
-| Workflow Inbox shows tasks for the business application the entity is registered in — Customer FSI in C360 → tasks in C360 Workflow Inbox | R5 Step 13 |
+| Workflow Inbox shows tasks for the business application the entity is registered in — {entity} in {business application} → tasks in that application's Workflow Inbox | R5 Step 13 |
 | Additional Workflows option is only available for user-triggered events — not system-generated events | R4 Step 10 |
 | Business360ProcessExecutor is required for any user to access Workflow Inbox | R1 Step 3 |
 
