@@ -2,7 +2,7 @@
 
 Guided deployment skills for Informatica Cloud MDM — Business 360 / Customer 360 SaaS.
 
-Three skills chain together to take a blank org from use case through profiling to a verified golden record.
+Four skills chain together to take a blank org from use case through profiling, deployment, and into live operational governance.
 
 ---
 
@@ -12,6 +12,7 @@ Three skills chain together to take a blank org from use case through profiling 
 /mdm-setup    Phase 1 + 2   Use Case Alignment → Discovery Workbook
 /mdm-profile  Profiling     Source Profiling → DQ Analysis → CDI Transforms
 /mdm-deploy   Phase 3       Step-by-step Deployment Coaching
+/mdm-operate  Phase 4       CAI Approval Workflow — Business Event + Governance
 ```
 
 Each skill produces a shareable artifact and gates the next step. Nothing is created in the org until the consultant confirms each action.
@@ -58,6 +59,19 @@ Run next: `/mdm-deploy <path/to/MDM_Discovery_<Client>.xlsx>`
 9. Validate Golden Records
 
 Produces `MDM_Deployment_Steps_<Client>.xlsx` + session PDF signed off after each step.
+
+---
+
+### `/mdm-operate`
+
+**Phase 4 — Operational Governance.** Runs after `/mdm-deploy`. Adds a CAI-based approval workflow so that new records require human review before becoming master data. Covers:
+
+1. Approver role setup (IDMC Administrator + B360 Console Security)
+2. CAI process configuration (MDM Multi-Step Approval Template → Generic User Task)
+3. Business event wiring (Additional Workflows → CAI process)
+4. End-to-end test with a second approver user
+
+**Key requirement:** Requester and approver must be different users — MDM enforces self-approval restriction by design.
 
 ---
 

@@ -1,6 +1,6 @@
 # MDM Kit — Skill Overview
 
-Informatica Cloud MDM deployment kit for Business 360 / Customer 360 SaaS. Three skills that chain together across a full engagement — from use case alignment through source profiling to a verified golden record in the org.
+Informatica Cloud MDM deployment kit for Business 360 / Customer 360 SaaS. Four skills that chain together across a full engagement — from use case alignment through source profiling, deployment, and into live operational governance.
 
 ---
 
@@ -24,9 +24,15 @@ Consultant runs /mdm-deploy <path/to/MDM_Discovery_<Client>.xlsx>
   └─ Pre-flight checks + conflict review
   └─ 9 deployment steps, one action at a time
        Output: MDM_Deployment_Steps_<Client>.xlsx + session PDF
+
+Consultant runs /mdm-operate <path/to/MDM_Discovery_<Client>.xlsx>
+  └─ Approver role + privilege setup (IDMC + B360 Security)
+  └─ CAI approval process configuration and publish
+  └─ Business event wired to CAI process
+  └─ End-to-end test: Submit → Claim → Approve → record accepted
 ```
 
-Each skill gates the next. `/mdm-deploy` validates that Sheet 9 (Profiling Results) is populated before proceeding.
+Each skill gates the next. `/mdm-deploy` validates that Sheet 9 (Profiling Results) is populated before proceeding. `/mdm-operate` requires the entity to have Search, View/Edit, and Create pages registered in the business application (completed in `/mdm-deploy` Step 12).
 
 ---
 
@@ -148,6 +154,35 @@ Each skill gates the next. `/mdm-deploy` validates that Sheet 9 (Profiling Resul
 - Match rule cannot be edited after save
 - Predefined assets cannot be deleted
 - Custom field groups locked after records exist
+
+---
+
+## /mdm-operate
+
+**Purpose:** Add a CAI-based approval workflow so new records require human review before becoming master data.
+
+**Invocation:** `/mdm-operate <path/to/MDM_Discovery_<Client>.xlsx>`
+
+**Pre-requisites (must be complete before running):**
+- Entity deployed and golden records visible (`/mdm-deploy` complete)
+- Entity registered in a business application with Search, View/Edit, and Create pages assigned (`/mdm-deploy` Step 12)
+- A second IDMC user account available for approver testing (self-approval is not permitted by design)
+
+**Setup Steps:**
+
+| Step | System | What happens |
+|------|--------|-------------|
+| R1 — Create approver role | IDMC Administrator | Custom role + View Tasks privilege + assign to approver user with Business360ProcessExecutor |
+| R2 — B360 Security | B360 Console | Workflow Approver privilege for entity (Records + Features tab) — makes role appear in business event dropdown |
+| R3 — CAI process | Application Integration | Copy MDM Multi-Step Approval Template → configure Generic User Task → Task Actions: Approve;Reject → Publish |
+| R4 — Business event | B360 Console | User-Triggered Event → Additional Workflows → CAI process → assign approver roles → Save |
+| R5 — Test | Both users | Requester submits → approver claims → approves → record accepted |
+
+**Key architectural rules:**
+- Requester and approver must be different users — MDM enforces self-approval restriction by design
+- Predefined roles (Customer 360 Data Steward, etc.) cannot be configured in B360 Console Security — custom roles only
+- CAI process must be copied from MDM Multi-Step Approval Template (Business360 folder) — blank new processes do not have MDM HumanTask service available
+- Workflow Inbox location is determined by the business application the entity is registered in
 
 ---
 
