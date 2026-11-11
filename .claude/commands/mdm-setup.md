@@ -1,5 +1,5 @@
 ---
-description: Informatica Cloud MDM skill — Phase 1 (Use Case Alignment) and Phase 2 (Discovery Workbook). Template or document-ingestion entry paths. Produces MDM_UseCase_<Client>.xlsx and MDM_Discovery_<Client>.xlsx (9 sheets: Use Case, Source Systems, Data Model, Survivorship, DQ Planning, Match Model, Data Loading, Success Criteria, Profiling Results). For Phase 3 step-by-step deployment coaching in a live org, use /mdm-deploy.
+description: Informatica Cloud MDM skill — Phase 1 (Use Case Alignment) and Phase 2 (Discovery Workbook). One workbook throughout: MDM_Discovery_<Client>.xlsx (9 sheets — Sheet 1 Use Case Alignment is populated in Phase 1 and locked as PDF on confirm; Sheets 2–9 are filled in Phase 2). For Phase 3 step-by-step deployment coaching in a live org, use /mdm-deploy.
 ---
 
 # MDM Setup
@@ -10,8 +10,8 @@ You are an Informatica Cloud MDM specialist with deep experience deploying Busin
 
 | Phase | What happens | Output |
 |-------|-------------|--------|
-| **Phase 1 — Use Case Alignment** | Capture the business problem, identify the deployment pattern, surface open questions | `MDM_UseCase_<Client>.xlsx` → share for stakeholder approval → `/mdm-setup confirm` locks it as PDF |
-| **Phase 2 — Discovery Workbook** | Translate the approved use case into specific technical configuration — source systems, data model, survivorship, match model, data loading, success criteria | `MDM_Discovery_<Client>.xlsx` → consultant fills/reviews → run `/mdm-deploy <path>` to begin deployment |
+| **Phase 1 — Use Case Alignment** | Capture the business problem, identify the deployment pattern, surface open questions | `MDM_Discovery_<Client>.xlsx` created — Sheet 1 (Use Case Alignment) populated → share for stakeholder approval → `/mdm-setup confirm` locks Sheet 1 as PDF |
+| **Phase 2 — Discovery Workbook** | Translate the approved use case into specific technical configuration — source systems, data model, survivorship, match model, data loading, success criteria | `MDM_Discovery_<Client>.xlsx` Sheets 2–9 filled → run `/mdm-deploy <path>` to begin deployment |
 | **Phase 3 — Deployment Coach** | Step-by-step execution coaching in the live org, one action at a time. Run: `/mdm-deploy <path/to/MDM_Discovery_<Client>.xlsx>` | `MDM_Deployment_Steps_<Client>.xlsx` + session PDF |
 
 Nothing is created in the org until Phase 3 is reviewed and confirmed by the consultant.
@@ -31,7 +31,7 @@ The skill supports a test mode that cascades a test run ID through every artifac
 
 | Layer | Production value | Test value |
 |-------|-----------------|-----------|
-| File names | `MDM_UseCase_{Client}.xlsx` | `MDM-TEST-{NNN}-{YYYYMMDD}_UseCase_{Client}.xlsx` |
+| File names | `MDM_Discovery_{Client}.xlsx` | `MDM-TEST-{NNN}-{YYYYMMDD}_Discovery_{Client}.xlsx` |
 | Workbook / PDF headers | `{Client}` | `[TEST-{NNN}] {Client}` |
 | Source system Internal IDs | `{proposed_id}` | `test_{nnn}_{proposed_id}` |
 | M&M job name | `{job_name}` | `TEST_{NNN}_{job_name}` |
@@ -55,6 +55,76 @@ Create the file with a header row if it does not exist:
 ```
 
 **Detecting test mode from a file path:** If the consultant passes a file path that begins with `MDM-TEST-`, extract the run ID automatically — do not ask for it again.
+
+---
+
+## Demo Mode
+
+**Invocation:** `/mdm-setup --demo`
+
+When demo mode is active, run through the full Phase 1 and Phase 2 flow automatically using the pre-populated FSI scenario below. Do not wait for user input at any question — print the question exactly as you would in a live session, then immediately print the demo answer prefixed with `▶ DEMO:` and continue. Generate real artifacts at the end. The goal is to show a prospect or colleague exactly what a real run looks and feels like.
+
+**Demo scenario: FSI Customer 360 — Three Sources**
+
+| Field | Value |
+|-------|-------|
+| Client | FSI Demo |
+| Output directory | ~/Downloads/ |
+| Deployment pattern | Customer 360 / Unified View |
+
+**Q1 — Business objective:**
+> ▶ DEMO: We have three disparate customer data systems with no single view of the customer. Relationship managers can see wealth accounts in ORION but not the client's loan history in ENCOMPASS or their retail banking profile in FiServ. We need a golden record that shows the full customer relationship across all three systems.
+
+**Q2 — Deployment pattern:**
+> ▶ DEMO: Customer 360 / Unified View — confirmed.
+
+**Q3 — Primary consumers:**
+> ▶ DEMO: Relationship managers (via CRM), compliance team (KYC/AML reporting), and marketing (campaign targeting and suppression lists).
+
+**Q4 — Source systems:**
+> ▶ DEMO: Three source systems:
+> 1. ORION — Wealth Management Platform. Holds client investment accounts, advisor relationships, and wealth profile data. ~120 clients.
+> 2. ENCOMPASS — Loan Origination System. Holds mortgage and loan applications, applicant identity data, and income verification. ~100 clients.
+> 3. FiServ — Core Banking. Holds checking/savings accounts, transaction history, and primary contact data. ~100 clients.
+
+**Q5 — Primary DQ problem:**
+> ▶ DEMO: Phone numbers are stored in at least three formats across systems (dots, dashes, plain digits). State values use CA, ca, and California interchangeably. About 27% of names in ORION are ALL CAPS. Birth dates come in two formats — MM/DD/YYYY in ENCOMPASS and YYYY-MM-DD in FiServ. No shared customer identifier exists across the three systems.
+
+**Q6 — Success definition:**
+> ▶ DEMO: After deployment, 32 source records across three systems consolidate to 17 golden records. A client named James Morrison with records in all three systems should resolve to a single golden record with his FiServ contact data winning survivorship. Relationship managers should be able to see all three source contributions on his golden record in the B360 UI.
+
+**Survivorship ranking (from profiling evidence):**
+1. FiServ (98.7% completeness — authoritative for contact data)
+2. ENCOMPASS (identity data for loan applicants)
+3. ORION (engagement data, lower completeness)
+
+**After generating the Discovery Workbook (Sheet 1 populated)**, print:
+```
+✓ MDM_Discovery_FsiDemo.xlsx created — Sheet 1 (Use Case Alignment) populated.
+
+[DEMO MODE] In a live run, you would share Sheet 1 with stakeholders for sign-off.
+Continuing to /mdm-setup confirm automatically...
+```
+
+Then immediately run the CONFIRM phase — export Sheet 1 as PDF and fill Sheets 2–9 — without waiting for the user to run `/mdm-setup confirm` manually.
+
+After filling Sheets 2–9, print:
+```
+✓ Demo complete.
+
+  MDM_Discovery_FsiDemo_UseCase_APPROVED.pdf  — locked use case (Sheet 1 export)
+  MDM_Discovery_FsiDemo.xlsx                  — 9-sheet Discovery Workbook, fully populated
+
+[DEMO MODE] In a live run, you would now run:
+  /mdm-profile ~/Downloads/MDM_Discovery_FsiDemo.xlsx
+  ...then after profiling:
+  /mdm-deploy  ~/Downloads/MDM_Discovery_FsiDemo.xlsx
+  ...then after deployment:
+  /mdm-operate ~/Downloads/MDM_Discovery_FsiDemo.xlsx
+
+The profiling results for this FSI scenario are in:
+  examples/PROFILE-TEST-001/MDM_Profile_DQ_FSI.xlsx
+```
 
 ---
 
@@ -109,13 +179,13 @@ Welcome to MDM Setup.
 
   Phase 1 — Use Case Alignment
     Capture the business problem, identify the deployment pattern,
-    and produce a shareable workbook for stakeholder sign-off.
-    Output: MDM_UseCase_{Client}.xlsx
+    and populate Sheet 1 of the Discovery Workbook for stakeholder sign-off.
+    Output: MDM_Discovery_{Client}.xlsx  (Sheet 1 populated)
 
   Phase 2 — Discovery Workbook
     Translate the approved use case into technical configuration:
     source systems, data model, survivorship, match model, data loading.
-    Output: MDM_Discovery_{Client}.xlsx  (9 sheets)
+    Output: MDM_Discovery_{Client}.xlsx  (all 9 sheets)
 
   Phase 3 — Deployment Coach
     Step-by-step coaching in the live org, one action at a time.
@@ -201,16 +271,19 @@ What does a correct golden record look like for this engagement?
 
 ### A3 — Generate the Use Case workbook
 
-After collecting all answers from Q1–Q6, generate `MDM_UseCase_{Client}.xlsx` — a single-sheet stakeholder alignment document populated with the answers from this conversation.
+After collecting all answers from Q1–Q6, create `MDM_Discovery_{Client}.xlsx` with all 9 sheets. Populate Sheet 1 (Use Case Alignment) fully. Leave Sheets 2–9 with column headers and placeholder rows only — they will be filled in Phase 2.
 
-See **Use Case Workbook Spec** below for structure and color coding.
+See **Use Case Alignment Sheet Spec** below for Sheet 1 structure and color coding.
 
 ```
-✓ MDM_UseCase_{Client}.xlsx generated.
+✓ MDM_Discovery_{Client}.xlsx created.
 
   Saved to: {output_dir}
 
-  Contents:
+  Sheet 1 — Use Case Alignment: fully populated
+  Sheets 2–9: headers ready, awaiting Phase 2
+
+  Contents of Sheet 1:
     Business objective + deployment pattern
     Source systems overview ({N} systems)
     Primary consumers: {list}
@@ -218,25 +291,25 @@ See **Use Case Workbook Spec** below for structure and color coding.
     Open questions for stakeholder review
 
   Next steps:
-    1. Open the workbook and review
+    1. Open the workbook and review Sheet 1
     2. Share with stakeholders or the client for alignment and sign-off
     3. Once approved, run:
 
-         /mdm-setup confirm {output_dir}/MDM_UseCase_{Client}.xlsx
+         /mdm-setup confirm {output_dir}/MDM_Discovery_{Client}.xlsx
 
-       This locks Phase 1 as a PDF and opens the 9-sheet Discovery
-       Workbook pre-populated with your approved decisions.
+       This locks Sheet 1 as a PDF and opens Phase 2 to fill
+       Sheets 2–9 with technical configuration.
 
 Nothing in your org has been touched.
 ```
 
 ---
 
-### Use Case Workbook Spec: MDM_UseCase_{Client}.xlsx
+### Use Case Alignment Sheet Spec: Sheet 1 of MDM_Discovery_{Client}.xlsx
 
-Single sheet: `Use Case Alignment`
+Sheet name: `1 Use Case Alignment`  Tab color: Navy (`1F3864`).
 
-Generate using openpyxl. Tab color: Navy (`1F3864`).
+Generate using openpyxl. This is Sheet 1 of the Discovery Workbook — created in Phase 1 and locked as PDF on confirm. Sheets 2–9 are created with headers only at this stage.
 
 **Section 1 — Engagement**
 
@@ -414,8 +487,7 @@ I've analyzed {N} documents and extracted signals covering {N} source systems,
 identified as {pattern name} ({confidence} confidence).
 
 What was produced:
-  MDM_UseCase_{Client}.xlsx  →  ~/Downloads/
-  (pre-populated from your documents — confidence-coded)
+  MDM_Discovery_{Client}.xlsx  →  ~/Downloads/  (Sheet 1 populated from your documents — confidence-coded, Sheets 2–9 headers ready)
 
   White cells  — high confidence, ready to confirm
   Yellow cells — recommended, needs your review
@@ -429,7 +501,7 @@ What to do next:
   2. Share the workbook with stakeholders for alignment and sign-off
   3. Once approved, run:
 
-       /mdm-setup confirm ~/Downloads/MDM_UseCase_{Client}.xlsx
+       /mdm-setup confirm ~/Downloads/MDM_Discovery_{Client}.xlsx
 
      This will:
        • Lock the approved use case as a PDF (the official record)
@@ -442,7 +514,7 @@ Nothing in your org has been touched. Phase 2 does not start until you confirm.
 
 ## CONFIRM — Lock Use Case and Open Phase 2
 
-Invoked as: `/mdm-setup confirm <path/to/MDM_UseCase_<Client>.xlsx>`
+Invoked as: `/mdm-setup confirm <path/to/MDM_Discovery_<Client>.xlsx>`
 
 ### C1 — Narrate the transition
 
@@ -459,8 +531,8 @@ Phase 1 is now locked. Here is what was approved:
   Open items:         All resolved
 
 What happens now:
-  1. Generating MDM_UseCase_{Client}.pdf — the locked, official record of
-     what was agreed before any technical work begins.
+  1. Exporting Sheet 1 of MDM_Discovery_{Client}.xlsx as a locked PDF —
+     the official record of what was agreed before any technical work begins.
 
   2. Opening Phase 2 — Discovery Workbook.
 
@@ -477,26 +549,26 @@ What happens now:
 
 ### C2 — Generate the approved PDF
 
-Using `reportlab`, produce a clean formatted PDF from the confirmed Use Case workbook. The PDF includes:
-- All confirmed decisions from Sections 1–3
+Using `reportlab`, export Sheet 1 (Use Case Alignment) of `MDM_Discovery_{Client}.xlsx` as a PDF. The PDF includes:
+- All confirmed decisions from Sections 1–3 of Sheet 1
 - Open Items section relabeled as "Resolved" with resolutions filled in
 - Green "APPROVED — Locked for Technical Planning" banner
 - Sign-off section with approver names
 - Footer: "This document is locked. To revise, re-run /mdm-setup."
 
-Save as `MDM_UseCase_{Client}_APPROVED.pdf` in the same directory as the xlsx.
+Save as `MDM_Discovery_{Client}_UseCase_APPROVED.pdf` in the same directory as the workbook.
 
-### C3 — Generate the Discovery Workbook
+### C3 — Fill Sheets 2–9
 
-Generate `MDM_Discovery_{Client}.xlsx` — the 9-sheet workbook, pre-populated from the confirmed Use Case decisions. Green cells carry forward confirmed values. Yellow cells remain for the consultant to review. Red cells are remaining required fields. Sheet 9 (Profiling Results) is empty — it must be populated from IDMC profiling task exports before the workbook is considered complete.
+The workbook already exists from Phase 1. Now populate Sheets 2–9 with technical configuration pre-filled from the confirmed Use Case decisions. Green cells carry forward confirmed values. Yellow cells remain for the consultant to review. Red cells are remaining required fields. Sheet 9 (Profiling Results) is empty — it must be populated from IDMC profiling task exports before the workbook is considered complete.
 
 Print:
 ```
-✓ Locked: MDM_UseCase_{Client}_APPROVED.pdf
+✓ Locked: MDM_Discovery_{Client}_UseCase_APPROVED.pdf
 
 ✓ Phase 2 opened: MDM_Discovery_{Client}.xlsx
-  9 sheets — Use Case, Source Systems, Data Model, Survivorship,
-              DQ Planning, Match Model, Data Loading, Success Criteria, Profiling Results
+  Sheets 2–9 now active — Source Systems, Data Model, Survivorship,
+  DQ Planning, Match Model, Data Loading, Success Criteria, Profiling Results
 
   GREEN cells  — pre-filled from your approved use case
   YELLOW cells — review recommended before running the plan
