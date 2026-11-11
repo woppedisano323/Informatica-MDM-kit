@@ -1,3 +1,7 @@
 # Demo skills — local only, not for remote
 .claude/commands/mdm-demo.md
 .claude/commands/mdm-demo-archive.md
+.claude/commands/mdm-setup-demo.md
+.claude/commands/mdm-profile-demo.md
+.claude/commands/mdm-deploy-demo.md
+.claude/commands/mdm-operate-demo.md
