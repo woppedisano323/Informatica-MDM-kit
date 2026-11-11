@@ -2272,7 +2272,7 @@ Step object when complete:
 
 ## Source Documents
 
-- MDM_UseCase_{Client}_APPROVED.pdf
+- MDM_Discovery_{Client}_UseCase_APPROVED.pdf
 - MDM_Discovery_{Client}.xlsx
 ```
 
