@@ -1095,7 +1095,38 @@ When you click Save on the entity canvas after enabling Search or Facetable prop
 **Smart field groups require expansion before properties can be set:**
 Smart fields (Phone Number, Email Address, Postal Address) are field groups, not single fields. The group header itself does not have Search/Facetable/Reportable properties. You must expand the group on the canvas first to see the sub-fields inside (e.g., Phone Number contains sub-fields: Phone Number, Phone Type, Country Code). Click the **expand arrow** on the group, then click the target sub-field (the actual value field) to access its properties panel.
 
-Present the consultant with the full field list for each entity using **Display Names** (not Internal IDs) and walk through each field one at a time. Confirm all three settings before the consultant clicks Save on the entity canvas.
+**Before walking through fields — generate a property grid for each entity:**
+
+Read the entity's fields from Sheet 3 of the Discovery Workbook. For each entity, present a pre-filled property grid using the guidance table above to assign recommended settings. Use **Display Names** (not Internal IDs). Present the grid before touching the canvas so the consultant can review and challenge the recommendations before clicking anything.
+
+Format the grid exactly like this:
+
+```
+{Entity Display Name} — Field Property Grid
+
+| Field | Search | Facetable | Reportable |
+|---|:---:|:---:|:---:|
+| {Field 1}  | ✅ | ✅ | ✅ |
+| {Field 2}  | ✅ | — | — |
+| {Field 3}  | —  | — | ✅ |
+...
+
+For smart field groups (Phone Number, Email Address, Postal Address):
+expand the group → configure sub-fields individually:
+
+| Sub-field | Search | Facetable | Reportable |
+|---|:---:|:---:|:---:|
+| City        | ✅ | — | ✅ |
+| State       | ✅ | ✅ | ✅ |
+| Postal Code | ✅ | — | — |
+| Country     | —  | — | ✅ |
+```
+
+After presenting the grid, confirm: "Does this look right, or do you want to adjust any settings before we start?"
+
+Then walk through each field one at a time in grid order. After each field: [done]?
+
+After all fields are confirmed, instruct the consultant to click Save. If the "Save without indexing" / "Save and reindex" prompt appears, apply the guidance above.
 
 #### Part 2 — Create Search Layout Component
 
