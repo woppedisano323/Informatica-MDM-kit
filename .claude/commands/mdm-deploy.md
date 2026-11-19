@@ -1130,6 +1130,8 @@ After all fields are confirmed, instruct the consultant to click Save. If the "S
 
 #### Part 2 — Create Search Layout Component
 
+**What it is and why it matters:** The Search Layout defines how users find records in the business application. It controls which fields appear as search inputs, which columns display in the results list, and how records are labeled in the results. Without a Search Layout, users cannot search for records in the UI — it is a prerequisite for File Import validation and day-to-day record management.
+
 **Internal ID format for UI assets (Components and Pages):**
 Lowercase letters, numbers, and underscores only.
 First character must NOT be an underscore.
@@ -1183,6 +1185,8 @@ For File Import, only the View/Edit Page is actually used. The Create Page is a 
 
 #### Part 3 — Create View/Edit Page
 
+**What it is and why it matters:** The View/Edit Page is the full record detail screen — what a user sees when they click on a golden record from the search results. It displays all the master data fields, the contributing source records, and allows the data steward to edit values directly. This is the primary surface for demonstrating MDM's value: one unified view with all source contributions visible. It is also required for File Import — records loaded via import are only viewable once this page is registered.
+
 The View/Edit Page uses a **Page Designer** — a drag-and-drop canvas. It is entirely different from the Search Layout builder. You drag Standard Components from the left panel onto the canvas and configure each one.
 
 ```
@@ -1210,6 +1214,8 @@ In the Page Designer, drag components from the left panel onto the canvas in thi
 Click **Save** when all components are placed and configured.
 
 #### Part 4 — Create Create Page
+
+**What it is and why it matters:** The Create Page is the form users see when manually creating a new record from scratch in the business application. It is not used during File Import or CDI loading — data stewards use it for one-off manual record entry. It is required as a registration step to complete the Business Application association; without it, the entity will not appear in the entity picker and File Import cannot be used.
 
 ```
 B360 → New Asset → User Interface → Page → Create
