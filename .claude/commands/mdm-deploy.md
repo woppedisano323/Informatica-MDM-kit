@@ -1064,7 +1064,11 @@ B360 → Explore → {custom entity} → Actions → Edit
 
 These are fully independent — any combination is valid. Set each based on the field's role.
 
-**Note:** After enabling or disabling Search or Facetable on a field, reindex the records. On a new entity with no records, no reindex is needed yet.
+**Saving after field property changes:**
+When you click Save on the entity canvas after enabling Search or Facetable properties, MDM may prompt: **"Save without indexing"** or **"Save and reindex"**.
+
+- **New entity with no records** → always choose **Save without indexing**. There is nothing to reindex yet. Indexes are built automatically when records are first loaded in Step 6.
+- **Entity with existing records** → choose **Save and reindex** so that existing records reflect the new searchable/facetable fields. Reindexing runs as a background job — duration depends on record volume.
 
 ---
 
