@@ -1147,26 +1147,28 @@ Fields:
   Location:         {project folder}
 ```
 
-In the layout builder, configure each section:
+In the layout builder, configure each section in order. Present as a table — no need to go field by field for layout config:
 
 | Section | What it is | What to do |
 |---|---|---|
-| **System Field** | A system-level field displayed on the search result card (e.g., Business ID, Record State) | Leave as default — MDM pre-fills this |
-| **Hierarchy Filter** | Filters search results based on a hierarchy relationship | Leave blank — not applicable for flat Organization or Supplier records |
+| **Title** | The field displayed as the record heading in search results | Set to the primary name field for this entity |
+| **System Field** | A system-level field on the search result card (e.g., Business ID) | Leave as default — MDM pre-fills this |
+| **Basic Fields** | The primary fields a user types into to search | Add the main lookup fields (name, identifier) |
+| **Hierarchy Filter** | Filters results based on a hierarchy relationship | Leave blank — not applicable for flat Organization or Supplier records |
 | **Thumbnail** | An image/avatar field for the record card | Leave blank — custom entities have no image field |
-| **Additional Fields** | Extra fields displayed in the search results list | Add the primary display fields for this entity (see guidance below) |
+| **Additional Fields** | Supplementary columns shown in the search results list | Add secondary display fields |
 
-**Additional Fields — what to add by entity type:**
+**Recommended values by entity type:**
 
-| Entity type | Add to Additional Fields |
-|---|---|
-| B2B Account / Organization | Primary name, Industry, Email, Phone, support status field |
-| Supplier / Vendor | Legal name, Engagement Type, Specialty, EIN or DUNS |
-| B2C Customer / Person | First Name, Last Name, Email, Phone |
+| Entity type | Title | Basic Fields | Additional Fields |
+|---|---|---|---|
+| B2B Account / Organization | Company Name | Company Name, Email Address | Industry, Phone Number, Support Tier |
+| Supplier / Vendor | Legal Name | Legal Name, EIN | Engagement Type, Specialty |
+| B2C Customer / Person | First Name | First Name, Last Name, Email | Phone Number |
 
 Add fields using **Display Names** only — fields must have Search enabled in Part 1 to appear as available options here.
 
-Click **Save** when done.
+Click **Save** when done. The "Save without indexing" prompt does NOT appear here — it only appears on the entity canvas when field properties are changed.
 
 #### Why two pages are required
 
