@@ -1088,6 +1088,9 @@ These are fully independent — any combination is valid. Set each based on the 
 
 ---
 
+**Smart field groups require expansion before properties can be set:**
+Smart fields (Phone Number, Email Address, Postal Address) are field groups, not single fields. The group header itself does not have Search/Facetable/Reportable properties. You must expand the group on the canvas first to see the sub-fields inside (e.g., Phone Number contains sub-fields: Phone Number, Phone Type, Country Code). Click the **expand arrow** on the group, then click the target sub-field (the actual value field) to access its properties panel.
+
 Present the consultant with the full field list for each entity using **Display Names** (not Internal IDs) and walk through each field one at a time. Confirm all three settings before the consultant clicks Save on the entity canvas.
 
 #### Part 2 — Create Search Layout Component
