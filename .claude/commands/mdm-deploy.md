@@ -1163,7 +1163,7 @@ In the layout builder, configure each section in order. Present as a table — n
 | Entity type | Title | Basic Fields | Additional Fields |
 |---|---|---|---|
 | B2B Account / Organization | Company Name | Company Name, Email Address | Industry, Phone Number, Support Tier |
-| Supplier / Vendor | Legal Name | Legal Name, EIN | Engagement Type, Specialty |
+| Supplier / Vendor | Legal Name | Legal Name, EIN | Engagement Type, Specialty, City, State |
 | B2C Customer / Person | First Name | First Name, Last Name, Email | Phone Number |
 
 Add fields using **Display Names** only — fields must have Search enabled in Part 1 to appear as available options here.
