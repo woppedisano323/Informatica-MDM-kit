@@ -1074,7 +1074,7 @@ These are fully independent — any combination is valid. Set each based on the 
 |---|---|---|---|---|
 | Primary name (company name, legal name) | ✅ | ✅ | ✅ | Users search by name, filter by name, and report on name |
 | Identifier (EIN, DUNS, Tax ID) | ✅ | — | — | Exact lookup only; no value as a filter or report dimension |
-| Email | ✅ | — | — | Direct lookup; too many distinct values to be useful as a facet |
+| Email | ✅ | — | ✅ | Direct lookup; Reportable enables email completeness visibility in reports |
 | Phone | ✅ | — | — | Direct lookup only |
 | Industry / Category / Type | ✅ | ✅ | ✅ | Useful to search by, filter by, and slice in reports |
 | Support tier / Status / Tier | ✅ | ✅ | ✅ | Small set of discrete values — ideal facet; useful in reports |
