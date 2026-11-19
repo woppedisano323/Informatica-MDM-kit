@@ -1142,18 +1142,31 @@ B360 → New Asset → User Interface → Component → Create
 Fields:
   Business Entity:  {custom entity name}
   Component Type:   Search Layout
-  Name:             {Entity} Search Layout
-  Internal ID:      {entity_name}_search_layout
+  Name:             {Entity Display Name} Search Layout
+  Internal ID:      {entity_internal_id}_search_layout
   Location:         {project folder}
-
-In the layout builder:
-  Basic Fields — add at minimum:
-    First Name
-    Last Name
-    (Email Address if searchable was enabled above)
-
-Save.
 ```
+
+In the layout builder, configure each section:
+
+| Section | What it is | What to do |
+|---|---|---|
+| **System Field** | A system-level field displayed on the search result card (e.g., Business ID, Record State) | Leave as default — MDM pre-fills this |
+| **Hierarchy Filter** | Filters search results based on a hierarchy relationship | Leave blank — not applicable for flat Organization or Supplier records |
+| **Thumbnail** | An image/avatar field for the record card | Leave blank — custom entities have no image field |
+| **Additional Fields** | Extra fields displayed in the search results list | Add the primary display fields for this entity (see guidance below) |
+
+**Additional Fields — what to add by entity type:**
+
+| Entity type | Add to Additional Fields |
+|---|---|
+| B2B Account / Organization | Primary name, Industry, Email, Phone, support status field |
+| Supplier / Vendor | Legal name, Engagement Type, Specialty, EIN or DUNS |
+| B2C Customer / Person | First Name, Last Name, Email, Phone |
+
+Add fields using **Display Names** only — fields must have Search enabled in Part 1 to appear as available options here.
+
+Click **Save** when done.
 
 #### Why two pages are required
 
