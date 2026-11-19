@@ -1183,34 +1183,31 @@ For File Import, only the View/Edit Page is actually used. The Create Page is a 
 
 #### Part 3 — Create View/Edit Page
 
+The View/Edit Page uses a **Page Designer** — a drag-and-drop canvas. It is entirely different from the Search Layout builder. You drag Standard Components from the left panel onto the canvas and configure each one.
+
 ```
 B360 → New Asset → User Interface → Page → Create
 
 Fields:
   Business Entity:  {custom entity name}
   Page Type:        View and Edit
-  Name:             {Entity}_ViewEdit_Page
+  Name:             {Entity} View Edit Page
+  Internal ID:      {entity_internal_id}_view_edit
   Location:         {project folder}
-
-Page Designer — drag from Standard Components panel (left side) onto canvas:
-
-  1. Header  (drag first — required)
-       Image:             leave empty
-       Line 1:            Last Name        ← only 1 field allowed per line
-       Line 2:            First Name
-       Highlighted Field: Full Name        ← created as a Text field in Part 0b;
-                                             available here as Highlighted Field even
-                                             though it does not appear in the Search
-                                             Layout picker (use First/Last Name there)
-
-  2. Fields → select "Basic Fields" field group
-  3. Fields → select "Address" field group
-  4. Fields → select "Phone" field group
-  5. Fields → select "Electronic Address" field group
-  6. Source Records  (shows contributing source system records — important for MDM demo)
-
-Save.
 ```
+
+In the Page Designer, drag components from the left panel onto the canvas in this order:
+
+| # | Component | Configuration |
+|---|---|---|
+| 1 | **Header** | Line 1: primary name field for this entity (e.g., Company Name, Legal Name, First Name) |
+| 2 | **Fields** | Select all root fields for this entity |
+| 3 | **Fields** | Select each smart field group (Phone Number, Email Address, Postal Address) — add one Fields component per group |
+| 6 | **Source Records** | Leave as default — shows contributing source records; important for demonstrating MDM merge |
+
+**Note:** Party Link / cross-reference fields can be excluded from the View/Edit page — they are system plumbing fields not relevant to end users.
+
+Click **Save** when all components are placed and configured.
 
 #### Part 4 — Create Create Page
 
