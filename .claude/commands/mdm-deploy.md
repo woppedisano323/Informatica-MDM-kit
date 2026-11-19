@@ -61,35 +61,16 @@ Invoked as: `/mdm-deploy <path/to/MDM_Discovery_<Client>.xlsx>`
 ### R0 — Narrate the transition
 
 ```
-✓ Discovery Workbook received.
+✓ Discovery Workbook received — {Client}.
 
-Phase 2 is complete. Here is what was configured:
+  Entities:  {entity names from Sheet 3}
+  Sources:   {N} source systems across {domains}
+  Steps:     1 → 2b → 2 → 3 → 4 → 5 → 5b → 6 → 7 → 8 → 9
 
-  Client:           {Client}
-  Entity:           {entity name from Sheet 3 — custom entity created for this deployment}
-  Source systems:   {list with internal IDs}
-  Data model:       {N} custom field groups planned
-  Survivorship:     {ranking + decay summary}
-  Match model:      {match model name from Sheet 6}
-  Data loading:     Pre-deployment validation: C360 File Import (sample CSVs)
-                    Production pipeline: {CDI / API — separate downstream project}
-  Success criteria: {validation intent from workbook}
-
-What happens now:
-  Phase 3 — Deployment Coach.
-
-  I will run a read-only scan of your org to confirm current state,
-  then walk you through the deployment one step at a time. I will
-  present each step, wait for you to complete it, then advance.
-
-  You can ask questions at any point — I will answer and bring you
-  right back to where you were. After each step I will print a summary
-  of what was configured so you have a running record.
-
-  At the end, I will save a session record to file.
-
-  Nothing in your org is created until you execute each step.
+Nothing touches your org until you execute each step.
 ```
+
+Wait for the consultant to acknowledge before proceeding to R1. Do not print anything else yet.
 
 ---
 
@@ -118,6 +99,25 @@ The following required fields are still empty in the workbook:
 Please fill these in the workbook and re-run:
   /mdm-deploy <path>
 ```
+
+If all gates pass, print a compact summary and wait:
+
+```
+Workbook validated — all gates clear.
+
+  Entity names:  {entity display names}
+  Sources:       {N} systems ({list internal IDs})
+  Field groups:  {N} planned
+  DQ rules:      {N} confirmed
+  Profiling:     Sheet 9 populated ✓
+  Match model:   {criterion} confirmed
+
+Generating your Step Reference Workbook — MDM_Deployment_Steps_{Client}.xlsx.
+This is a one-time write. It has one tab per step, pre-filled with your workbook values.
+Open it alongside this session — it replaces the need to flip back to the Discovery Workbook during each step.
+```
+
+Then proceed immediately to R2b (generate the workbook). Do not wait for a response before generating.
 
 ---
 
@@ -246,438 +246,215 @@ Print on first generation:
 
 ---
 
-### R3 — Pre-Execution: Expanded Pre-Flight and begin
+### R3 — Pre-Flight walkthrough (chunked — one section at a time)
 
-The Pre-Flight tab in `MDM_Deployment_Steps_{Client}.xlsx` has already been populated with the conflict check results and full irreversible action profiles from the org scan. Print the same content in the terminal so the consultant does not need to switch windows, then ask for ready.
+Walk the consultant through all pre-flight content in small pieces. All detail is present — never truncate. The consultant steps through at their own pace.
+
+**Pacing rule:** Print one section. End with a prompt. Wait for the response before printing the next section. Never print two sections in one message.
+
+**Section sequence:**
+
+---
+
+**R3-1 — Intro + org state**
+
+Print first, then wait:
 
 ```
-── PRE-FLIGHT ─────────────────────────────────────────────────────
+── PRE-FLIGHT ── 1 of 4 — Org State ──────────────────────────────
 
-Before we touch the org, read each irreversible action below.
-Each is called out again at the relevant step — listed here so
-you can plan the full deployment before starting.
+Before we touch the org, here is the current state and what to expect.
 
-─── A — Source System Internal ID ────────────────────────────────
+  Deployment entities:  {entity names from Sheet 3}
+                        (custom blank-canvas — created in Step 2b, not yet in org)
+  Records in entities:  {count from scan — expected 0 for new deployment}
+  Existing source IDs:  {any from scan that might conflict with planned IDs}
+  Predefined fixtures:  c360.person | person.ruleset1 | Default | Informatica Customer 360
+                        These are permanent — do not attempt to modify or replace them.
+                        The deployment targets are your custom entities above.
+
+{If records > 0 in the deployment entity:}
+  ⚠️  Records already exist in {entity}.
+      Survivorship timing risk — see section 2 of 4 below.
+      Flag to org admin before proceeding past Step 3.
+
+──────────────────────────────────────────────────────────────────
+Continue? [c] for the next section, or ask a question.
+```
+
+---
+
+**R3-2 — Irreversible actions A and B**
+
+Print after the consultant confirms, then wait:
+
+```
+── PRE-FLIGHT ── 2 of 4 — Irreversible Actions A and B ───────────
+
+─── A — Source System Internal IDs ──────────────────────────────
 
   What it is:
     Every source system has a Display Name (what you see) and an
     Internal ID (what the system uses). The Internal ID is
-    auto-generated from the Display Name when you type it.
+    auto-generated from the Display Name — but you can type it directly.
 
   Why it is irreversible:
-    The Internal ID is locked the moment you click Create.
-    It cannot be renamed, reassigned, or deleted.
-    It is used in every API call, every ingress job, and every
-    survivorship rule for the lifetime of this org.
+    The Internal ID locks the moment you click Create. It cannot be
+    renamed, reassigned, or deleted. It lives in every CDI mapping,
+    every ingress job, and every survivorship rule for the lifetime
+    of this org.
 
   If you get it wrong:
-    The wrong ID lives permanently in the org alongside the
-    correct one. You create a new system with the right ID and
-    work around the old one forever.
+    The incorrect ID lives permanently in the org. You create a new
+    system with the right ID and work around the old one forever.
 
   Recovery: None. Prevention is the only option.
-  Source: B360_April2026_DefineSourceSystems_en.pdf, p.5
+  Planned IDs for this deployment:
+    {list each source system: Display Name → internal_id}
 
-─── B — Survivorship Must Be Configured Before Records Exist ──────
+─── B — Survivorship Before Records ─────────────────────────────
 
   What it is:
     Survivorship rules decide which source wins when two records
-    have different values for the same field (e.g., CRM has
-    "John Smith", Digital Banking has "Jon Smyth" — survivorship
-    picks the winner for the golden record).
+    disagree on a field. Trust scores are set when a record is
+    created or updated.
 
   Why it is irreversible:
-    Trust scores are calculated when a record is created or
-    updated. They are NOT recalculated retroactively. Records
-    that exist before survivorship is configured keep their
-    default behavior (no trust weighting) permanently.
+    Trust scores are NOT recalculated retroactively. Records that
+    exist before survivorship is configured keep default behavior
+    (no trust weighting) permanently.
 
   If you get it wrong:
-    Records loaded before configuration keep incorrect (default)
-    survivorship on their existing data. Only new records or
-    re-ingested records will reflect correct survivorship.
+    Records loaded before configuration keep incorrect survivorship.
+    Only new or re-ingested records will reflect correct survivorship.
 
-  Recovery: Re-ingest affected records after configuring.
-  Cost: Proportional to record volume.
-  Source: B360_April2026_ConfigureSurvivorship_en.pdf, p.8
+  Recovery: Re-ingest affected records.
+  Current record count: {from scan — must be 0 before Step 3}
 
-─── C — Match Model Must Be Published Before Loading ───────────────
+──────────────────────────────────────────────────────────────────
+Continue? [c] for the next section.
+```
+
+---
+
+**R3-3 — Irreversible actions C, D, E, F, I**
+
+Print after the consultant confirms, then wait:
+
+```
+── PRE-FLIGHT ── 3 of 4 — Irreversible Actions C through I ───────
+
+─── C — Match Model Must Be Published Before Loading ─────────────
 
   What it is:
-    "Publishing" the match model activates it in the org. When
-    active, the system generates match keys for every record
-    as it is loaded — tokens used to find duplicate records.
+    "Publishing" activates the match model. When active, the system
+    generates match keys for every record as it is loaded.
 
   Why it is irreversible:
     Match keys are generated at load time only. A record loaded
     before the model is Published has no match keys and will
-    never be matched, regardless of how similar it is to
-    another record.
+    never be matched, regardless of how similar it is.
 
   If you get it wrong:
     Records loaded before publish cannot participate in matching.
-    They will not consolidate into golden records.
+  Recovery: Publish model → run "Publish and Regenerate Match Keys".
+    Minutes for an empty org; hours for large volumes.
 
-  Recovery: Publish model, then run "Publish and Regenerate
-    Match Keys" — a background re-index job across all records.
-  Cost: Minutes for an empty org; hours for large record volumes.
-  Source: B360_April2026_ConfigureMatchAndMerge_en.pdf, p.8
+─── D — Match Rule Cannot Be Edited After Save ───────────────────
 
-─── D — Match Rule Cannot Be Edited After Save ─────────────────────
+  Match Strategy (Exact/Fuzzy) and Criterion are locked the moment
+  a Directed AI rule is saved. To fix a wrong rule: delete it and
+  recreate from scratch. Re-testing required.
 
-  What it is:
-    A match rule defines the criteria the matching engine uses
-    (e.g., fuzzy name + address, exact identifier). Match
-    Strategy (Exact/Fuzzy) and Match Criterion are set at
-    rule creation.
+  Planned for this deployment:
+    Both entities → Fuzzy | Organization criterion | Threshold-based
 
-  Why it is irreversible:
-    Once a Directed AI match rule is saved, Match Strategy and
-    Match Criterion are locked. The UI does not allow editing them.
+─── E — Predefined Assets Cannot Be Deleted ──────────────────────
 
-  If you get it wrong:
-    Delete the rule and recreate it from scratch. Any testing
-    done against the old rule must be repeated.
+  c360.person, person.ruleset1, Default, Informatica Customer 360
+  are permanent org fixtures. Any custom entity created in error
+  also cannot be deleted. Plan before creating anything.
 
-  Recovery: Delete and recreate. Low effort, re-testing required.
-  Source: B360_April2026_ConfigureMatchAndMerge_en.pdf, p.51
+─── F — Custom Field Groups Before Records ───────────────────────
 
-─── E — Predefined Assets Cannot Be Deleted ───────────────────────
+  Custom field groups are permanent. Deleting a field group after
+  records are loaded drops all data stored in those fields.
+  Design the data model completely before loading any records.
 
-  What they are:
-    Every Customer 360 SaaS org ships with assets that cannot
-    be removed: c360.person (the business entity), person.ruleset1
-    (the predefined match model), Default (source system), and
-    Informatica Customer 360 (source system).
+  Recovery: Reload all affected records. Data in deleted fields
+  is not recoverable.
+  Planned field groups: {N total — list from Sheet 3}
 
-  Why it matters:
-    Do not attempt to recreate or replace these. Build on top
-    of them. Custom entities created in error also cannot be
-    deleted — plan carefully before creating anything custom.
+─── I — Entity Creation: Immutable Properties ────────────────────
 
-  Recovery: None. These are permanent org fixtures.
-  Source: B360_April2026_PredefinedAssets_en.pdf
+  Subscribed Record Type and Business ID Format cannot change
+  after records are added to the entity.
 
-─── F — Custom Field Groups Before Records ────────────────────────
+  Planned:
+    {MER_AccountMaster} → Customer B2B | prefix {MER} | length 17
+    {MER_VendorMaster}  → Supplier/Vendor | prefix {MRV} | length 17
 
-  What they are:
-    Field groups added to c360.person (Step 2) extend the
-    entity schema with source-specific aggregate fields.
-
-  Why it matters:
-    Field groups on a predefined entity CAN be deleted later,
-    but deleting a field group after records have been loaded
-    drops all data stored in those fields permanently.
-    Design the data model completely before loading any records.
-
-  If you get it wrong:
-    Reload all affected records after correcting the field group
-    structure. Data already stored in deleted fields is not
-    recoverable.
-
-  Recovery: Reload records. Cost proportional to volume.
-  Source: B360_April2026_DefineTheDataModel_en.pdf, p.14
-
-─── H — Required Field & Dependency Audit Before File Import ────────
-
-  BACKGROUND — THE RULE (DefineTheDataModel p.26):
-    "You can disable an optional basic field, smart field, and field group
-    that do not have any dependencies. You cannot disable the fields that
-    are part of the default search layout."
-
-    Fields with dependencies CANNOT be disabled. Dependencies include:
-      - DQ rules referencing the field (RuleFieldGroupMapping, DQRuleInputField)
-      - Match model rules referencing the field (Match)
-      - Validation messages tied to the field
-
-    You CAN disable predefined rule specifications.
-    (PredefinedAssets p.7: "Disable predefined rule specifications.")
-
-  THE IDENTIFIER FIELD GROUP — FULL ANALYSIS (PredefinedAssets p.20):
-    The Identifier field group (internal: identifier) stores alternate
-    identifiers: SSN, driver's license, passport.
-    Fields: Alternate Identifier Type, Alternate Identifier Value,
-            Issuing Authority, Identifier Status, Effective Start/End Date
-
-    Predefined dependency — DUNS SSN Validation rule spec (PredefinedAssets p.43):
-      "The predefined rule specification DUNS SSN Validation validates DUNS
-      numbers and SSNs of records in the predefined business entities."
-      Note: DUNS = Dun & Bradstreet business identifier — IRRELEVANT for
-      Person entity. Only the SSN validation matters for persons.
-      This is the ONLY predefined rule specification in Customer 360 SaaS.
-
-    7 dependent objects on the Identifier field group (verified in B360):
-      1. Identification → DUNS SSN Validation Alternate Identifier → RuleFieldGroupMapping
-      2. Identification Type → Identification Type → DQRuleInputField
-      3. Identification Type → Baseline Match Model for person Deduplication → Match ← KEY
-      4. Identification Type → DUNS SSN Validation → Rule Association
-      5. Identification Type → DUNS SSN Validation → ValidationErrorMessage
-      6. Identification Value → DUNSSSNValidation_AlternateIdentifier → DQ (Advanced)
-      7. Identification Value → Identification Value → DQRuleInputField
-
-    Dependencies 1-2, 4-7: from DUNS SSN Validation rule → CAN be removed
-      by disabling the rule specification.
-    Dependency 3: match model reference → survives even after disabling DQ rule.
-
-  MATCH MODEL BEHAVIOR WITHOUT SSN (ConfigureMatchAndMerge p.43):
-    "If you don't use null matching, the fields with null values don't
-    participate in the match process."
-    Default = null matching OFF. Therefore: records with no SSN data simply
-    skip the Identification Type match criterion. Matching falls back to
-    name + email + address + phone. The match model still works correctly
-    when sources don't provide SSN.
-    → You do NOT need to remove Identification Type from the match model.
-
-  RESOLUTION OPTIONS when sources have no identifier data:
-
-    Option A — Add identifier data to source CSVs (recommended for production):
-      Add columns: identification_fgid, identification_type, identification_value
-      Use SSN for FSI sources that provide it. This is proper FSI practice —
-      SSN is used for KYC, AML, credit verification, cross-system matching.
-
-    Option B — Uncheck Required on individual Identifier fields in B360:
-      B360 → custom entity → Identifier field group → Alternate Identifier Type
-      → field properties → uncheck Required. Repeat for Alternate Identifier Value.
-      Note: if these fields have their own dependent objects, this may also fail.
-      Try this first before disabling the rule spec.
-
-    Option C — Disable DUNS SSN Validation rule spec then attempt field disable:
-      B360 → Customer360 folder → DUNS SSN Validation → disable
-      This removes dependencies 1-2 and 4-7. Dependency 3 (match model) remains.
-      May still not be enough to uncheck Required if match model dependency blocks it.
-
-    Option D — Delete partial auto-mappings in the C360 File Import mapper:
-      The auto-mapper may partially map a column (e.g., ssn_last4) to an
-      Identifier field. This triggers "if you use any field in a field group,
-      ensure that you map all the required fields of the field group" (C360 p.179).
-      Fix: in Map Fields step, delete ALL auto-mapped fields in the Identifier
-      group and Tax Details group. With no Identifier fields mapped, the required
-      field rule does not apply and the error disappears.
-      Note: There is NO "default values" feature in the C360 File Import mapper.
-      Source: C360_April2026_Customer360SaaS_en.pdf, p.179
-
-  DISCOVERY QUESTION FOR PHASE 2 (must be answered before entity config):
-    For each source system: does it provide identifier data (SSN, DL, passport)?
-    If NO source provides identifiers:
-      → Choose Option A (add to CSVs) or Option B/C (disable in B360)
-      → Document the decision and its impact on DQ and match quality
-    If SOME sources provide identifiers:
-      → Use Option A — add identifier columns to all source CSVs
-      → Sources without SSN load null; match model handles nulls gracefully
-
-  This audit MUST be completed as part of Step 3 of the 12-step entity
-  configuration process, BEFORE any data loading begins.
-  Source: DefineTheDataModel p.26, PredefinedAssets p.7 and p.43,
-          ConfigureMatchAndMerge p.43
-
-─── G — Custom Entity UI Assets Required Before Business Application ──
-
-  What it is:
-    When you create a custom entity (via copy of Person or from scratch),
-    it is NOT automatically associated with the Customer 360 Business
-    Application. C360 File Import and the C360 UI cannot see or use the
-    entity until this association is complete (DefineTheDataModel p.9,
-    Steps 9-12 of the 12-step custom entity configuration process).
-
-    The association requires three UI assets to be created FIRST:
-      1. Search Layout Component — defines fields available in search results
-      2. View/Edit Page            — defines the record view/edit UI layout
-      3. Create Page               — defines the UI for creating new records
-
-  Why it matters:
-    Without these assets:
-    - The entity does NOT appear in C360 File Import's entity picker
-    - Saving the Business Application Model tab fails:
-      "Cannot save the changes because {Entity} has no Search Layout assigned"
-    - There is no shortcut — all three must exist before association works
-
-  Key constraints (confirmed MDM-TEST-001-20261024):
-    - Only fields marked as searchable in entity field properties appear
-      in the Search Layout picker. Configure search properties per field
-      (DefineTheDataModel Step 3) before building the search layout.
-    - Full Name is a calculated field — NOT available in the search layout
-      picker. Use First Name + Last Name instead.
-    - Email Address is NOT searchable by default on Person copies — must
-      enable "searchable" on the Electronic Address field first.
-    - The Business Application asset lives in the Customer360 project
-      folder, NOT in the custom entity's own project folder.
-    - The Search Layout must be assigned in the Business Application Search
-      tab BEFORE the Model tab save will succeed.
-    - Extra field groups with Source Primary Key requirements block File
-      Import entirely. Remove unneeded field groups before any data loading.
-
-  How to create (in B360):
-    Search Layout: New Asset → User Interface → Component → Create
-      Set Business Entity, add First Name + Last Name (minimum), Title Field = Last Name, Save
-    View/Edit Page: New Asset → User Interface → Page → Create
-      Set Page Type = View and Edit, Business Entity, then use page designer (see Part 3), Save
-    Create Page:   New Asset → User Interface → Page → Create
-      Set Page Type = Create, Business Entity, then use page designer (see Part 3), Save
-
-  Page Designer mechanics (View/Edit and Create pages):
-    - Canvas shows "Drag page components here" and "Add page tab"
-    - Left panel: "Standard Components" — drag these onto canvas:
-        Header        → required first; configure Line 1, Line 2, Highlighted Field, Image
-        Fields        → one per field group (Basic Fields, Address, Phone, Electronic Address)
-        Source Records → shows contributing source records (recommended for demo value)
-        Related Records → optional, for related entity display
-    - Header component configuration:
-        Image:            skip (no image data in typical FSI source CSVs)
-        Line 1:           Last Name  (only 1 field allowed per line)
-        Line 2:           First Name
-        Highlighted Field: REQUIRED — cannot be left empty.
-                           Use First Name for blank-canvas entities.
-                           Full Name (calculated field) is only available on entities
-                           copied from the predefined Person entity — not on blank canvas.
-    - Fields component: drag one per field group; each prompts which field group to display
-
-  How to associate — ADDITION ORDER (Search/Pages first, Model last):
-    1. Search tab → select entity → + → assign Search Layout → Save
-    2. Pages tab  → select entity → View and Edit sub-tab → + → assign page → Save
-    3. Pages tab  → select entity → Create sub-tab → + → assign page → Save
-    4. Model tab  → + → select entity → set display fields → Save
-    WHY: Model tab save FAILS ("Cannot save — {Entity} has no Search Layout assigned")
-    if Search Layout is not assigned first. Search/Pages tab entity pickers show ALL
-    entities (registered or not), so they can be configured before Model registration.
-
-  How to REMOVE an entity from the Business Application — REMOVAL ORDER (Model first):
-    1. Model tab  → hover old entity row → Delete → Save
-       WHY: Model tab is the primary registration. Pages/Search tabs select from
-            registered entities (docs: "select a business entity type/Select a business
-            entity"). Remove from Model first → those tabs auto-clear the old entity.
-            If you try Search/Pages tabs first, they may show nothing to remove.
-    2. Search tab → verify old entity no longer appears → Save if needed
-    3. Pages tab  → verify old entity no longer appears → Save if needed
-    Confirmed in live UI: MDM-TEST-001-20261026. Doc basis: MDM.md lines 10565-10706.
-
-  Recovery: None needed — create the assets in order above.
-  Source: B360_April2026_DefineTheDataModel_en.pdf, p.9 (Steps 9-12)
-          B360_April2026_PredefinedAssets_en.pdf, p.39 (predefined pages list)
-
-─── I — Custom Business Entity Creation: Properties That Cannot Change After Records ──
-
-  APPLIES TO: Custom entity deployments only (c360.person properties are predefined).
-
-  TWO PROPERTIES IN THE ENTITY CREATION DIALOG BECOME EFFECTIVELY LOCKED
-  AFTER RECORDS ARE ADDED TO THE ENTITY.
-
-  ── Subscribed Record Type (Required) ────────────────────────────────
-
-  What it is:
-    The record type your organization is licensed to use. MDM SaaS uses it
-    to track and report data consumption against your Informatica subscription.
-
-  Why it is irreversible:
-    After records are added to the entity, MDM SaaS does not allow you to
-    update the Subscribed Record Type. Changing it requires either purging
-    ALL records (permanent data loss) or contacting Informatica Global
-    Customer Support.
-
-  Available types:
-    Customer B2C           — any natural person (customer, employee)
-    Customer B2B           — any legal entity (commercial, healthcare, governmental)
-    Healthcare Professional — individual affiliated with a healthcare organization
-    Product 360            — products, parts, product hierarchies
-    Supplier/Vendor        — providers of goods or services
-    Custom Domain          — other record types (locations, assets, etc.)
-    Supporting Entity      — not for master record consolidation or reporting
-    Assign Later           — only if genuinely unsure; must update BEFORE loading records
-
-  Decision guidance:
-    FSI individual customer → Customer B2C
-    FSI corporate client    → Customer B2B
-    Align selection to the Informatica license contract.
-
-  Recovery: Purge all records, then update. Or contact Informatica Global Customer Support.
-  Cost: Full data reload required.
-  Source: MDM SaaS documentation — Business Entity Properties, Subscribed Record Type
-
-  ── Data Domain Tags (Optional) ──────────────────────────────────────
-
-  What it is:
-    Tags that describe the business data domain for the subscribed record type.
-    After you select a Subscribed Record Type, MDM SaaS shows predefined tags
-    for that type. You can also add custom tags. Tags are for information only —
-    MDM SaaS does NOT use them to track data consumption.
-
-  Predefined tags by Subscribed Record Type:
-    Customer B2B           → Health Care Organization, Legal Entity, Organization
-    Customer B2C           → Employee, Patient, Person, Student
-    Healthcare Professional → Physician, Provider
-    Product 360            → Finished Products, Parts, Product Hierarchies, Product Structures, Product Types
-    Supplier/Vendor        → Supplier, Vendor
-    Custom Domain          → Contracts, Location
-
-  Decision guidance:
-    FSI individual customer → select "Person" from the Customer B2C predefined list
-    Custom tags (e.g., "FSI Customer") are saved to the org and available for
-    future entities of the same subscribed record type.
-    Tags can be updated at any time — this is not an irreversible decision.
-
-  Source: MDM SaaS documentation — Business Entity Properties, Data Domain Tags
-
-  ── Business ID Format (Required) ────────────────────────────────────
-
-  What it is:
-    Format MDM SaaS uses to generate unique Business IDs for master records.
-    Alphanumeric: 3-char uppercase prefix, total 14–24 characters.
-                  Example: FSI4AB78YU2WE2CD
-    Numeric:      3-digit prefix + sequence, total 15–24 digits.
-                  Example: 999000000100001
-
-  Why it is irreversible:
-    You cannot change the Business ID Format after records exist in the entity.
-    Must purge all records before changing the format.
-
-  Decision guidance:
-    Use a 3-character prefix that identifies the entity.
-    Alphanumeric is standard for customer entities.
-    Example: Customer FSI entity → prefix "FSI", alphanumeric, total length 17.
-
-  Recovery: Purge all records, then set a new format. Data is permanently deleted.
-  Source: DefineTheDataModel p.11
+  Recovery: Purge all records, then update. Full data reload required.
 
 ──────────────────────────────────────────────────────────────────
-
-Org state confirmed:
-  Deployment entity:   {entity from Sheet 3} (custom — created in Step 2b)
-  c360.person:         {from scan — predefined fixture, not the deployment target}
-  Records in entity:   {count — must be 0 before Steps 3 and 6}
-  Source systems:      {list from scan}
-  Existing M&M jobs:   {list from scan}
-
-{If records > 0 in the deployment entity:}
-  ⚠️  Records already exist in {entity}.
-      Survivorship timing (B above) may already be violated.
-      Flag to org admin and confirm before proceeding.
-
-──────────────────────────────────────────────────────────────────
-
-SEGMENT 2 (Steps 1–5) — UI only. All configuration before any
-  data enters the org. Must complete in this order:
-    Step 1  — Create source systems
-    Step 2b — Create custom entity, add all fields, build UI assets
-    Step 2  — Add custom field groups to the entity
-    Step 3  — Configure survivorship
-    Step 4  — Configure data quality rules
-    Step 5  — Configure and publish match model
-
-SEGMENT 3 (Steps 6–9) — Load, validate, and verify. All of
-  Segment 2 must be complete before Step 6 starts:
-    Step 6  — Pre-deployment validation: load sample CSVs via File Import
-    Step 7  — Monitor ingress jobs, confirm records loaded correctly
-    Step 8  — Define and run Match & Merge
-    Step 9  — Verify golden records against success criteria
-
-Before you type [ready]:
-  Open MDM_Deployment_Steps_{Client}.xlsx → Pre-Flight tab
-  Confirm all conflict check rows are green (or amber with no action required)
-  Fill "Pre-Flight reviewed by" and "Date" in the Sign Off section
-
-Type [ready] to begin Step 1, or ask any questions first.
+Continue? [c] for the final section.
 ```
 
-Wait for the consultant to respond before presenting Step 1.
+---
+
+**R3-4 — Step map and ready prompt**
+
+Print after the consultant confirms, then wait for [ready]:
+
+```
+── PRE-FLIGHT ── 4 of 4 — Step Map ───────────────────────────────
+
+SEGMENT 2 — UI only. All configuration before any data load.
+Steps must complete in this exact order:
+
+  Step 1   Create Source Systems
+           🔴 Internal IDs permanent — confirm before clicking Create
+
+  Step 1b  Create Deployment Project
+           Required before Step 2b — entity creation needs a Location
+
+  Step 2b  Create Custom Entities + UI Assets
+           🔴 Entity Internal ID, Subscribed Record Type, Business ID Format
+              are immutable after records are added
+
+  Step 2   Add Custom Field Groups
+           🔴 Permanent — design completely before any records exist
+
+  Step 3   Configure Survivorship
+           🔴 Must complete BEFORE any records are loaded
+
+  Step 4   Configure DQ Rules
+           Must complete before Step 6 — rules do not run retroactively
+
+  Step 5   Configure + Publish Match Model
+           🔴 Must Publish BEFORE data load
+
+  Step 5b  Generate Search Indexes
+           Required for blank-canvas entities before File Import
+
+SEGMENT 3 — Data load and verification.
+
+  Step 6   Load Data (C360 File Import — pre-deployment validation)
+  Step 7   Monitor Ingress + Confirm Record Counts
+  Step 8   Define and Run Match & Merge
+  Step 9   Verify Golden Records
+
+──────────────────────────────────────────────────────────────────
+
+Pre-flight sign-off:
+  Open MDM_Deployment_Steps_{Client}.xlsx → Pre-Flight tab
+  Confirm all conflict check rows are green (or amber with no blocker)
+  Fill "Pre-Flight reviewed by" and "Date" in the Sign Off section
+
+Type [ready] to begin Step 1, or ask questions first.
+```
+
+Wait for [ready] before presenting Step 1.
 
 ---
 
@@ -692,6 +469,11 @@ Each step is broken into micro-exchanges:
 4. **React** — if they describe something unexpected, diagnose before continuing
 5. **Verify** — confirm the outcome before closing the step
 6. **Signoff** — summary + name
+
+**After every single instruction, end with:** `Type [done] when complete.`
+The consultant types `done` before the next micro-step is given. Never advance without it.
+
+**Always use Display Names, never Internal IDs, when coaching UI actions.** The canvas, field properties panel, and all B360 UI surfaces show Display Names. Internal IDs are org-level system identifiers the consultant never sees during configuration. Reserve Internal IDs only for verification steps where the consultant must confirm what the system auto-generated.
 
 Keep every prompt to 3–5 lines. The consultant should be typing back after every 1–2 actions.
 
@@ -709,24 +491,26 @@ Keep every prompt to 3–5 lines. The consultant should be typing back after eve
 Navigate to: {exact path — every click}
 
 {Describe exactly what the screen shows — field names, layout, defaults.
- Draw from documented test run experience — do not ask "What do you see?"
- unless the screen state is genuinely uncertain (e.g., checking whether
- a match model is Published or Draft).}
+ Draw from docs. NEVER ask "What do you see?" — always state what will
+ appear based on documented behavior. The consultant confirms with [done],
+ not by describing the screen. Exception: when a value is genuinely unknown
+ (e.g., an auto-generated Internal ID the consultant must read back),
+ ask for that specific value only.}
 
 {First action — exact field name and value.}
-Done?
+Type [done] when complete.
 ```
 
 ---
 
 **Mid-step action format:**
 
-Each action is one short instruction followed by "Done?" — describe what will appear, then confirm:
+Each action is one short instruction followed by "Type [done] when complete." — describe what will appear, then wait:
 
 ```
 {One action. Exact field name and value from the workbook.}
 {One sentence describing what will happen or appear.}
-Done?
+Type [done] when complete.
 ```
 
 Examples:
@@ -791,7 +575,7 @@ Then open Step {N+1} with its orient line.
 Answer in 2–4 sentences. Cite the doc if relevant. Then one line re-orienting:
 
 ```
-Back to Step {N} — {last action repeated in one line}. What do you see?
+Back to Step {N} — {last action repeated in one line}. Type [done] to continue.
 ```
 
 ---
@@ -815,8 +599,9 @@ Stop. Ask one clarifying question. Do not give the next action until the discrep
 ## SEGMENT 2 — Foundation Steps (UI Only, Strict Order)
 
 Steps 1 through 5 must complete in sequence before any data enters the org. All are UI-only — no data loading until Step 6. The ordering is not flexible:
-- Step 1 creates the source systems referenced by internal ID in Steps 3 and 6
-- Step 2b creates the custom entity and all UI assets — must complete before Steps 2, 3, 4, 5
+- **Step 1b creates the deployment project first** — source system creation dialog shows a Location field; project must exist before Step 1 so it can be selected consistently across all assets
+- Step 1 creates the source systems — select the deployment project as Location
+- Step 2b creates the custom entity and all UI assets inside the project — must complete before Steps 2, 3, 4, 5
 - Step 2 adds custom field groups to the entity — must complete before records exist (data loss risk)
 - Step 3 must complete before any records exist (irreversible action B — survivorship timing)
 - Step 4 must complete before Step 6 — DQ rules do not run retroactively
@@ -857,7 +642,8 @@ For each source system from workbook Sheet 2:
   3. Confirm the Internal ID field shows EXACTLY the planned value
      BEFORE clicking Create — this is your last chance to change it
   4. Click Create
-  5. Repeat for each source system
+  5. Click Save (required after Create — the source system is not committed until saved)
+  6. Repeat for each source system
 
 Source systems to create:
 {For each row in workbook Sheet 2:}
@@ -879,6 +665,50 @@ chance to catch a mismatch before it is permanent.
 
 Verify:
 > Business 360 Console → Source Systems list → all new systems present with correct Internal IDs
+
+---
+
+### Step 1b [UI] — Create Deployment Project
+
+A B360 project organizes all assets for this deployment — the custom entity, UI assets (search layout, pages), match model, and source systems all require a project Location when created. Create the project first so it is available to select on every subsequent asset.
+
+Why a dedicated project matters:
+- Keeps deployment assets separate from other work in the org
+- Makes it easy to identify and manage assets for this engagement
+- Prevents accidental modification of another client's entity or match model
+
+Where to navigate:
+```
+Business 360 Console → Explore (left nav) → New Project
+```
+
+What to do:
+```
+1. In B360 Console, click Explore in the left navigation
+2. On the Explore page, click New Project
+
+3. Fill in:
+     Name:        {Client} MDM {Scenario}  (e.g., Meridian MDM PostMA)
+     Description: MDM deployment project for {Client} — {deployment pattern}
+                  (e.g., "MDM deployment for Meridian Systems — Post-M&A Consolidation")
+
+   For multi-domain deployments with two entities, a single project
+   covering both entities is the recommended approach for demos.
+
+4. Click Create / Save
+
+Note: Project names can include spaces. Use a descriptive name that
+identifies both client and scenario (e.g., Meridian MDM PostMA).
+```
+
+What you will see when done:
+```
+The new project appears in the Projects list / left navigation.
+It is empty — no assets yet.
+```
+
+Verify:
+> Project visible in B360 → note the exact name — you will select it in the Location field when creating the entity in Step 2b.
 
 ---
 
@@ -1082,8 +912,46 @@ Fill every property before clicking OK:
 
 **Business ID Format guidance:**
 - Alphanumeric (recommended for customer entities): 3-char uppercase prefix + 11–21 chars, total 14–24
-  Example: prefix `FSI`, length 17 → generates `FSI4AB78YU2WE2CD`
+  Example: prefix `MER`, length 15 → generates `MER4AB78YU2WE2C`
 - Numeric: 3-digit prefix + sequence, total 15–24 digits
+
+**Pre-filled values for this entity (from workbook Sheet 3):**
+
+Before clicking Create, confirm ALL of these are set:
+
+| Field | Value | Notes |
+|-------|-------|-------|
+| Display Name | {entity display name} | From Sheet 3 |
+| Internal ID | {lowercase slug} | Auto-generated — verify before clicking Create |
+| Location | {Client} MDM {Scenario} | Select the deployment project |
+| Subscribed Record Type | Customer B2B (for account/org entities) or Customer B2C (for person entities) | 🔴 Immutable after records exist |
+| Data Domain Tags | Organization (for B2B) or Person (for B2C) | Optional — informational only |
+| Error Remediation | Enabled | Recommended for all deployments |
+| Business ID Format | Alphanumeric · Prefix: {3-char client prefix} · Length: 15 | 🔴 Immutable after records exist |
+
+Present this table to the consultant BEFORE the entity gate. Confirm each field is set before proceeding to the gate.
+
+---
+🔴 ENTITY NAME GATE — REQUIRED BEFORE CREATING
+
+Re-surface the entity name from Sheet 3 of the Discovery Workbook and confirm it one final time before clicking OK. The Internal ID is generated the moment you click OK and **cannot be changed under any circumstances**.
+
+```
+Entity to create:
+  Display Name:   {entity display name from Sheet 3}
+  Internal ID:    {lowercase slug — e.g., mer_accountmaster}
+
+This Internal ID is permanent. If wrong, the only fix is deleting this entity
+and rebuilding it from scratch — after first removing any source systems, field
+groups, survivorship rules, match models, and UI assets associated with it.
+
+To confirm, type the Display Name exactly as shown above:
+> _
+```
+
+Do not proceed until the consultant types the entity name back verbatim. If they type something different, do not proceed — show the mismatch and ask them to try again or update Sheet 3 first.
+
+---
 
 ```
 ⚠️ BEFORE CLICKING OK — VERIFY THESE TWO FIELDS:
@@ -1098,57 +966,129 @@ The entity is created and a blank canvas appears. A blank-canvas entity has NO f
 
 ---
 
-#### Part 0b — Add Standard Field Types (blank-canvas entities)
+#### Part 0b — Field Model Review Gate (REQUIRED before adding any fields)
 
-A blank-canvas entity has an empty canvas. Before adding custom field groups (Step 2) or building UI assets, add the standard field types that every person entity needs.
+🔴 Field structure is irreversible after records are loaded. Deleting a field after ingress drops all data stored in that field permanently. Decide the structure correctly now.
+
+⚠️ **Sheet 3 grouping names (e.g., "Core Identity", "Support Profile", "Contact Details") are planning labels only.** They have no meaning in the org unless the field model review below confirms them as actual field groups. Never use a Sheet 3 grouping name as a section header, field group name, or org construct unless it passes the multi-entry test below. When coaching canvas work, refer only to individual field names and types — never to Sheet 3 grouping names.
+
+Before touching the canvas, present the following review for every entry in workbook Sheet 3:
+
+**For each planned "field group" in Sheet 3, the consultant must confirm:**
+
+| Question | If YES | If NO |
+|---|---|---|
+| Can a record have more than one entry? (e.g., multiple addresses) | → Field Group | → Root fields |
+| Do the fields need to survive as a block in survivorship? | → Field Group | → Root fields |
+| Is there a CDI mapping already designed for this group path? | → Field Group | → Root fields |
+
+**Common patterns:**
+- Address, Phone, Email → almost always Field Groups (multi-entry)
+- Company Name, Website, Industry, Revenue → almost always Root Fields (single value per record)
+- Identifiers (EIN, DUNS, Tax ID) → Root Fields unless multiple IDs per record are expected
+
+**Internal ID prefix rule:**
+All custom field and field group Internal IDs must use a client prefix (e.g., `x_`) to avoid collision with reserved system field names. Never use bare names like `company_name` or `address` — always `x_company_name`, `x_address`, etc.
+
+Present this table to the consultant:
 
 ```
-B360 → Explore → {custom entity} → Actions → Edit  (opens the canvas)
-
-In the right panel → expand "Basic Fields" section
-
-Add these standard field types by double-clicking each:
-  1. Person_Name       — gives First Name, Last Name, Middle Name, Suffix, Full Name
-  2. Address           — gives Address Line 1, City, State, Postal Code, Country
-  3. Phone             — gives Number, Phone Type
-  4. Electronic Address — gives Email Address, Electronic Address Type
-
-For each field type added:
-  - A dialog appears for the field group Display Name and Internal ID
-  - Accept the defaults or set per the Discovery Workbook Sheet 3
-  - Click Add / OK
-
-Full Name:
-  Full Name is a calculated field that can be created on the entity.
-  Navigate to Basic Fields → add a Text field named "Full Name" (internalId: fullName)
-  A Concatenate DQ rule will be added in Step 4 to populate it from firstName + lastName.
-  This field is required for the match model (Step 5).
-
-After adding all standard field types:
-  Click Save (select "Save without indexing" — entity has no records yet)
+Field Model Review — {Entity Display Name}
+─────────────────────────────────────────────────────────────────────
+Entry from Sheet 3   │ Multi-entry possible? │ Recommendation
+─────────────────────────────────────────────────────────────────────
+{field group name}   │ Yes / No              │ Field Group / Root fields
+...
+─────────────────────────────────────────────────────────────────────
 ```
+
+Wait for the consultant to confirm each line before proceeding to canvas work.
 
 ---
 
-#### Part 1 — Verify and enable field searchability (DefineTheDataModel Step 3)
+#### Part 0c — Add Fields to the Canvas (after field model confirmed)
 
-Before building the search layout, confirm which fields are searchable. Only fields with "searchable" enabled in their field properties appear in the Search Layout picker.
-
+Navigate:
 ```
-B360 → Explore → {custom entity} → open each field → check field properties
-
-On a blank-canvas entity after adding standard field types:
-  ✅ First Name, Last Name   — searchable by default after adding Person_Name type
-  ✅ Address fields           — searchable by default after adding Address type
-  ✅ Phone Number            — searchable by default after adding Phone type
-  ❌ Full Name               — calculated field; NOT available in the Search Layout
-                               picker (use First Name + Last Name there instead)
-  ❌ Email Address           — NOT searchable by default; must enable manually
-
-To enable Email Address as searchable:
-  Open the Electronic Address field group → Email Address field
-  → field properties → enable "Searchable" → Save entity
+B360 → Explore → {custom entity} → Actions → Edit
 ```
+The canvas opens. The left nav shows Smart Fields, Basic Fields, and Dynamic Fields sections.
+
+**Adding root fields** (single-value attributes):
+- In Basic Fields, double-click the appropriate type (Text, Decimal, URL, etc.)
+- A dialog appears for Display Name and Internal ID
+- Set Internal ID with the `x_` prefix (e.g., `x_company_name`)
+- Click Add / OK
+
+**Adding field groups** (multi-entry attributes):
+- In Basic Fields, double-click **Field Group**
+- Set Display Name and Internal ID (with `x_` prefix)
+- Click the down arrow on the field group to open it
+- Double-click fields inside the group to add them
+
+**Smart fields** (Phone Number, Email Address, Postal Address):
+- Found in Smart Fields section of the left nav
+- Double-click to add — these come with built-in DQ validation and match key support
+- Use for contact and address data wherever multi-entry applies
+
+Add fields one at a time, wait for [done] after each. After all fields are added:
+```
+Click Save → select "Save without indexing" (entity has no records yet)
+```
+Type [done] when saved.
+
+---
+
+#### Part 1 — Configure field search and reports properties (DefineTheDataModel p.29)
+
+Before building the search layout, configure the three key field properties that govern how each field behaves in search, filters, and reports. These are set per field in the properties panel on the entity canvas.
+
+**How to get there:**
+```
+B360 → Explore → {custom entity} → Actions → Edit
+→ Click each field → properties panel → click Search section
+→ Save entity when all fields are reviewed
+```
+
+**Key principle:** On blank-canvas custom entities, none of these properties are enabled by default on root fields. Smart fields (Phone Number, Email Address, Postal Address) may carry defaults — verify each one.
+
+---
+
+**The Three Properties**
+
+| Property | Where it appears in the UI | What it controls | Org limit |
+|---|---|---|---|
+| **Search** | Properties → Search tab | Makes the field available as a criterion in the Search Layout — users can search *by* this field | 30 static/smart fields per entity |
+| **Facetable** | Properties → Search tab | Adds the field to the Filters panel on the search results page — users can narrow results by this field's values (like a sidebar filter) | 25 static/smart fields per entity |
+| **Reportable** | Properties → Search tab | Makes the field available as a dimension or measure when users build reports in the business application | 30 fields per entity |
+
+These are fully independent — any combination is valid. Set each based on the field's role.
+
+**Note:** After enabling or disabling Search or Facetable on a field, reindex the records. On a new entity with no records, no reindex is needed yet.
+
+---
+
+**When to enable each property — by field type:**
+
+| Field type | Search | Facetable | Reportable | Rationale |
+|---|---|---|---|---|
+| Primary name (company name, legal name) | ✅ | ✅ | ✅ | Users search by name, filter by name, and report on name |
+| Identifier (EIN, DUNS, Tax ID) | ✅ | — | — | Exact lookup only; no value as a filter or report dimension |
+| Email | ✅ | — | — | Direct lookup; too many distinct values to be useful as a facet |
+| Phone | ✅ | — | — | Direct lookup only |
+| Industry / Category / Type | ✅ | ✅ | ✅ | Useful to search by, filter by, and slice in reports |
+| Support tier / Status / Tier | ✅ | ✅ | ✅ | Small set of discrete values — ideal facet; useful in reports |
+| Revenue / Rate / Financial amount | — | — | ✅ | No one searches by exact revenue; aggregates and ranges in reports |
+| Address (Postal Address smart field) | ✅ | — | ✅ | Search by city/state; too granular to facet on street-level |
+| Ticket ID / Cross-reference ID | ✅ | — | — | Direct lookup by ID; not a filter or report dimension |
+| Internal cross-reference links (party link fields) | — | — | — | System plumbing — no user-facing purpose |
+| URL / Website | — | — | — | Not searched, filtered, or reported on |
+
+**Facetable rule of thumb:** Only enable Facetable on fields with a small, bounded set of values (industry type, support tier, status). Do not enable it on free-text or high-cardinality fields (names, emails, IDs) — the filter panel becomes useless when every record has a unique value.
+
+---
+
+Present the consultant with the full field list for each entity using **Display Names** (not Internal IDs) and walk through each field one at a time. Confirm all three settings before the consultant clicks Save on the entity canvas.
 
 #### Part 2 — Create Search Layout Component
 
@@ -1626,26 +1566,7 @@ PART 2 — Configure Directed AI Match Rules:
   Loose         Lenient — more matches, higher false-positive risk.
                 Pair with Manual merge for human review.
 
-  ── MATCH CRITERION DECISION ──────────────────────────────
-  Choose the criterion based on what your sources provide:
-
-  → Resident (name + address)       — USE WHEN no shared identifier exists
-    across sources. Standard for Customer 360 / multi-source consumer data.
-    Match key: fullName + addressLine1.
-
-  → Individual (name + NPI / DEA / ID) — USE WHEN sources provide a regulatory
-    or government identifier (NPI for healthcare professionals, DEA for
-    prescribers, SSN for compliance/KYC, employee ID for HR master).
-    More precise than name+address; significantly fewer false positives.
-    Standard for HCP Master / Provider Directory deployments.
-
-  Check Sheet 6 (Match Model) of the Discovery Workbook for the confirmed
-  criterion before proceeding.
-  ──────────────────────────────────────────────────────────
-
-  ── RULE 1 — PATH A: Resident (name + address) ───────────
-  Use when: no shared identifier. Customer 360, Marketing Dedup.
-
+  ── RULE 1 — Fuzzy name + address (primary rule) ───────
   Tab 1 — Configure Properties and Thresholds:
     Match strategy:    Fuzzy
     Merge:             Threshold-based
@@ -1676,37 +1597,6 @@ PART 2 — Configure Directed AI Match Rules:
 
   Tab 4 — Configure Field Properties:
     Nothing to configure for standard Resident rules.
-    → Click Add
-
-  ── RULE 1 — PATH B: Individual (name + NPI / regulatory ID) ───
-  Use when: sources provide NPI, DEA, SSN, or other shared identifier.
-  HCP Master, Provider Directory, Compliance/KYC, HR Master.
-
-  Tab 1 — Configure Properties and Thresholds:
-    Match strategy:    Fuzzy
-    Merge:             Threshold-based
-      Automated merge: 85  to  100   ← tighter threshold; ID match is more precise
-      Manual merge:    70  to  84
-    Match criterion:   Individual
-    Match level:       Typical
-    Description:       {Entity} Name and {ID Type}
-    → Click Next
-
-  Tab 2 — Add Required Fields:
-    Fuzzy Match - Required Fields:
-      Row: Person_Name  →  Field name: fullName
-      Row: Identification_Number  →  Field name: {npi / dea / ssn field}
-    ⚠️ The identifier field must be mapped in the entity data model (Step 2)
-       before it appears as a field option here. Confirm it exists on the entity.
-    → Click Next
-
-  Tab 3 — Add Optional Fields:
-    Click + to add (optional — improves match precision):
-      Field type: Attribute_1  →  city or state (address signal)
-    → Click Next
-
-  Tab 4 — Configure Field Properties:
-    Nothing to configure for standard Individual rules.
     → Click Add
 
   ── RULE 2 — Exact email (supplementary rule) ──────────
