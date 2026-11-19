@@ -1626,7 +1626,26 @@ PART 2 — Configure Directed AI Match Rules:
   Loose         Lenient — more matches, higher false-positive risk.
                 Pair with Manual merge for human review.
 
-  ── RULE 1 — Fuzzy name + address (primary rule) ───────
+  ── MATCH CRITERION DECISION ──────────────────────────────
+  Choose the criterion based on what your sources provide:
+
+  → Resident (name + address)       — USE WHEN no shared identifier exists
+    across sources. Standard for Customer 360 / multi-source consumer data.
+    Match key: fullName + addressLine1.
+
+  → Individual (name + NPI / DEA / ID) — USE WHEN sources provide a regulatory
+    or government identifier (NPI for healthcare professionals, DEA for
+    prescribers, SSN for compliance/KYC, employee ID for HR master).
+    More precise than name+address; significantly fewer false positives.
+    Standard for HCP Master / Provider Directory deployments.
+
+  Check Sheet 6 (Match Model) of the Discovery Workbook for the confirmed
+  criterion before proceeding.
+  ──────────────────────────────────────────────────────────
+
+  ── RULE 1 — PATH A: Resident (name + address) ───────────
+  Use when: no shared identifier. Customer 360, Marketing Dedup.
+
   Tab 1 — Configure Properties and Thresholds:
     Match strategy:    Fuzzy
     Merge:             Threshold-based
@@ -1657,6 +1676,37 @@ PART 2 — Configure Directed AI Match Rules:
 
   Tab 4 — Configure Field Properties:
     Nothing to configure for standard Resident rules.
+    → Click Add
+
+  ── RULE 1 — PATH B: Individual (name + NPI / regulatory ID) ───
+  Use when: sources provide NPI, DEA, SSN, or other shared identifier.
+  HCP Master, Provider Directory, Compliance/KYC, HR Master.
+
+  Tab 1 — Configure Properties and Thresholds:
+    Match strategy:    Fuzzy
+    Merge:             Threshold-based
+      Automated merge: 85  to  100   ← tighter threshold; ID match is more precise
+      Manual merge:    70  to  84
+    Match criterion:   Individual
+    Match level:       Typical
+    Description:       {Entity} Name and {ID Type}
+    → Click Next
+
+  Tab 2 — Add Required Fields:
+    Fuzzy Match - Required Fields:
+      Row: Person_Name  →  Field name: fullName
+      Row: Identification_Number  →  Field name: {npi / dea / ssn field}
+    ⚠️ The identifier field must be mapped in the entity data model (Step 2)
+       before it appears as a field option here. Confirm it exists on the entity.
+    → Click Next
+
+  Tab 3 — Add Optional Fields:
+    Click + to add (optional — improves match precision):
+      Field type: Attribute_1  →  city or state (address signal)
+    → Click Next
+
+  Tab 4 — Configure Field Properties:
+    Nothing to configure for standard Individual rules.
     → Click Add
 
   ── RULE 2 — Exact email (supplementary rule) ──────────

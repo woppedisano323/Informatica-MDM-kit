@@ -108,16 +108,16 @@ def build(out_path):
 
     # ── Hero header ──────────────────────────────────────────────────────────
     hero = Table([[
-        Paragraph("<font color='white'><b>/mdm-setup + /mdm-profile + /mdm-deploy</b></font>",
-                  ps("h1", fontSize=20, fontName="Helvetica-Bold", textColor=WHITE,
-                     leading=24, alignment=1)),
+        Paragraph("<font color='white'><b>/mdm-setup + /mdm-profile + /mdm-deploy + /mdm-operate</b></font>",
+                  ps("h1", fontSize=16, fontName="Helvetica-Bold", textColor=WHITE,
+                     leading=20, alignment=1)),
         ], [
         Paragraph("<font color='white'>Informatica Cloud MDM Deployment Skill | "
-                  "Three-Skill System</font>",
+                  "Four-Skill System</font>",
                   ps("sub", fontSize=10, textColor=WHITE, leading=13, alignment=1)),
         ], [
         Paragraph("<font color='#5BA4CF'>Business 360 / Customer 360 SaaS | "
-                  "Validated: MDM-TEST-001-20261026, PROFILE-TEST-001</font>",
+                  "Validated: MDM-TEST-001-20261026, PROFILE-TEST-001, OPERATE-TEST-001-20261109</font>",
                   ps("val", fontSize=8, textColor=colors.HexColor("#5BA4CF"),
                      leading=11, alignment=1)),
     ]], colWidths=[W],
@@ -131,7 +131,7 @@ def build(out_path):
     # ── What It Is ───────────────────────────────────────────────────────────
     story += [p("<b>What It Is</b>", SEC_H),
               p("A guided deployment coach for Informatica Business 360 / Customer 360 SaaS. "
-                "Three progressive phases produce shareable artifacts and gate the next phase. "
+                "Four progressive phases produce shareable artifacts and gate the next phase. "
                 "Nothing is created in the org until Phase 3 is reviewed and each step confirmed."),
               Spacer(1, 6)]
 
@@ -144,6 +144,8 @@ def build(out_path):
              "MDM_Discovery_{Client}.xlsx (9 sheets)", "Red cells filled + profiling data"],
             ["3 - Deployment Coach",    "/mdm-deploy",
              "MDM_Deployment_Steps_{Client}.xlsx + session PDF", "Per-step signoff"],
+            ["4 - Governance Layer",    "/mdm-operate",
+             "Business Event + CAI Approval Workflow configured", "End-to-end approval flow verified"],
         ],
         col_widths=[1.4*inch, 1.1*inch, 2.4*inch, 2.1*inch],
     ))
@@ -151,9 +153,11 @@ def build(out_path):
 
     # ── Test Mode ────────────────────────────────────────────────────────────
     story += [p("<b>Test Mode</b>", SEC_H),
-              p("Add --test to any phase command to prefix all artifact names and org-written values "
-                "with a test run ID (MDM-TEST-{NNN}-{YYYYMMDD}). Keeps test runs distinguishable "
-                "in the org permanently. Appends a row to MDM_TEST_LOG.md after each phase."),
+              p("Created to prevent collisions when running the skill multiple times against the same org. "
+                "Each run prefixes all artifact file names and org-written values (source system Internal IDs, "
+                "M&M job names) with a unique run ID (MDM-TEST-{NNN}-{YYYYMMDD}), so run 1 and run 2 "
+                "never overwrite each other. Not needed for single deployments — use it only when "
+                "iterating on the skill in the same org. Appends a row to MDM_TEST_LOG.md after each phase."),
               Spacer(1, 4),
               p("/mdm-setup --test  |  /mdm-setup --test MDM-TEST-001-20261026", CODE),
               Spacer(1, 12)]
@@ -175,13 +179,16 @@ def build(out_path):
     ))
     story.append(Spacer(1, 8))
 
-    story += [p("<b>5 Embedded Deployment Patterns</b>", H2)]
+    story += [p("<b>6 Embedded Deployment Patterns</b>", H2)]
     story.append(tbl(
         ["Pattern", "Trust Ranking", "Match Strategy"],
         [
             ["Customer 360 / Unified View",
              "CRM first; engagement systems second",
              "Fuzzy name + address; email/phone secondary"],
+            ["HCP Master / Provider Directory",
+             "CMS NPI registry first; credentialing system second",
+             "Individual: name + NPI/DEA regulatory ID; more precise than name+address"],
             ["Marketing Deduplication",
              "CRM first; email platform; ad platform last",
              "Fuzzy name + address; email secondary"],
@@ -432,6 +439,24 @@ def build(out_path):
         ],
         col_widths=[2.0*inch, 5.0*inch],
     ))
+    story.append(Spacer(1, 10))
+
+    story += [p("<b>OPERATE-TEST-001-20261109 — /mdm-operate Validation</b>", H2),
+              p("End-to-end governance layer deployed on the FSI Customer 360 entity: "
+                "business event configured, CAI approval workflow published, "
+                "approver role assigned, and two-user approval flow verified."),
+              Spacer(1, 4)]
+    story.append(tbl(
+        ["Check", "Result"],
+        [
+            ["Business event configured",  "Create trigger on Customer FSI entity — fires on new record submission"],
+            ["CAI process",                "MDM Multi-Step Approval Template — published from Application Integration"],
+            ["Approver role",              "Customer 360 Manager with Workflow Approver privilege + Business360ProcessExecutor"],
+            ["End-to-end flow verified",   "Record submitted → Workflow Inbox task created → approver claimed and approved → record active"],
+            ["Self-approval restriction",  "Confirmed: requester and approver must be different users (MDM platform enforced)"],
+        ],
+        col_widths=[2.0*inch, 5.0*inch],
+    ))
     story.append(Spacer(1, 12))
 
     # ── Footer ────────────────────────────────────────────────────────────────
@@ -452,5 +477,5 @@ def build(out_path):
 
 if __name__ == "__main__":
     out = sys.argv[1] if len(sys.argv) > 1 else os.path.expanduser(
-        "~/Downloads/MDM_Setup_Skill_Overview.pdf")
+        "~/Documents/MDM/MDM_Setup_Skill_Overview.pdf")
     build(out)

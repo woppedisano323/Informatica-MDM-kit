@@ -233,11 +233,13 @@ Based on the answer to Q1, suggest the most likely pattern and confirm:
 ```
 Based on what you described, this sounds like a {pattern} deployment.
 
-  Customer 360 / Unified View  — one view of the customer across all systems
-  Marketing Deduplication      — clean lists for campaigns, dedup across platforms
-  Compliance / KYC / AML       — verified identity linked by regulatory IDs
-  Post-M&A Consolidation       — merge customers from acquired companies
-  Data Migration Hub           — cleansing layer before platform cutover
+  Customer 360 / Unified View      — one view of the customer across all systems
+  HCP Master / Provider Directory  — unified view of healthcare professionals
+                                     across payer, pharma, and credentialing systems
+  Marketing Deduplication          — clean lists for campaigns, dedup across platforms
+  Compliance / KYC / AML           — verified identity linked by regulatory IDs
+  Post-M&A Consolidation           — merge customers from acquired companies
+  Data Migration Hub               — cleansing layer before platform cutover
 
 Does that match, or is another pattern a better fit?
 ```
@@ -353,6 +355,7 @@ Standard open questions by pattern:
 | Pattern | Open questions to pre-populate |
 |---------|-------------------------------|
 | Customer 360 | Is there a single shared identifier across systems? What is the dedup tolerance (same name / address = same person)? Which system is authoritative for contact data? |
+| HCP Master / Provider Directory | Do sources provide NPI or DEA numbers as a shared identifier? Which system is authoritative (CMS NPI registry, credentialing system, pharma CRM)? What are the HIPAA data handling requirements? |
 | Post-M&A | What is the overlap % estimate between the two customer bases? Is there a mapping table from the acquired system? Which system wins on conflict? |
 | Compliance/KYC | Which regulatory frameworks apply (KYC, AML, GDPR, HIPAA)? Is there an authoritative compliance system of record? What are the retention requirements? |
 | Marketing Dedup | What campaign platform consumes the golden record? What is the acceptable false-positive rate for merges? |
