@@ -2439,31 +2439,42 @@ Why this matters for {Client}:
 > winning survivorship for each field, and aggregate fields from all contributing
 > sources visible on the golden record}
 
+**PREREQUISITE — M&M must have run first:**
+```
+Source Records only shows contributing source records when a golden record has
+Consolidation Status = CONSOLIDATED or LINKED. Records loaded but not yet matched
+have status NONE — they are standalone golden records with one contributing source.
+Source Records will appear empty or not render at all for NONE-status records.
+
+Do NOT attempt to verify Source Records before Step 8 (M&M) completes.
+```
+
 Use case validation — check in Customer 360:
 ```
-  Customer 360 → search for a loaded customer name → open record
-  → Source Records tab
+  Customer 360 → search for a company name that exists in multiple source systems
+  → open the record → look at the right panel
 
-  ✅ All contributing source systems appear as source records
+  ✅ Consolidation Status = CONSOLIDATED in the record header
+  ✅ Source Records component (right panel) shows each contributing source system
   ✅ Green-highlighted fields = highest-trust source survivorship winners
-  ✅ Custom field group fields populated from their respective sources
-  ✅ Number of golden records = number of unique real people
-     (not number of source records — duplicates consolidated)
+  ✅ Number of golden records < total source records loaded
+     (duplicates consolidated — e.g., 64 source records → ~43 golden records)
 
-⚠️ Source Records tab not visible?
-   It must be explicitly added to the View/Edit page:
-   B360 → Explore → Customer360 folder → Customer 360 Business Application
-   → Pages tab → open the View/Edit page for your entity
-   → Page Components tab → drag "Source Records" component onto canvas → Save
-   Then reopen the golden record — the Source Records tab will appear.
-   The component is NOT included by default even when dragging the Fields component.
-   Confirmed MDM-TEST-001-20261026.
+⚠️ Source Records not visible after M&M shows Succeeded?
+   For blank-canvas custom entities, Source Records is a right-panel component
+   on the View/Edit page — NOT a tab at the top of the page.
+   Tabs (Person Details | Source Records | ...) only appear on c360.person.
+   For custom entities: Source Records renders in the panel section where you
+   placed it on the canvas (Step 2b Part 3).
+
+   If the panel is there but empty: the record you opened may have status NONE
+   (no matching source record found). Try a company name that exists in 2+ sources.
 ```
 
 Verify:
-> Near-duplicate pairs from Step 7 appear as single CONSOLIDATED golden records
-> with all source systems visible in the xref / Source Records tab,
-> and source-specific field group fields populated from each contributing source
+> Records that share a company name across sources appear as single CONSOLIDATED
+> golden records. Source Records component shows all contributing source systems.
+> Source record count per golden record matches the overlap wired into source data.
 
 ---
 
@@ -2523,7 +2534,7 @@ Step object when complete:
 
 **Started:** {date}
 **Org:** {org URL}
-**Business Entity:** c360.person
+**Business Entity:** {entity}
 **Pattern:** {deployment pattern}
 **Source:** MDM_Discovery_{Client}.xlsx
 
