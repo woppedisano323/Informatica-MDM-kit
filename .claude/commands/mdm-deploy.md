@@ -1953,21 +1953,31 @@ Steps 6–9 load and validate data. **All of Segment 2 must be complete before S
 
 ### Step 5b [UI] — Generate Search Indexes (blank-canvas entities only)
 
+**What this is and why it is required:**
 ```
-⚠️ REQUIRED for blank-canvas entities before first File Import.
-   Skip for predefined entities (c360.person and copies) — indexes
-   already exist.
+When you create a blank-canvas custom entity, MDM does not automatically
+build its search index. The search index is the internal structure MDM
+uses to store, find, and display records in the Business Application.
 
-   If you skip this step: File Import fails at the Index step with:
-   "Cannot index the records. Recreate the indexes for the
+Without it, File Import fails at the final Index step with:
+  "Cannot index the records. Recreate the indexes for the
    {entity} business entity and try again."
 
-   Doc basis: MDM.md lines 9797–9831
+This is a one-time setup job per entity — run it once before the
+first File Import. You do NOT repeat it for each source file.
+
+Multi-entity deployments: run this job separately for EACH custom
+entity before importing into that entity:
+  → Run for MER_AccountMaster → import all AccountMaster files
+  → Run for MER_VendorMaster  → import all VendorMaster files
+
+Skip for predefined entities (c360.person and copies) — their
+indexes are pre-built by the platform.
 ```
 
 Where to navigate:
 ```
-B360 → New → Jobs → Generate Search Indexes or Match Keys → Create
+B360 Console → New → Jobs → Generate Search Indexes or Match Keys → Create
 ```
 
 What to do:
@@ -1992,12 +2002,12 @@ What to do:
 
 What you will see when done:
 ```
-My Jobs → FSI_MDMSearchIndex (or your job name) → Succeeded
+My Jobs → {Entity}_MDMSearchIndex → Succeeded
 File Import will now complete the Index step without error.
 ```
 
 Verify:
-> My Jobs → job status = Succeeded. Then proceed to File Import.
+> My Jobs → job status = Succeeded. Then proceed to File Import for this entity.
 
 ---
 
