@@ -1708,10 +1708,14 @@ Confirm entitlement is active (Sheet 5 Section B) before configuring.
 
     → On entity canvas, select the Phone Number smart field group
     → Properties panel → Data Quality → DaaS
-    → Enable DaaS Validation
-    → Select severity  (from Sheet 5)
+    → DaaS Validation is ENABLED BY DEFAULT on Phone Number smart field groups
+    → Verify severity matches Sheet 5 — default may be Error; change to Warning if needed
     → Enter trust downgrade %  (from Sheet 5)
     → Save
+
+    NOTE: If Phone Number was omitted from the entity canvas during Step 2b, add it now
+    (entity has no records yet — safe to add). Click + on canvas → double-click Phone Number.
+    DaaS Validation will be enabled by default on the newly added group.
 
     Doc basis: B360_October2026_ConfigureDataQuality_en.pdf, p.23 and p.28
 
