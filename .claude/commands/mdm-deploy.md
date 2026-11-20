@@ -100,7 +100,36 @@ Please fill these in the workbook and re-run:
   /mdm-deploy <path>
 ```
 
-If all gates pass, print a compact summary and wait:
+If all gates pass, derive and store the **entity context** for every entity in Sheet 3. This context drives all subsequent coaching — do not ask the consultant for it again.
+
+For each entity, read and record:
+
+| Context key | Source | How to derive |
+|---|---|---|
+| **Match criterion** | Sheet 6 | Resident / Organization / Individual / Fields |
+| **Entity type label** | Derived from match criterion | See gate table below |
+| **Primary name field** | Sheet 3 | The first root field — typically the display name of the record |
+| **Smart field groups** | Sheet 3 | Which of Phone, Email, Postal Address are present |
+| **All root fields** | Sheet 3 | All non-smart, non-party-link fields |
+| **Party link fields** | Sheet 3 | Fields linking to other entities — exclude from UI pages |
+
+**Entity type gate — derive from match criterion:**
+
+| Match Criterion (Sheet 6) | Entity Type | Primary Name Field Examples | Display Fields (Model tab) |
+|---|---|---|---|
+| **Resident** | Person / Customer / Individual | First Name + Last Name (two fields) | First Name, Last Name |
+| **Organization** | B2B Account / Company / Supplier / Vendor | Single name field (Company Name, Legal Name, Organization Name) | That single name field |
+| **Individual** | HCP / Regulated identity | Name + regulatory ID (NPI, DEA) | Name field + identifier |
+| **Fields** | Generic / custom | First field in Sheet 3 root fields | First field Display Name |
+
+This context is used in:
+- Page Header → Highlighted Field (primary name field)
+- Page Header → Line 1 Fields (key identifiers for this entity type)
+- Fields component → field picker selection
+- Model tab → display fields
+- Search Layout → Title field
+
+Print a compact summary and wait:
 
 ```
 Workbook validated — all gates clear.
@@ -111,6 +140,13 @@ Workbook validated — all gates clear.
   DQ rules:      {N} confirmed
   Profiling:     Sheet 9 populated ✓
   Match model:   {criterion} confirmed
+
+  Entity context derived:
+  {For each entity:}
+    {Entity name} — {match criterion} → {entity type label}
+    Primary name: {field Display Name}
+    Smart groups: {list}
+    Root fields:  {list, excluding party link fields}
 
 Generating your Step Reference Workbook — MDM_Deployment_Steps_{Client}.xlsx.
 This is a one-time write. It has one tab per step, pre-filled with your workbook values.
@@ -1274,8 +1310,8 @@ Click the placed Page Header component to select it. The Properties tab activate
 
 | Property | Value |
 |---|---|
-| **Highlighted Field** | Primary name Display Name (e.g., Company Name for AccountMaster; Legal Name for VendorMaster) |
-| **Line 1 Fields** | 2–3 key identifiers by Display Name — e.g., Industry, Support Tier for AccountMaster; EIN, Engagement Type for VendorMaster |
+| **Highlighted Field** | Primary name field from entity context (R1): Resident → First Name; Organization → single name field (Company Name, Legal Name); Individual → name field |
+| **Line 1 Fields** | 2–3 key identifiers from Sheet 3 root fields — choose fields that best identify this record type (e.g., category/type fields, key identifiers) |
 | **Line 2 Fields** | Optional — city/state from address smart group if available |
 | **Separator** | Pipe |
 
@@ -1398,11 +1434,13 @@ Click **Save** when complete.
 #### Part 5 — Associate with Business Application
 
 ```
-B360 → Explore → open Customer 360 Business Application
+From the IDMC home, open B360. On the left nav, click Explore.
+Two Business Applications are visible: Customer 360 and Multidomain MDM.
+Open Customer 360.
 
-Note: Customer 360 is the business application for all entity types — Person, Organization, Vendor, etc.
-The entity type is configured on the entity itself, not on the application.
-Multidomain MDM (also visible in Explore) is for administrative tasks — match models, survivorship — not end-user registration.
+Note: Customer 360 is the correct Business Application for all entity types — Person, Organization, Vendor, etc.
+Multidomain MDM is for administrative tasks (match models, survivorship) — not for end-user page registration.
+The Model tab opens by default when you open Customer 360.
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 IF AN OLD ENTITY IS ALREADY REGISTERED — REMOVE IT FIRST
@@ -1422,23 +1460,39 @@ Removal order: Model tab first → other tabs auto-clear
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ADD NEW ENTITY
-⚠️ ORDER MATTERS — Search tab must be saved before Model tab will save.
+Order: Model tab (don't save) → Search tab (don't save) → Pages tab → Save once
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-  1. Search tab:
-     Left side: select {custom entity}
-     Click + → select {Entity} Search Layout → Save
+  IMPORTANT: Save only once at the end. Saving before the Search tab is assigned
+  will produce: "Cannot save — no Search Layout assigned."
 
-  2. Pages tab → select {custom entity} → View and Edit sub-tab:
-     Click + → select {Entity} View Edit Page → assign role: Admin → Save
+  1. Model tab (opens by default when you open the Business Application):
+     In the Business Entities section, click Add Business Entity
+     Click the asset picker → Select an Asset dialog → select {custom entity} → Select
+     Set display fields: select fields that appear in the left nav bar when a record is opened
+       Resident entity     → First Name, Last Name
+       Organization entity → primary name field (e.g., Company Name, Legal Name)
+       Individual entity   → name field + regulatory identifier
+     Click Done — do NOT save yet
 
-  3. Pages tab → select {custom entity} → Create sub-tab:
-     Click + → select {Entity} Create Page → assign role: Admin → Save
+  2. Search tab → Search Result Layouts section → select {custom entity}
+     Click Add Page icon → asset picker → select {Entity} Search Layout → Select
+     Click the row → assign user role — do NOT save yet
 
-  4. Model tab:
-     Click + → select {custom entity}
-     Set display fields: First Name, Last Name (Full Name not available on blank canvas)
-     Click Save
+  3. Pages tab → click Refresh to load latest assets → select {custom entity}
+     
+     NOTE: The system auto-assigns autogenerated pages (suffix _Autogenerated) to all
+     users by default. You cannot delete them. Add your custom pages alongside them —
+     users assigned to your custom pages will see those instead.
+
+     Create tab:
+       Click Add Page → asset picker → select {Entity} Create Page → Select
+       Click the down arrow on the row → assign user role
+     View and Edit tab:
+       Click Add Page → asset picker → select {Entity} View Edit Page → Select
+       Click the down arrow on the row → assign user role
+     
+     Click Save (once — saves all three tabs together)
 ```
 
 What you will see when done:
