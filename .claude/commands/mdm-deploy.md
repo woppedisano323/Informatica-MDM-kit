@@ -2145,19 +2145,37 @@ Step 1 — Upload File:
 Step 2 — Map Fields:
   Click + under Target Business Entities → select your entity (must be in Business Application — see Step 2b)
   Smart Mapping auto-maps. REVIEW every mapping:
-    Required map:
-      {source_primary_key_col}   → Source Primary Key (root level)
-    Map root fields from your CSV (company_name, industry, etc.) → their target fields
-    DELETE all auto-mappings to smart field groups (Phone Number, Email Address, Postal Address):
-      ⚠️ If ANY field from a field group is mapped, its fgid becomes required.
-         Delete the entire field group section from the mapper to avoid the
-         "required fields not mapped" error. Clients do not add fgid columns
-         to source data — smart field group data is loaded via CDI production pipeline.
-    Also delete auto-mappings to: Citizenship, Identification, Status, Segment, etc.
+
+  Minimum required fields for pre-deployment validation:
+    {source_primary_key_col}   → Source Primary Key (root level)  ← REQUIRED
+    {match_field}              → {match target field}             ← REQUIRED (drives match keys)
+    {one or two root fields}   → their target fields              ← recommended for survivorship visibility
+
+  For Organization entities (like MER_AccountMaster, MER_VendorMaster):
+    account_id / vendor_id    → Source Primary Key
+    company_name / legal_name → the field mapped to Organization_Name in the match model
+    industry / payment_terms  → one additional root field for survivorship validation
+
+  DELETE all auto-mappings to smart field groups (Phone Number, Email Address, Postal Address):
+    ⚠️ If ANY field from a field group is mapped, its fgid becomes required.
+       Delete the entire field group section from the mapper to avoid the
+       "required fields not mapped" error. Clients do not add fgid columns
+       to source data — smart field group data is loaded via CDI production pipeline.
+  Also delete auto-mappings to: Citizenship, Identification, Status, Segment, etc.
+
+  Save the mapping — name it after the entity AND source system:
+    Convention: {EntityInternalId}_{SourceSystemDisplayName}
+    Examples:   MER_AccountMaster_Salesforce
+                MER_AccountMaster_HubSpot
+                MER_AccountMaster_Zendesk
+                MER_VendorMaster_NetSuite
+    Select "Save as a new mapping" → enter name → the mapping is saved for reuse.
+    For subsequent sources on the same entity: apply the saved mapping as a starting
+    point (same entity, same root fields — verify it maps cleanly, then save new name).
   Click Next
 
 Step 3 — Preview and Import:
-  Review first 5 rows. Click Import.
+  Review first 10 rows. Click Import.
   Job appears in My Jobs. Wait for Succeeded status before importing next file.
 ```
 
