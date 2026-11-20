@@ -2034,33 +2034,44 @@ FIX: Append 00:00:00 to all date-only values in the CSV:
 
 **CSV requirements — must be in file BEFORE import:**
 ```
-1. Field group Source Primary Key columns (required per field group used):
-   Column name convention: {fieldGroupInternalId}_fgid  (camelCase internal ID of the group)
-   ⚠️ The column name MUST match the field group's actual internal ID — not a generic label.
+1. Smart field groups (Phone Number, Email Address, Postal Address) — skip them in File Import:
+   ⚠️ IMPORTANT — Clients do NOT need to add fgid columns to their source data.
+   The fgid (Source Primary Key for a field group) is only required when you map
+   fields from that field group. For File Import (pre-deployment validation):
+     • Do NOT map Phone Number, Email Address, or Postal Address fields
+     • DELETE any auto-mappings to those field groups from the mapper
+     • Only map root fields (company_name, industry, etc.) + Source Primary Key
+   This is correct behavior — DaaS phone/email validation and address enrichment
+   fire at load time through CDI (the production pipeline), not File Import.
+   Production field group loading is handled via CDI with proper fgid management.
+
+   fgid IS required IF you explicitly want to load field group data (advanced):
+   Column name convention: {fieldGroupInternalId}_fgid  (camelCase internal ID)
+   ⚠️ The column name MUST match the field group's actual internal ID.
       Getting this wrong causes "required fields not mapped" error on import.
       Confirmed MDM-TEST-001-20261026.
 
-   Common field group internal IDs (verify against your entity — IDs are set at creation):
+   Common field group internal IDs (only needed if loading field group data):
    - Address field group (typical internal ID: address)                     → column: address_fgid
    - Phone field group (typical internal ID: phone)                         → column: phone_fgid
    - Electronic Address field group (typical internal ID: electronicAddress) → column: electronicAddress_fgid
    - Alternate Name field group (typical internal ID: alternateName)         → column: alternateName_fgid
    - Identifier field group (typical internal ID: identifier)                → column: identifier_fgid
 
-   Custom field groups — use their actual internal ID from your entity (examples):
+   Custom field groups (only if loading custom field group data):
    - X_BankAccount  → column: X_BankAccount_fgid
    - X_WealthProfile → column: X_WealthProfile_fgid
    - X_MortgageLoan → column: X_MortgageLoan_fgid
    (replace with your entity's actual custom field group internal IDs)
 
    Rule: "If you use any field in a field group, ensure that you map all
-     the required fields of the field group" — C360 doc Chapter 7, p.179
+     the required fields of the field group" — MDE doc p.150
+   The inverse is also true: if you map NO fields from a field group, no fgid needed.
    - Each fgid column maps to the field group's Source Primary Key in the mapper
    - FGID uniqueness: unique WITHIN a record, NOT globally across all records
-     The system identifies each instance by (record Source Primary Key + FGID)
      → "1" is valid for all rows when each record has exactly one instance of that group
      → Use sequential values (1, 2, 3...) per record when a record has multiple instances
-       (e.g., person with home + work address needs two rows, fgid 1 and 2)
+       (e.g., company with two addresses needs two rows, fgid 1 and 2)
 
 2. Country field (required for Address field group):
    - Country is a required field in the Address field group (Lookup type, internal ID: country)
@@ -2101,14 +2112,15 @@ Step 1 — Upload File:
 Step 2 — Map Fields:
   Click + under Target Business Entities → select your entity (must be in Business Application — see Step 2b)
   Smart Mapping auto-maps. REVIEW every mapping:
-    Required maps:
+    Required map:
       {source_primary_key_col}   → Source Primary Key (root level)
-      address_fgid               → Address.Source Primary Key
-      phone_fgid                 → Phone.Source Primary Key
-      electronicAddress_fgid     → Electronic Address.Source Primary Key
-      (map any other field groups using their {fieldGroupInternalId}_fgid column)
-    Delete any auto-mappings to field groups you are NOT importing
-    (Citizenship, Identification, Status, Segment, etc.)
+    Map root fields from your CSV (company_name, industry, etc.) → their target fields
+    DELETE all auto-mappings to smart field groups (Phone Number, Email Address, Postal Address):
+      ⚠️ If ANY field from a field group is mapped, its fgid becomes required.
+         Delete the entire field group section from the mapper to avoid the
+         "required fields not mapped" error. Clients do not add fgid columns
+         to source data — smart field group data is loaded via CDI production pipeline.
+    Also delete auto-mappings to: Citizenship, Identification, Status, Segment, etc.
   Click Next
 
 Step 3 — Preview and Import:
@@ -2121,7 +2133,7 @@ Step 3 — Preview and Import:
 - CDI can hardcode constants (e.g., Phone Type = "Mobile") — File Import cannot
 - CDI handles any volume; File Import has practical limits
 - CDI mappings are reusable, versioned, and schedulable
-- File Import requires manual column additions (fgid) each time schema changes
+- File Import loads root fields only (no smart field group data — no phone/email/address enrichment)
 Source: C360_April2026_Customer360SaaS_en.pdf, p.179; B360_April2026_PredefinedAssets_en.pdf
 ```
 
