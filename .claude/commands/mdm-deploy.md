@@ -1632,6 +1632,9 @@ For each Basic rule row in Sheet 5 Section A:
   Navigate to the entity canvas → select the field (root fields only)
   → Properties panel → Data Quality → Basic → Add Basic Rule Association
 
+  The Condition tab input field defaults to the field you selected on the canvas —
+  no manual selection needed unless you need a different input field.
+
   Common functions:
     Title Case              — standardize name casing (JOHN SMITH → John Smith)
     Trim                    — remove leading/trailing spaces
