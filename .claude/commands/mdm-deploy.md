@@ -1185,64 +1185,224 @@ For File Import, only the View/Edit Page is actually used. The Create Page is a 
 
 #### Part 3 — Create View/Edit Page
 
-**What it is and why it matters:** The View/Edit Page is the full record detail screen — what a user sees when they click on a golden record from the search results. It displays all the master data fields, the contributing source records, and allows the data steward to edit values directly. This is the primary surface for demonstrating MDM's value: one unified view with all source contributions visible. It is also required for File Import — records loaded via import are only viewable once this page is registered.
+**What it is and why it matters:** The View/Edit Page is the full record detail screen — what a user sees when they click on a golden record from search results. It shows all master data fields, contributing source records, and allows the data steward to edit values directly. This is the primary surface for demonstrating MDM's value: one unified view with all source contributions visible side-by-side. Required for File Import — records loaded via import are only viewable once this page is registered.
 
-The View/Edit Page uses a **Page Designer** — a drag-and-drop canvas. It is entirely different from the Search Layout builder. You drag Standard Components from the left panel onto the canvas and configure each one.
+**Page Designer orientation — read this before touching the canvas:**
+
+The Page Designer is a drag-and-drop canvas. The right navigation has **two tabs**:
+
+- **Page Components tab** — your component library. Drag components from here onto the canvas. Contains two sections: Fixed Components (Page Header) and Standard Components (Fields, Summary, Source Records, Related Records, Hierarchy, Relationship Graph, History, Report, Duration, Profile Tag, Dynamic Field Definitions, Lineage).
+- **Properties tab** — inactive until you click a placed component on the canvas. After dragging a component, click it to select it, then configure its settings in the Properties tab. Always click **Apply** after setting properties, then **Save** when the full page is complete.
+
+**What each Standard Component does — and when to include it:**
+
+| Component | What it shows | Include for MDM deployment? |
+|---|---|---|
+| **Page Header** (Fixed) | Prominent display of key fields at the top of every record — Highlighted Field (large), Line 1 (up to 7 fields), Line 2 (up to 7 fields), optional image | Always — this is the record identity banner |
+| **Fields** | Editable form showing root fields and/or smart field groups (Phone, Email, Address) | Always — this is where all entity data is viewed and edited |
+| **Source Records** | Side-by-side view of every contributing source record — shows source system name, match pair details, all field values per source | Always — this is MDM's core value demonstration; stewards see exactly which source provided each value |
+| **Summary** | Card-style record overview (image, header field, 3 lines of supporting fields, link fields) | Optional — useful for executive-facing dashboards; not needed for data steward deployments |
+| **Related Records** | Records linked via relationships or business entity record fields | Only when entity has relationships configured |
+| **Hierarchy** | Hierarchical tree view (parent/child org relationships) | Only when hierarchy is configured |
+| **Relationship Graph** | Network visualization of related records | Optional — B2B scenarios with complex account relationships |
+| **History** | Chronological change log of every field value change over the record's lifetime | Recommended for data stewards; shows who changed what and when |
+| **Report** | Embedded chart widgets — users add widgets interactively | Optional — for analytics-heavy deployments |
+| **Duration** | Circular counters showing years/months/days between two date fields | For subscription, contract, or license expiry scenarios |
+| **Profile Tag** | Badge highlighting account type or tier (color + icon) — e.g., Platinum, Gold, Silver | For entities with Support Tier or account classification field worth surfacing |
+| **Dynamic Field Definitions** | Dynamic pool field definitions | Only when entity uses dynamic fields |
+| **Lineage** | Interactive merge/unmerge event timeline showing how the record evolved | For compliance and audit scenarios |
+
+**For a standard MDM deployment, include: Page Header + Fields (root) + Fields (smart groups) + Source Records.**
+
+---
+
+**Step 1 — Create the page asset**
 
 ```
 B360 → New Asset → User Interface → Page → Create
 
-Fields:
-  Business Entity:  {custom entity name}
+Fill in the Page dialog:
+  Business Entity:  {custom entity display name from Sheet 3}
   Page Type:        View and Edit
   Name:             {Entity} View Edit Page
-  Internal ID:      {entity_internal_id}_view_edit
+  Internal ID:      auto-generated (confirm it matches entity)
   Location:         {project folder}
+
+Click OK (not Save) — the Page Designer canvas opens.
 ```
 
-In the Page Designer, drag components from the left panel onto the canvas in this order:
+[done]
 
-| # | Component | Configuration |
-|---|---|---|
-| 1 | **Header** | Line 1: primary name field for this entity (e.g., Company Name, Legal Name, First Name) |
-| 2 | **Fields** | Select all root fields for this entity |
-| 3 | **Fields** | Select each smart field group (Phone Number, Email Address, Postal Address) — add one Fields component per group |
-| 6 | **Source Records** | Leave as default — shows contributing source records; important for demonstrating MDM merge |
+---
 
-**Note:** Party Link / cross-reference fields can be excluded from the View/Edit page — they are system plumbing fields not relevant to end users.
+**Step 1b — Orient to the canvas before touching anything**
 
-Click **Save** when all components are placed and configured.
+The canvas has three distinct zones from top to bottom:
+
+1. **Page Header zone** (topmost strip) — displays the text "Drag page header component here." This is where the Fixed Component goes. It is separate from all panels.
+2. **Tab bar** — Page Tab 1 is auto-created. Click **Add Page Tab** to add additional tabs (e.g., Hierarchy, History) if needed.
+3. **Panel area** — a single panel is already present below the tabs. This is where Standard Components (Fields, Source Records, etc.) go.
+
+The right nav has two tabs:
+- **Properties** — inactive until you click a placed component; shows that component's configurable settings
+- **Components** — your component library; drag from here
+
+**Before adding any components, split the panel:**
+The split ratio controls the column layout of the panel — how many sections appear side by side and their relative widths:
+
+| Ratio | Layout |
+|---|---|
+| **1:1** | Two equal columns side by side |
+| **2:1** | Two columns — left twice as wide as right |
+| **1:2** | Two columns — right twice as wide as left |
+| **1:1:1** | Three equal columns |
+| **1:2:1** | Three columns — wide center, narrow sides |
+| *(no split)* | One full-width column, components stack top to bottom |
+
+Click the **container/panel** on the canvas to select it. A box appears where you can select the split ratio. Select **1:1**.
+This creates two equal columns — Fields go in the left section, Source Records in the right.
+
+[done]
+
+---
+
+**Step 2 — Add and configure the Page Header**
+
+On the right nav, click the **Components** tab. Scroll to **Fixed Components**. Drag **Page Header** to the Page Header zone at the top of the canvas (the strip that says "Drag page header component here").
+
+Click the placed Page Header component to select it. The Properties tab activates. Configure using **Display Names** (what the field picker shows — not Internal IDs):
+
+| Property | Value |
+|---|---|
+| **Highlighted Field** | Primary name Display Name (e.g., Company Name for AccountMaster; Legal Name for VendorMaster) |
+| **Line 1 Fields** | 2–3 key identifiers by Display Name — e.g., Industry, Support Tier for AccountMaster; EIN, Engagement Type for VendorMaster |
+| **Line 2 Fields** | Optional — city/state from address smart group if available |
+| **Separator** | Pipe |
+
+Click **Apply**.
+
+[done]
+
+---
+
+**Step 3 — Add Fields component for root fields (left section)**
+
+Read Sheet 3 of the Discovery Workbook to get the field list for this entity. Identify all root fields (single-value fields, not smart field groups).
+
+On the right nav, click the **Page Components** tab. Under **Standard Components**, drag **Fields** into the **left section** of the panel.
+
+A **+** sign appears in the section. Click it to open the field picker. Select all root fields by Display Name from Sheet 3, **excluding** any party link / cross-reference fields — those are internal plumbing not relevant to end users.
+
+Click **Done**.
+
+_Example for a B2B Account entity: Company Name, Industry, Website, Annual Revenue, Ticket Account ID, Support Tier (excluding Party Link field)._
+_Example for a Supplier/Vendor entity: Legal Name, EIN, DUNS, Payment Terms, AP Contact, Engagement Type, Specialty, Rate (excluding Party Link field)._
+
+[done]
+
+---
+
+**Step 4 — Add Fields components for smart field groups (left section)**
+
+Read Sheet 3 to identify which smart field groups are on this entity (Phone Number, Email Address, Postal Address — whichever are present).
+
+Each smart field group needs its own **Fields** component. For each one:
+
+On the right nav, click the **Page Components** tab. Under **Standard Components**, drag **Fields** into the left section → click **+** → select the smart group by Display Name → click **Done**.
+
+Repeat until all smart field groups from Sheet 3 are added.
+
+[done]
+
+---
+
+**Step 5 — Add the Source Records component (right section)**
+
+On the right nav, click the **Page Components** tab. Under **Standard Components**, drag **Source Records** into the **right section** of the panel.
+
+Click it to select it → Properties tab → set **Title:** Source Records → click **Apply**.
+
+This component shows every source system record that contributed to the golden record — the system name, match pair details, and a side-by-side field comparison. This is the core MDM demonstration component; always include it.
+
+[done]
+
+---
+
+**Step 6 — Add Related Records (new panel group)**
+
+Click the **bottom edge of the existing panel** to reveal the **Add Panel Group** option. Click it to add a new panel below. Drag **Related Records** into the new panel.
+
+Click it to select it → Properties tab → set **Title:** Related Records → click **Apply** → **Save**.
+
+**Note:** Related Records will show empty until Relationships are configured in B360. Add it to the page now so the page is ready when that step comes. Relationship configuration is a separate deployment step.
+
+---
+
+**Step 7 — Validate and save the page**
+
+Click the **Validate** icon (top of canvas). If errors appear in the Validation Errors panel, click each error — the offending section highlights and the erroneous field shows in Properties. Fix and re-save.
+
+When validation passes, click **Save**.
+
+The View/Edit Page is complete.
+
+[done]
+
+---
 
 #### Part 4 — Create Create Page
 
-**What it is and why it matters:** The Create Page is the form users see when manually creating a new record from scratch in the business application. It is not used during File Import or CDI loading — data stewards use it for one-off manual record entry. It is required as a registration step to complete the Business Application association; without it, the entity will not appear in the entity picker and File Import cannot be used.
+**What it is and why it matters:** The Create Page is the form users see when manually entering a new record from scratch in the business application. It is not used during File Import or CDI loading — those load records directly. Data stewards use it for one-off manual record entry. Required as a registration step — without a Create Page assigned in the Business Application, the entity will not appear in the entity picker and File Import cannot be used.
+
+**Key difference from View/Edit Page:** The Create Page has **no Page Header zone** — the Page Header Fixed Component is only available on View/Edit pages because it displays existing record data. There is no header strip on the Create canvas.
+
+---
+
+**Step 1 — Create the page asset**
 
 ```
 B360 → New Asset → User Interface → Page → Create
 
-Fields:
-  Business Entity:  {custom entity name}
+Fill in the Page dialog:
+  Business Entity:  {custom entity display name}
   Page Type:        Create
-  Name:             {Entity}_Create_Page
+  Name:             {Entity} Create Page
   Location:         {project folder}
 
-Page Designer — same layout as View/Edit Page with one difference:
-  The Create Page Header has NO Highlighted Field option.
-  The Highlighted Field only exists on View/Edit pages (no existing data to display on create).
-
-  1. Header  (Line 1 = Last Name, Line 2 = First Name — no Highlighted Field)
-  2. Fields → Basic Fields
-  3. Fields → Address
-  4. Fields → Phone
-  5. Fields → Electronic Address
-
-Save.
+Click OK — the Page Designer canvas opens.
+No Page Header zone. Tab bar and one panel are present.
 ```
+
+[done]
+
+---
+
+**Step 2 — Panel layout and Fields components**
+
+For a Create page, the panel layout depends on preference:
+- **Single section (no split)** — simpler; all Fields components stack vertically; recommended for most deployments
+- **1:1 split** — two columns; useful if the entity has many fields and you want to group them visually
+
+For a standard deployment, leave the panel as a single section (no split needed).
+
+Add Fields components:
+
+1. Drag **Fields** into the section → click **+** → select all root fields from Sheet 3 (excluding party link fields) → Done
+2. Drag **Fields** → click **+** → select first smart field group → Done
+3. Repeat for each remaining smart field group
+
+Click **Save** when complete.
+
+[done]
 
 #### Part 5 — Associate with Business Application
 
 ```
-B360 → Explore → Customer360 folder → open Customer 360 Business Application
+B360 → Explore → open Customer 360 Business Application
+
+Note: Customer 360 is the business application for all entity types — Person, Organization, Vendor, etc.
+The entity type is configured on the entity itself, not on the application.
+Multidomain MDM (also visible in Explore) is for administrative tasks — match models, survivorship — not end-user registration.
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 IF AN OLD ENTITY IS ALREADY REGISTERED — REMOVE IT FIRST
