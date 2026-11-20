@@ -1623,16 +1623,32 @@ Only if Sheet 5 Section C shows fullName prerequisites not yet met.
 ─── BASIC RULES ──────────────────────────────────────────────────
 For each Basic rule row in Sheet 5 Section A:
 
-  Navigate to the entity canvas → select the field
+  IMPORTANT — Smart field group restriction (doc: ConfigureDataQuality p.23):
+    Phone Number, Email Address, and Postal Address smart field groups do NOT
+    support Basic rule associations on their fields. The UI will not allow it.
+    Phone and email validation must use DaaS (real-time, see below).
+    Basic rules only apply to root fields (plain Text, Decimal, etc.).
+
+  Navigate to the entity canvas → select the field (root fields only)
   → Properties panel → Data Quality → Basic → Add Basic Rule Association
 
   Common functions:
     Title Case              — standardize name casing (JOHN SMITH → John Smith)
     Trim                    — remove leading/trailing spaces
     Concatenate with Spaces — combine fields (firstName + lastName → fullName)
-    Regular Match           — enforce format pattern (phone, zip, identifier)
+    Regular Match           — enforce format pattern (zip, identifier, state)
     Minimum Length          — flag undersized values
     Maximum Length          — flag oversized values
+
+  IMPORTANT — Transformation vs. Validation functions:
+    Transformation functions (Title Case, Uppercase, Lowercase, Trim,
+    Concatenate, Replace) have NO Validation tab. The Validation tab is
+    greyed out — this is by design. Transformations transform; they do not
+    validate. No severity or trust downgrade applies.
+
+    Validation functions (Regular Match, Min/Max Length, No Spaces, Allowed
+    Characters, etc.) DO have a Validation tab. Configure severity and trust
+    downgrade there.
 
   For validation rules (Regular Match, Min/Max Length):
     Validation tab:
@@ -1682,10 +1698,19 @@ Confirm entitlement is active (Sheet 5 Section B) before configuring.
     → Data Quality → DaaS → Add DaaS Rule Association
     → Select Email Verification provider
 
-  Phone Verification:
-    → Properties panel on phone field
-    → Data Quality → DaaS → Add DaaS Rule Association
-    → Select Phone Verification provider
+  Phone Verification (real-time only — requires Informatica Global Phone Validation entitlement):
+    Phone Number smart field group does NOT support Basic or Advanced rules (doc p.23).
+    Phone validation is DaaS real-time only.
+    If the entitlement is not active, skip the phone rule — there is no Basic fallback.
+
+    → On entity canvas, select the Phone Number smart field group
+    → Properties panel → Data Quality → DaaS
+    → Enable DaaS Validation
+    → Select severity  (from Sheet 5)
+    → Enter trust downgrade %  (from Sheet 5)
+    → Save
+
+    Doc basis: B360_October2026_ConfigureDataQuality_en.pdf, p.23 and p.28
 
 KEY CONSTRAINT:
   DQ rules do NOT run retroactively on records already in the org.
