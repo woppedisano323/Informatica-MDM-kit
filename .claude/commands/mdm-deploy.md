@@ -2007,21 +2007,44 @@ File Import will now complete the Index step without error.
 ```
 
 Verify:
-> My Jobs → job status = Succeeded. Then proceed to File Import for this entity.
+> My Jobs → job status = Succeeded.
+
+⛔ DO NOT proceed to Step 6 until this job shows Succeeded.
+   File Import will fail at the Index step if this job has not completed.
 
 ---
 
-### Step 6 [UI] — Load Data (Pre-Deployment Validation)
+### Step 6 [UI] — Load Data
 
-**Always start with File Import (Path A).** Before any production pipeline is built, validate the complete MDM configuration — entity, field groups, survivorship, DQ rules, match model — against a representative sample data set. This is not a smoke test; it is the formal pre-deployment validation that proves the configuration is correct.
+**Choose your load path before starting:**
 
-The consultant prepares the sample CSVs (one per source system) matching the approved data model. These are small, representative files with real-enough data to trigger matches, DQ rules, and survivorship. No CDI mapping or production pipeline work is needed at this stage.
+```
+PATH A — C360 File Import
+  Best for: demos, PoC, pre-deployment validation, no Secure Agent available
+  What it loads: root fields only (no smart field group data — phone/email/address
+    come through CDI later)
+  What it validates: entity configuration, survivorship, match model, DQ Basic rules
+  Limitation: manual process, one file at a time, no smart field group enrichment
 
-**Path B (CDI / production pipeline) is a separate downstream project** — handed off to the client's engineering team after the configuration is validated in Path A. The deploy skill does not coach the full CDI build; it provides the validated MDM configuration spec as the hand-off artifact.
+PATH B — CDI Ingress Pipeline
+  Best for: production deployments, client go-live, Secure Agent already running
+  What it loads: all fields including smart field groups (Phone, Email, Address)
+  What it validates: everything Path A validates PLUS DaaS phone/email, address
+    enrichment, full field mapping including fgid for field groups
+  Requirement: Secure Agent installed, running, and connected to IDMC;
+    Business 360 Connector configured; source connections established
+
+Which path are you taking?
+  → If File Import: proceed to Path A below
+  → If CDI: proceed to Path B below
+```
+
+Both paths require Step 5b (Generate Search Indexes) to have completed successfully
+before the first import into each entity.
 
 ---
 
-#### Path A — C360 File Import *(pre-deployment validation — required before production pipeline)*
+#### Path A — C360 File Import
 
 **Date fields — design decision that cannot be reversed after records exist:**
 ```
