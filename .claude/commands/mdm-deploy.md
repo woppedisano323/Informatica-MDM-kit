@@ -2203,11 +2203,33 @@ C360 → File Import → Import All Data → Start
 
 Step 1 — Upload File:
   Upload your CSV. Preview confirms columns parsed correctly.
-  Scroll down → Select Source System:
-    ⚠️ NEVER leave Source System as "Default"
-       Records loaded via Default source system cannot be edited afterward.
-       Always select one of the custom source systems from Step 1.
-  Set Date Pattern to match your CSV (e.g. yyyy-MM-dd)
+  Scroll down and configure ALL settings on this page:
+
+  Source System:       Select your custom source system (e.g. netsuite_meridian)
+    ⚠️ NEVER leave as "Default" — records loaded via Default cannot be edited afterward.
+
+  Force Record Update: ENABLE
+    Ensures records import regardless of source last-updated date comparison.
+    Without this, incremental imports may reject records whose timestamp is
+    older than the existing record — safe to enable for all demo/PoC loads.
+
+  Import Type:         Create or overwrite records
+    Use for first load and re-loads. Performs upsert — adds new records,
+    overwrites existing. Use "Update record sections" (patch) only when
+    updating specific field groups without touching root fields.
+
+  File Settings (expand to verify — defaults are correct for standard CSVs):
+    Delimiter:                  Comma
+    Text Qualifier:             " (double quote)
+    Encode Type:                UTF-8
+    Use Data Starting from Line: 2  (skips header row)
+    Contains column headers:    Yes
+    Date Pattern:               Set only if CSV has date fields — match the
+                                format in your CSV (e.g. yyyy-MM-dd).
+                                No date fields in CSV → leave default.
+    Decimal Separator:          . (period)
+    Thousand Separator:         , (comma)
+
   Click Next
 
 Step 2 — Map Fields:
