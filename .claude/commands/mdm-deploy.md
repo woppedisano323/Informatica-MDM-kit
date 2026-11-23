@@ -2439,6 +2439,44 @@ Prerequisites:
   ✓ Step 5 complete — match model Published
 ```
 
+**Key concepts for this step:**
+```
+SOURCE RECORDS vs MASTER RECORDS
+  Source Records — individual records as loaded from each source system
+    (Salesforce record, HubSpot record, Zendesk record). Match keys live
+    here. MDMMatchReindex with Record Type: Source regenerates these keys.
+
+  Master Records — golden records produced after M&M consolidates source
+    records. These do NOT carry match keys. MDMMatchReindex with
+    Record Type: Master does NOT regenerate match keys — M&M will find
+    0 record pairs if you use Master instead of Source.
+
+  Rule: always use Record Type: Source for MDMMatchReindex.
+
+JOB IMMUTABILITY — you cannot edit M&M or reindex jobs after creation.
+  If the match model version changes (new version published after a rule
+  edit), you must CREATE A NEW JOB — you cannot update the existing one.
+  Name jobs with a version suffix to track this:
+    MER_AccountMaster_MatchMerge_v1, v2, v3...
+  Old jobs are harmless — leave them, they just won't run again.
+
+MERGE THRESHOLD — default Automated Merge lower bound is 90.
+  For Organization criterion fuzzy matching on company names with format
+  variations (ALL CAPS, abbreviations, punctuation), 90 is too strict.
+  Names like "APEX CONSULTING GRP" vs "Apex Consulting Group" score
+  below 90 and fall to Manual review even with Automated strategy.
+  Lower the Automated Merge threshold to 50 for Organization criterion rules.
+  Edit the rule → Automated Merge lower bound → 50 → Save → new version
+  → Publish → new M&M job.
+
+RECOVERY SEQUENCE — when M&M finds 0 record pairs or wrong merge results:
+  1. Edit match rule (creates new version) → Publish new version
+  2. MDMMatchReindex → Process: MDMMatchReindex → Record Type: Source
+     → wait Succeeded
+  3. Create new M&M job pointing to new version → Run
+  Run steps 1-3 in order every time. Skipping step 2 causes 0 pairs.
+```
+
 **Part A — Define and Run the M&M Job [UI]**
 
 Why this matters for {Client}:
