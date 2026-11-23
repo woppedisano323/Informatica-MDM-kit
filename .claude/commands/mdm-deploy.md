@@ -1862,13 +1862,69 @@ PART 2 — Configure Directed AI Match Rules:
   Organization  Organization primarily by name.
   Fields        Generic — any field type, no pre-built logic.
 
+  ── ORGANIZATION CRITERION — Field Type requirement ────
+  When using Organization criterion, the match field Field Type
+  MUST be set to Organization_Name (not a generic type).
+  Simply mapping the field name (e.g. x_company_name) is NOT
+  enough — without Organization_Name field type, no match keys
+  are generated and M&M will find zero matches.
+
+  ⚠️ Match rule Field Type ≠ Entity field name.
+     Field Type = the semantic type the matching engine uses.
+     Field name = the entity field you are mapping it to.
+
+  Correct configuration for B2B Organization match:
+    Field Type:  Organization_Name
+    Field name:  {your company name field, e.g. x_company_name}
+
+  If you saved a rule with the wrong field type:
+    → Match rule cannot be edited after save (irreversible)
+    → Delete the rule and recreate it with correct field type
+    → After correcting and republishing, existing records need
+      match keys regenerated — run MDMMatchIndex job:
+      B360 → New → Jobs → Generate Search Indexes or Match Keys
+      → Create → Process: MDMMatchIndex → entity + match model
+      → Save and Run → wait Succeeded → then re-run M&M
+
   ── REFERENCE: Match Level (Fuzzy only) ────────────────
   Conservative  Stringent — fewest matches, lowest false-positive risk.
   Typical       Balanced — use in most scenarios.
   Loose         Lenient — more matches, higher false-positive risk.
                 Pair with Manual merge for human review.
 
-  ── RULE 1 — Fuzzy name + address (primary rule) ───────
+  ── RULE 1a — Fuzzy org name (Organization criterion) ──
+  Use for B2B entities (Account Master, Vendor Master).
+  Tab 1 — Configure Properties and Thresholds:
+    Match strategy:    Fuzzy
+    Merge:             Manual
+    Match criterion:   Organization
+    Match level:       Typical
+    Description:       {Entity} Organization Name
+    → Click Next
+
+  Tab 2 — Add Required Fields:
+    Fuzzy Match - Required Fields:
+      Row: Organization_Name  →  Field name: {company name field}
+           e.g. Organization_Name → x_company_name
+           e.g. Organization_Name → x_legal_name (for vendor/supplier)
+
+    ⚠️ CRITICAL: Field Type MUST be Organization_Name.
+       Do NOT leave it as a generic type or map only the field name.
+       Without Organization_Name field type, no match keys are
+       generated and M&M finds zero matches.
+
+    → Click Next
+
+  Tab 3 — Add Optional Fields:
+    None required for basic org name matching.
+    → Click Next
+
+  Tab 4 — Configure Field Properties:
+    Nothing to configure.
+    → Click Add
+
+  ── RULE 1b — Fuzzy name + address (Resident criterion) ─
+  Use for B2C/individual person entities (Customer 360 FSI etc).
   Tab 1 — Configure Properties and Thresholds:
     Match strategy:    Fuzzy
     Merge:             Threshold-based
