@@ -1679,45 +1679,86 @@ For each Advanced rule row in Sheet 5 Section A:
 
 ─── DAAS RULES ───────────────────────────────────────────────────
 For each DaaS rule row in Sheet 5 Section A:
-Confirm entitlement is active (Sheet 5 Section B) before configuring.
 
-  Address Verification (batch — recommended for all deployments):
-    → Properties panel on the Address field group
-    → Data Quality → DaaS → Add DaaS Rule Association
-    → Select Address_Verifier_OOTB (predefined — already in every org)
-    → Processing mode: Batch
+  ⚠️  DAAS PRE-CHECK — verify entitlement BEFORE configuring any DaaS rule:
+
+    B360 Console → Global Settings (navigation bar) → Edit
+
+    You will see three sections:
+      Real-time Address Verification      — Account ID and Cloud Token fields
+      Address Verification Batch          — uploaded license file(s)
+      Email and Global Phone Verification — license keys
+
+    If a section is EMPTY → that DaaS service is not licensed in this org.
+    Do NOT attempt to configure a DaaS rule for an unlicensed service.
+
+    ⚠️  CRITICAL: If Address Verification Batch is enabled on a Postal Address field
+    group but no license file is uploaded in Global Settings, File Import FAILS at
+    the load step — it does not skip address validation, it blocks the entire import.
+    Source: B360_October2026_ConfigureDataQuality_en.pdf, p.62
+
+    If Global Settings shows all sections empty:
+    → Skip all DaaS rules for this deployment
+    → Document as a post-deployment activation item (obtain license from Informatica)
+    → Name cleansing (Title Case Basic rule) works with no DaaS entitlement
+
+  Address Verification (batch — fires on File Import and CDI ingress):
+    PREREQUISITE: Address Verification Batch license file uploaded in Global Settings.
+
+    → On entity canvas, select the Postal Address smart field group
+    → Properties panel → Data Quality → DaaS Batch
+    → Select Enable DaaS Validation (checkbox — DISABLED by default)
+    → Validation tab: set severity and trust downgrade %
+    → Save
+
+    The predefined Address_Verifier_OOTB asset handles field mapping automatically.
+    Do NOT modify Address_Verifier_OOTB directly.
     Normalizes: "Oak St." / "Oak Street" / "Oak ST" → USPS standard
-    Do NOT modify Address_Verifier_OOTB directly
+    Doc basis: B360_October2026_ConfigureDataQuality_en.pdf, p.23 and p.61-62
+
+  Address Verification (real-time — fires when user submits in UI or via REST API):
+    PREREQUISITE: Real-time Address Verification Account ID + Cloud Token in Global Settings.
+
+    Requires EVO Objective Group setup (separate from Basic/DaaS Batch rules):
+    → B360 Console → Data Quality → Objective Groups → New Objective Group
+    → Add objective → Trigger: Business Applications + REST APIs
+    → Add rule association → Plugin: Address Verification
+    → Map input fields (Country field is REQUIRED — rule will not run without it)
+    → Map output fields (enriched address back to entity fields)
+    → Save and activate
+    Doc basis: B360_October2026_ConfigureDataQuality_en.pdf, p.62 and p.113-116
 
   Name Standardization (separate entitlement required):
     → Properties panel on firstName / lastName fields
     → Data Quality → DaaS → Add DaaS Rule Association
     → Select Name Standardization provider
     Normalizes: ALL CAPS, inverted format (Smith, John → John Smith), punctuation variants
-    Alternative if entitlement missing: Title Case Basic rule (no entitlement)
+    Alternative if entitlement missing: Title Case Basic rule (no entitlement required)
 
-  Email Verification:
-    → Properties panel on email field
-    → Data Quality → DaaS → Add DaaS Rule Association
-    → Select Email Verification provider
+  Email Verification (real-time — requires Email Verification license key):
+    PREREQUISITE: Email and Global Phone Verification license keys in Global Settings.
+    → On entity canvas, select the Electronic Address smart field group
+    → Properties panel → Data Quality → DaaS → Enable DaaS Validation
+    → Set severity and trust downgrade %
+    → Save
+    Doc basis: B360_October2026_ConfigureDataQuality_en.pdf, p.28 and p.66
 
   Phone Verification (real-time only — requires Informatica Global Phone Validation entitlement):
+    PREREQUISITE: Email and Global Phone Verification license keys in Global Settings.
     Phone Number smart field group does NOT support Basic or Advanced rules (doc p.23).
-    Phone validation is DaaS real-time only.
-    If the entitlement is not active, skip the phone rule — there is no Basic fallback.
+    Phone validation is DaaS real-time only — there is no Basic fallback.
 
     → On entity canvas, select the Phone Number smart field group
     → Properties panel → Data Quality → DaaS
     → DaaS Validation is ENABLED BY DEFAULT on Phone Number smart field groups
     → Verify severity matches Sheet 5 — default may be Error; change to Warning if needed
-    → Enter trust downgrade %  (from Sheet 5)
+    → Enter trust downgrade % (from Sheet 5)
     → Save
 
     NOTE: If Phone Number was omitted from the entity canvas during Step 2b, add it now
     (entity has no records yet — safe to add). Click + on canvas → double-click Phone Number.
     DaaS Validation will be enabled by default on the newly added group.
-
-    Doc basis: B360_October2026_ConfigureDataQuality_en.pdf, p.23 and p.28
+    Doc basis: B360_October2026_ConfigureDataQuality_en.pdf, p.23 and p.67-68
 
 KEY CONSTRAINT:
   DQ rules do NOT run retroactively on records already in the org.
