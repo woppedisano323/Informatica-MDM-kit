@@ -2105,12 +2105,14 @@ Screen 2 — Job configuration:
 1. Select Process → MDMSearchIndex
    (if you see MDMSearchAndReportsIndex, select that instead)
 
-2. In the Assets section → click Add Asset
+2. Location: {project folder}  (e.g., Meridian MDM PostMA)
+
+3. In the Assets section → click Add Asset
    → select: {custom entity}
    → click Select
 
-3. Record type: Source
-   (Master records don't exist yet — Source is what import creates)
+   NOTE: MDMSearchIndex does NOT have a Record Type field.
+   Record Type only appears on MDMMatchReindex jobs.
 
 4. → Save → Run
 
@@ -2578,6 +2580,7 @@ Screen 1 — Job header (appears immediately after Create):
 Screen 2 — Job configuration, fill in ALL fields:
   Process:             MDMMatchMerge
   Process Type:        Match and Merge
+  Location:            {project folder}  (e.g., Meridian MDM PostMA)
   Business Entity:     {custom entity}  (e.g., MER_VendorMaster)
   Match Model Name:    {match model name}  (e.g., mer_vendormaster_match)
   Match Model Version: 1  (or current published version — select from list)
