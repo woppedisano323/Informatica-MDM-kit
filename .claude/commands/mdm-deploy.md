@@ -1881,10 +1881,22 @@ PART 2 — Configure Directed AI Match Rules:
     → Match rule cannot be edited after save (irreversible)
     → Delete the rule and recreate it with correct field type
     → After correcting and republishing, existing records need
-      match keys regenerated — run MDMMatchIndex job:
+      match keys regenerated — run MDMMatchReindex job:
       B360 → New → Jobs → Generate Search Indexes or Match Keys
-      → Create → Process: MDMMatchIndex → entity + match model
+      → Create → Process: MDMMatchReindex
+      → Business Entity: {entity}
+      → Record Type: Source  ← CRITICAL: must be Source, not Master
+        Match keys live on source records. Record Type: Master
+        does not regenerate match keys and M&M will find 0 pairs.
+      → Match Model: {match model name}
       → Save and Run → wait Succeeded → then re-run M&M
+
+      Merge threshold default is 90 (Automated Merge). For Organization
+      criterion fuzzy matching on company names with format variations
+      (ALL CAPS, abbreviations, punctuation differences), lower the
+      Automated Merge threshold to 50 so name variants auto-consolidate.
+      Edit the rule → change Automated Merge lower bound to 50 → Save
+      (creates new version) → Publish new version → create new M&M job.
 
   ── REFERENCE: Match Level (Fuzzy only) ────────────────
   Conservative  Stringent — fewest matches, lowest false-positive risk.
