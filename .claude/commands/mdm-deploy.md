@@ -1923,14 +1923,16 @@ PART 2 — Configure Directed AI Match Rules:
     → Delete the rule and recreate it with correct field type
     → After correcting and republishing, existing records need
       match keys regenerated — run MDMMatchReindex job:
-      B360 → New → Jobs → Generate Search Indexes or Match Keys
-      → Create → Process: MDMMatchReindex
-      → Business Entity: {entity}
-      → Record Type: Source  ← CRITICAL: must be Source, not Master
-        Match keys live on source records. Record Type: Master
-        does not regenerate match keys and M&M will find 0 pairs.
-      → Match Model: {match model name}
-      → Save and Run → wait Succeeded → then re-run M&M
+      B360 → New → Jobs → Generate Search Indexes or Match Keys → Create
+      Screen 1: Display Name → {Entity}_MatchReindex_v{N} → OK
+      Screen 2:
+        Process: MDMMatchReindex
+        Business Entity: {entity}
+        Record Type: Source  ← CRITICAL: must be Source, not Master
+          Match keys live on source records. Record Type: Master
+          does not regenerate match keys and M&M will find 0 pairs.
+        Match Model: {match model name}
+      → Save → Run → wait Succeeded → then re-run M&M
 
       Merge threshold default is 90 (Automated Merge). For Organization
       criterion fuzzy matching on company names with format variations
@@ -2091,22 +2093,28 @@ B360 Console → New → Jobs → Generate Search Indexes or Match Keys → Crea
 
 What to do:
 ```
-1. Give the job a name (e.g., {Entity}_MDMSearchIndex)
-   → OK
+Screen 1 — Job header (appears immediately after Create):
+  Index:        auto-generated — leave as-is
+  Display Name: {Entity}_MDMSearchIndex  (e.g., MER_VendorMaster_SearchIndex)
+  Internal ID:  auto-generated from Display Name — leave as-is
+  Description:  (optional — leave blank)
+  Location:     {project folder}  (e.g., Meridian MDM PostMA)
+  → OK
 
-2. Select Process → MDMSearchIndex
+Screen 2 — Job configuration:
+1. Select Process → MDMSearchIndex
    (if you see MDMSearchAndReportsIndex, select that instead)
 
-3. In the Assets section → click Add Asset
+2. In the Assets section → click Add Asset
    → select: {custom entity}
    → click Select
 
-4. Record type: Source
+3. Record type: Source
    (Master records don't exist yet — Source is what import creates)
 
-5. → Save → Run
+4. → Save → Run
 
-6. My Jobs → wait for status: Succeeded
+5. My Jobs → wait for status: Succeeded
 ```
 
 What you will see when done:
@@ -2300,7 +2308,8 @@ Step 2 — Map Fields:
                 MER_AccountMaster_HubSpot
                 MER_AccountMaster_Zendesk
                 MER_VendorMaster_NetSuite
-    Select "Save as a new mapping" → enter name → the mapping is saved for reuse.
+    In the Save Field Mappings section at the bottom of the mapper:
+    → Select "Save as a new mapping" → enter name → the mapping is saved for reuse.
     For subsequent sources on the same entity: apply the saved mapping as a starting
     point (same entity, same root fields — verify it maps cleanly, then save new name).
   Click Next
@@ -2534,9 +2543,11 @@ MERGE THRESHOLD — default Automated Merge lower bound is 90.
 
 RECOVERY SEQUENCE — when M&M finds 0 record pairs or wrong merge results:
   1. Edit match rule (creates new version) → Publish new version
-  2. MDMMatchReindex → Process: MDMMatchReindex → Record Type: Source
+  2. B360 → New → Jobs → Generate Search Indexes or Match Keys → Create
+     Screen 1: Display Name → {Entity}_MatchReindex_v{N} → OK
+     Screen 2: Process: MDMMatchReindex → Record Type: Source → Save → Run
      → wait Succeeded
-  3. Create new M&M job pointing to new version → Run
+  3. Create new M&M job (see Part A below) → Run
   Run steps 1-3 in order every time. Skipping step 2 causes 0 pairs.
 ```
 
@@ -2556,14 +2567,20 @@ What to do:
 ```
 B360 → New → Jobs → Match and Merge → Create
 
-Fill in ALL fields:
+Screen 1 — Job header (appears immediately after Create):
+  Index:        auto-generated — leave as-is
+  Display Name: {Entity}_MatchMerge_v1  (e.g., MER_VendorMaster_MatchMerge_v1)
+  Internal ID:  auto-generated — leave as-is
+  Description:  (optional — leave blank)
+  Location:     {project folder}  (e.g., Meridian MDM PostMA)
+  → OK
 
-  Display Name:        {entity}_MatchMerge  (e.g., CustomerFSI_MatchMerge)
+Screen 2 — Job configuration, fill in ALL fields:
   Process:             MDMMatchMerge
   Process Type:        Match and Merge
-  Business Entity:     {custom entity}  (e.g., Customer FSI)
-  Match Model Name:    {match model name}  (e.g., customer_fsi_match)
-  Match Model Version: 1  (or the only version available — select from list)
+  Business Entity:     {custom entity}  (e.g., MER_VendorMaster)
+  Match Model Name:    {match model name}  (e.g., mer_vendormaster_match)
+  Match Model Version: 1  (or current published version — select from list)
   Skip grouping potential matches: UNCHECKED
     WHY: Unchecked = borderline matches are grouped for steward review.
          Checked  = borderline matches are silently skipped, never reviewed.
